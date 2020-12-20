@@ -1,0 +1,16 @@
+{
+  "name": "tigo",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "BackRunner",
+  "license": "MIT",
+  "scripts": {
+    "start": "cross-env NODE_ENV=prod ./server.js",
+    "dev": "cross-env NODE_ENV=dev ./dev.js"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "koa": "^2.13.0",
+    "log4js": "^6.3.0"
+  }
+}
