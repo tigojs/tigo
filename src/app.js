@@ -6,11 +6,11 @@ class App {
   constructor(config) {
     // init logger
     this.logger = createLogger(config.logger);
+    // init config
+    this.config = config;
     // init koa server
     this.server = new Koa();
     this.initServer();
-    // set config
-    this.config = config;
     // init plugins
     this.plugins = config.plugins;
     this.initPlugins();
@@ -22,7 +22,7 @@ class App {
   }
   initServer() {
     // add things to context
-    app.context.config = {
+    this.server.context.config = {
       server: {
         host: this.config.host,
         port: this.config.port,
