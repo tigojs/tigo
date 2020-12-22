@@ -2,7 +2,7 @@ const log4js = require('log4js');
 const path = require('path');
 const fs = require('fs');
 
-let logPath = path.resolve(__dirname, '/logs');
+let logPath = path.resolve(__dirname, '../../logs');
 
 if (fs.existsSync('/var/logs') && fs.statSync('/var/logs').isDirectory()) {
   const path = '/var/logs/tigo';
@@ -11,13 +11,13 @@ if (fs.existsSync('/var/logs') && fs.statSync('/var/logs').isDirectory()) {
 }
 
 function createLogger(config) {
+  if (!config) {
+    config = {};
+  };
   log4js.configure({
     appenders: {
       stdout: {
         type: 'stdout',
-      },
-      console: {
-        type: 'console',
       },
       all: {
         type: 'dateFile',
@@ -43,7 +43,7 @@ function createLogger(config) {
     },
     categories: {
       default: { appenders: ['all', 'errorOnly'], level: 'info' },
-      dev: { appenders: ['stdout', 'console', 'all', 'errorOnly'], level: 'debug' },
+      dev: { appenders: ['stdout', 'all', 'errorOnly'], level: 'debug' },
     },
     pm2: config.pm2 || false,
   });
@@ -55,4 +55,6 @@ function createLogger(config) {
   return log4js.getLogger();
 }
 
-module.exports = createLogger;
+module.exports = {
+  createLogger,
+};
