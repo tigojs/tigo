@@ -15,7 +15,9 @@ class App {
     this.initPlugins();
   }
   start() {
-    this.server.listen(this.config.port);
+    const { port } = this.config;
+    this.server.listen(port);
+    this.logger.info(`Server is listening on [${port}]...`);
   }
   initServer() {
 
