@@ -21,6 +21,15 @@ class App {
     this.logger.info(`Server is listening on [${port}]...`);
   }
   initServer() {
+    // add things to context
+    app.context.config = {
+      server: {
+        host: this.config.host,
+        port: this.config.port,
+      },
+      plugins: this.config.plugins,
+    };
+    // set middlewares
     const middlewares = collectMiddleware.apply(this);
     middlewares.forEach((middleware) => {
       this.server.use(middleware);
