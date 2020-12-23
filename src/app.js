@@ -1,6 +1,32 @@
 const Koa = require('koa');
 const { createLogger } = require('./utils/logger');
-const { collectMiddleware, collectPages } = require('./utils/collector');
+const {
+  collectMiddleware,
+  collectPages,
+  collectPlugins,
+} = require('./utils/collector');
+
+function initServer(server) {
+  const tigo = {
+    config: Object.freeze({
+      server: {
+        host: this.config.host,
+        port: this.config.port,
+      },
+    }),
+    pages: Object.freeze(collectPages.apply(this)),
+  };
+  // init middlewares
+  const middlewares = collectMiddleware.apply(this);
+  middlewares.forEach((middleware) => {
+    server.use(middleware);
+  });
+  // init plugins
+  const plugins = collectPlugins;
+  // add tigo obj to server
+  server.tigo = tigo;
+  server.context.tigo = tigo;
+}
 
 class App {
   constructor(config) {
@@ -10,40 +36,12 @@ class App {
     this.config = config;
     // init koa server
     this.server = new Koa();
-    this.initServer();
-    // init plugins
-    this.plugins = config.plugins;
-    this.initPlugins();
+    initServer.call(this, server);
   }
   start() {
     const { port } = this.config;
     this.server.listen(port);
     this.logger.info(`Server is listening on [${port}]...`);
-  }
-  initServer() {
-    // collect pages
-    const pages = collectPages.apply(this);
-    // add things to context
-    this.server.tigo = {
-      config: {
-        server: {
-          host: this.config.host,
-          port: this.config.port,
-        },
-        plugins: this.config.plugins,
-      },
-      pages,
-    };
-    // set middlewares
-    const middlewares = collectMiddleware.apply(this);
-    middlewares.forEach((middleware) => {
-      this.server.use(middleware);
-    });
-  }
-  initPlugins() {
-    if (!this.plugins) {
-      this.logger.warn('No plugins were found.');
-    }
   }
 }
 

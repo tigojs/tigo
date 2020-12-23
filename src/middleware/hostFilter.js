@@ -3,7 +3,7 @@ const createError = require("../constrants/error");
 const hostFilter = {
   priority: 100,
   async install(ctx, next) {
-    const { server: serverConfig } = ctx.app.tigo.config;
+    const { server: serverConfig } = ctx.tigo.config;
     const { host: hostname } = serverConfig;
     if (hostname && ctx.hostname !== hostname) {
       ctx.status = 403;
@@ -17,7 +17,7 @@ const hostFilter = {
         return;
       }
       ctx.set('Content-Type', 'text/html');
-      ctx.body = ctx.app.tigo.pages.forbidden;
+      ctx.body = ctx.tigo.pages.forbidden;
       return;
     }
     await next();
