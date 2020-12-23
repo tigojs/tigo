@@ -1,6 +1,6 @@
 const Koa = require('koa');
 const { createLogger } = require('./utils/logger');
-const { collectMiddleware } = require('./utils/collector');
+const { collectMiddleware, collectPages } = require('./utils/collector');
 
 class App {
   constructor(config) {
@@ -21,13 +21,18 @@ class App {
     this.logger.info(`Server is listening on [${port}]...`);
   }
   initServer() {
+    // collect pages
+    const pages = collectPages.apply(this);
     // add things to context
-    this.server.context.config = {
-      server: {
-        host: this.config.host,
-        port: this.config.port,
+    this.server.tigo = {
+      config: {
+        server: {
+          host: this.config.host,
+          port: this.config.port,
+        },
+        plugins: this.config.plugins,
       },
-      plugins: this.config.plugins,
+      pages,
     };
     // set middlewares
     const middlewares = collectMiddleware.apply(this);
