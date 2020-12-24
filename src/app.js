@@ -1,4 +1,5 @@
 const Koa = require('koa');
+const bodyParser = require('koa-bodyparser');
 const { createLogger } = require('./utils/logger');
 const {
   collectMiddleware,
@@ -16,6 +17,8 @@ function initServer(server) {
     }),
     pages: Object.freeze(collectPages.apply(this)),
   };
+  // init koa plugins
+  this.server.use(bodyParser);
   // init middlewares
   const middlewares = collectMiddleware.apply(this);
   middlewares.forEach((middleware) => {

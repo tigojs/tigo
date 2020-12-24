@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "koa": "^2.13.0",
+    "koa-bodyparser": "^4.3.0",
+    "koa-rapid-router": "^1.0.9",
     "log4js": "^6.3.0"
   },
   "devDependencies": {
