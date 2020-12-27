@@ -2,7 +2,7 @@ const processError = {
   middlewareCollectError: 100,
   pluginCollectError: 101,
   singlePageCollectError: 102,
-  pluginInstallError: 103,
+  pluginMountError: 103,
 };
 
 function killProcess(arg) {
@@ -12,7 +12,7 @@ function killProcess(arg) {
   }
   // kill process
   if (typeof arg === 'string') {
-    process.exit(processError[arg]);
+    process.exit(processError[arg] || -1);
   } else if (typeof arg === 'number') {
     process.exit(arg);
   } else {
