@@ -78,7 +78,7 @@ function collectPlugins() {
       plugins[pluginName].dependencies,
     );
   });
-  return Object.freeze(plugins);
+  return plugins;
 }
 
 function collectPluginDependencies(
@@ -144,7 +144,7 @@ function collectPages() {
       killProcess.call(this, 'singlePageCollectError');
     }
   });
-  return Object.freeze(pages);
+  return pages;
 }
 
 module.exports = {

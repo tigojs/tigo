@@ -11,12 +11,12 @@ const { killProcess } = require('./utils/process');
 
 function initServer(server) {
   const tigo = {
-    config: Object.freeze({
+    config: {
       server: {
         host: this.config.host,
         port: this.config.port,
       },
-    }),
+    },
     pages: collectPages.apply(this),
   };
   // init koa plugins
@@ -37,8 +37,8 @@ function initServer(server) {
     plugins[name].mount.call(this, this.config.plugin[name]);
   });
   // add tigo obj to server
-  server.tigo = Object.freeze(tigo);
-  server.context.tigo = Object.freeze(tigo);
+  server.tigo = tigo;
+  server.context.tigo = tigo;
 }
 
 class App {
