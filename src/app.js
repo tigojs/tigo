@@ -34,11 +34,11 @@ function initServer(server) {
       this.logger.error(`Plugin [${name}] doesn't have mount function.`);
       return killProcess.call(this, 'pluginInstallError');
     }
-    plugins[name].mount.call(this);
+    plugins[name].mount.call(this, this.config.plugin[name]);
   });
   // add tigo obj to server
-  server.tigo = tigo;
-  server.context.tigo = tigo;
+  server.tigo = Object.freeze(tigo);
+  server.context.tigo = Object.freeze(tigo);
 }
 
 class App {
