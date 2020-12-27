@@ -93,7 +93,7 @@ function collectPluginDependencies(
   // require existed
   dependencies.forEach((package, index) => {
     const priority = plugin.priority - dependencies.length + index;
-    const dependencyName = getPluginNameByPackage.call(pluginsConfig, package) || package;
+    const dependencyName = getPluginNameByPackage.call(pluginsConfig, package) || package.replace('@tigo/', '');
     // check if imported
     if (pluginPackageExisted.apply(plugins)) {
       plugins[dependencyName].priority = priority;
