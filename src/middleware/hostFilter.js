@@ -1,4 +1,4 @@
-const createHttpError = require("../constants/error");
+const { createHttpError } = require("../utils/error");
 
 const hostFilter = {
   priority: 100,

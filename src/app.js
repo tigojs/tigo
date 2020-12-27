@@ -8,8 +8,15 @@ const {
   collectPlugins,
 } = require('./utils/collector');
 const { killProcess } = require('./utils/process');
+const openDatabase = require('./db/level');
 
-function initServer(server) {
+function initDb() {
+  const db = openDatabase.call(this);
+  this.server.db = db;
+  this.server.context.db = db;
+}
+
+function initServer() {
   const tigo = {
     config: {
       server: {
@@ -43,8 +50,8 @@ function initServer(server) {
     }
   });
   // add tigo obj to server
-  server.tigo = tigo;
-  server.context.tigo = tigo;
+  this.server.tigo = tigo;
+  this.server.context.tigo = tigo;
 }
 
 class App {
@@ -56,7 +63,10 @@ class App {
     // init koa server
     this.server = new Koa();
     this.router = new Router();
-    initServer.call(this, this.server);
+    // init db
+    initDb.call(this);
+    // init server
+    initServer.call(this);
   }
   start() {
     const { port } = this.config;

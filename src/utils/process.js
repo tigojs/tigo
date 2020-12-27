@@ -1,9 +1,4 @@
-const processError = {
-  middlewareCollectError: 100,
-  pluginCollectError: 101,
-  singlePageCollectError: 102,
-  pluginMountError: 103,
-};
+const processError = require('../constants/httpError');
 
 function killProcess(arg) {
   // shutdown logger
