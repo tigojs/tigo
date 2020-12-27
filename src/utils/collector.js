@@ -62,7 +62,7 @@ function collectPlugins() {
     } catch (err) {
       this.logger.error(`Import plugin [${pluginName}] failed.`);
       this.logger.error(err);
-      killProcess('pluginCollectError');
+      killProcess.call(this, 'pluginCollectError');
     }
     // plugins priority: lower first
     plugins[pluginName].priority = (index + 1) * 100;
@@ -78,7 +78,7 @@ function collectPlugins() {
       plugins[pluginName].dependencies,
     );
   });
-  return plugins;
+  return Object.freeze(plugins);
 }
 
 function collectPluginDependencies(
@@ -141,10 +141,10 @@ function collectPages() {
     } catch (err) {
       this.logger.error(`Something was wrong when collecting page [${filename}]`);
       this.logger.error(err);
-      killProcess('singlePageCollectError');
+      killProcess.call(this, 'singlePageCollectError');
     }
   });
-  return pages;
+  return Object.freeze(pages);
 }
 
 module.exports = {

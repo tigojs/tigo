@@ -17,7 +17,7 @@ function initServer(server) {
         port: this.config.port,
       },
     }),
-    pages: Object.freeze(collectPages.apply(this)),
+    pages: collectPages.apply(this),
   };
   // init koa plugins
   this.server.use(bodyParser);
@@ -32,7 +32,7 @@ function initServer(server) {
   Object.keys(plugins).forEach((name) => {
     if (typeof plugins[name].mount !== 'function') {
       this.logger.error(`Plugin [${name}] doesn't have mount function.`);
-      return killProcess('pluginInstallError');
+      return killProcess.call(this, 'pluginInstallError');
     }
     plugins[name].mount.call(this);
   });

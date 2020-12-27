@@ -6,6 +6,11 @@ const processError = {
 };
 
 function killProcess(arg) {
+  // shutdown logger
+  if (this && this.logger) {
+    this.logger.shutdown();
+  }
+  // kill process
   if (typeof arg === 'string') {
     process.exit(processError[arg]);
   } else if (typeof arg === 'number') {
