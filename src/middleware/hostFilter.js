@@ -1,4 +1,4 @@
-const createError = require("../constants/error");
+const createHttpError = require("../constants/error");
 
 const hostFilter = {
   priority: 100,
@@ -12,7 +12,7 @@ const hostFilter = {
         ctx.set('Content-Type', 'application/json');
         ctx.body ={
           success: false,
-          ...createError('forbiddenAccess'),
+          ...createHttpError('forbiddenAccess'),
         };
         return;
       }

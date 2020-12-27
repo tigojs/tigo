@@ -6,7 +6,7 @@ const errorMessage = {
   400000: '禁止访问',
 };
 
-function createError(arg) {
+function createHttpError(arg) {
   if (typeof arg === 'number') {
     return {
       code: arg,
@@ -20,4 +20,4 @@ function createError(arg) {
   };
 }
 
-module.exports = createError;
+module.exports = createHttpError;
