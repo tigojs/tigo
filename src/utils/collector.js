@@ -134,7 +134,7 @@ function collectPages() {
     try {
       const page = fs.readFileSync(filePath, { encoding: 'utf-8' });
       if (!page) {
-        this.logger.warn(`Reading page file [${filename}] error, object is empty.`);
+        this.logger.warn(`Reading page file [${filename}] error, page file is empty.`);
         return;
       }
       pages[path.basename(filePath, path.extname(filePath))];
