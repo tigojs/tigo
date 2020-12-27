@@ -62,7 +62,7 @@ function collectPlugins() {
     } catch (err) {
       this.logger.error(`Import plugin [${pluginName}] failed.`);
       this.logger.error(err);
-      return;
+      killProcess('pluginCollectError');
     }
     // plugins priority: lower first
     plugins[pluginName].priority = (index + 1) * 100;

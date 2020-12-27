@@ -2,6 +2,7 @@ const processError = {
   middlewareCollectError: 100,
   pluginCollectError: 101,
   singlePageCollectError: 102,
+  pluginInstallError: 103,
 };
 
 function killProcess(arg) {

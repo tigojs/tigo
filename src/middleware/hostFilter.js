@@ -1,4 +1,4 @@
-const createError = require("../constrants/error");
+const createError = require("../constants/error");
 
 const hostFilter = {
   priority: 100,

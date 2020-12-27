@@ -1,4 +1,5 @@
 const Koa = require('koa');
+const Router = require('koa-rapid-router');
 const bodyParser = require('koa-bodyparser');
 const { createLogger } = require('./utils/logger');
 const {
@@ -6,6 +7,7 @@ const {
   collectPages,
   collectPlugins,
 } = require('./utils/collector');
+const { killProcess } = require('./utils/process');
 
 function initServer(server) {
   const tigo = {
@@ -19,13 +21,21 @@ function initServer(server) {
   };
   // init koa plugins
   this.server.use(bodyParser);
+  this.server.use(this.router.Koa());
   // init middlewares
   const middlewares = collectMiddleware.apply(this);
   middlewares.forEach((middleware) => {
     server.use(middleware);
   });
   // init plugins
-  const plugins = collectPlugins;
+  const plugins = collectPlugins.call(this);
+  Object.keys(plugins).forEach((name) => {
+    if (typeof plugins[name].mount !== 'function') {
+      this.logger.error(`Plugin [${name}] doesn't have mount function.`);
+      return killProcess('pluginInstallError');
+    }
+    plugins[name].mount.call(this);
+  });
   // add tigo obj to server
   server.tigo = tigo;
   server.context.tigo = tigo;
@@ -39,7 +49,8 @@ class App {
     this.config = config;
     // init koa server
     this.server = new Koa();
-    initServer.call(this, server);
+    this.router = new Router();
+    initServer.call(this, this.server);
   }
   start() {
     const { port } = this.config;
