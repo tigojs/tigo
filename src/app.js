@@ -32,9 +32,15 @@ function initServer(server) {
   Object.keys(plugins).forEach((name) => {
     if (typeof plugins[name].mount !== 'function') {
       this.logger.error(`Plugin [${name}] doesn't have mount function.`);
-      return killProcess.call(this, 'pluginInstallError');
+      return killProcess.call(this, 'pluginMountError');
     }
-    plugins[name].mount.call(this, this.config.plugin[name]);
+    try {
+      plugins[name].mount.call(this, this.config.plugin[name]);
+    } catch (err) {
+      this.logger.error(`Mount plugin [${name}] failed.`);
+      this.logger.error(err);
+      killProcess.call(this, pluginMountError);
+    }
   });
   // add tigo obj to server
   server.tigo = tigo;

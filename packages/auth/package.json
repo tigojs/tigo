@@ -4,5 +4,8 @@
   "description": "Authentication plugin for tigo",
   "main": "main.js",
   "author": "BackRunner",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "koa-jwt": "^4.0.0"
+  }
 }
