@@ -46,7 +46,7 @@ function initServer() {
       return killProcess.call(this, 'pluginMountError');
     }
     try {
-      plugins[name].mount.call(this, this.config.plugin[name]);
+      plugins[name].mount.call(this, this, this.config.plugin[name]);
     } catch (err) {
       this.logger.error(`Mount plugin [${name}] failed.`);
       this.logger.error(err);
