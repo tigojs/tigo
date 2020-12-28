@@ -34,6 +34,10 @@ function initServer() {
   middlewares.forEach((middleware) => {
     server.use(middleware);
   });
+  // add tigo obj to app, server and context
+  this.tigo = tigo;
+  this.server.tigo = tigo;
+  this.server.context.tigo = tigo;
   // init plugins
   const plugins = collectPlugins.call(this);
   Object.keys(plugins).forEach((name) => {
@@ -49,9 +53,6 @@ function initServer() {
       killProcess.call(this, pluginMountError);
     }
   });
-  // add tigo obj to server
-  this.server.tigo = tigo;
-  this.server.context.tigo = tigo;
 }
 
 class App {
