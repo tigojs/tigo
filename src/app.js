@@ -6,6 +6,7 @@ const {
   collectMiddleware,
   collectPages,
   collectPlugins,
+  collectController,
 } = require('./utils/collector');
 const { killProcess } = require('./utils/process');
 const openDatabase = require('./db/level');
@@ -34,11 +35,17 @@ function initServer() {
   middlewares.forEach((middleware) => {
     server.use(middleware);
   });
+  // init controller
+  const controller = collectController.call(this);
+  this.controller = controller;
   // add tigo obj to app, server and context
   this.tigo = tigo;
   this.server.tigo = tigo;
   this.server.context.tigo = tigo;
   this.server.context.logger = this.logger;
+  // bind controller and service object to koa
+  this.server.controller = this.controller;
+  this.server.context.controller = this.controller;
   // init plugins
   const plugins = collectPlugins.call(this);
   Object.keys(plugins).forEach((name) => {
