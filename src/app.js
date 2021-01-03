@@ -38,6 +38,7 @@ function initServer() {
   this.tigo = tigo;
   this.server.tigo = tigo;
   this.server.context.tigo = tigo;
+  this.server.context.logger = this.logger;
   // init plugins
   const plugins = collectPlugins.call(this);
   Object.keys(plugins).forEach((name) => {
