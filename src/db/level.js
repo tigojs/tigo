@@ -36,7 +36,7 @@ function openDatabase() {
       createAt: moment().valueOf(),
     });
   }
-  db.getExpires = (key) => {
+  db.getExpires = async (key) => {
     if (!key) {
       this.logger.warn('Key must be a string, can\'t get data by a empty key.');
       return null;
@@ -47,6 +47,7 @@ function openDatabase() {
     }
     const { value, createAt, expires } = stored;
     if (createAt + expires < moment().valueOf()) {
+      await db.del(key);
       return null;
     }
     return value;
