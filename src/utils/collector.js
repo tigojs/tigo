@@ -10,8 +10,12 @@ const pageDir = path.resolve(__dirname, '../pages');
 
 function collectController(dirPath) {
   const actualDirPath = dirPath || controllerDir;
-  const files = fs.readdirSync(actualDirPath);
   const controller = {};
+  if (!fs.existsSync(actualDirPath)) {
+    this.logger.warn(`Controller directory ${actualDirPath} does not exist.`);
+    return controller;
+  }
+  const files = fs.readdirSync(actualDirPath);
   files.forEach((filename) => {
     const filePath = path.resolve(actualDirPath, filename);
     try {
@@ -34,8 +38,12 @@ function collectController(dirPath) {
 
 function collectMiddleware(dirPath) {
   const actualDirPath = dirPath || middlewareDir;
-  const files = fs.readdirSync(actualDirPath);
   const middlewares = [];
+  if (!fs.existsSync(actualDirPath)) {
+    this.logger.warn(`Middleware directory ${actualDirPath} does not exist.`);
+    return middlewares;
+  }
+  const files = fs.readdirSync(actualDirPath);
   files.forEach((filename) => {
     const filePath = path.resolve(actualDirPath, filename);
     try {
@@ -67,8 +75,12 @@ function collectMiddleware(dirPath) {
 
 function collectPages(dirPath) {
   const actualDirPath = dirPath || pageDir;
-  const files = fs.readdirSync(actualDirPath);
   const pages = {};
+  if (!fs.existsSync(actualDirPath)) {
+    this.logger.warn(`Pages directory ${actualDirPath} does not exist.`);
+    return pages;
+  }
+  const files = fs.readdirSync(actualDirPath);
   files.forEach((filename) => {
     const filePath = path.resolve(actualDirPath, filename);
     try {
