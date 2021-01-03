@@ -32,7 +32,7 @@ const plugin = {
     app.server.use(koaJwt({
       secret,
     }).unless({
-      path: app.tigo.ignorePath,
+      path: app.tigo.auth.ignorePath,
     }));
   },
 };
