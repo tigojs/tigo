@@ -1,6 +1,6 @@
-const BaseController = require('../base/baseController');
+const { successResponse } = require('../utils/response');
 
-class PingController extends BaseController {
+class PingController {
   getRoutes() {
     return {
       '/common/ping': {
@@ -10,7 +10,7 @@ class PingController extends BaseController {
     };
   }
   async ping(ctx) {
-    ctx.body = this.successResponse();
+    ctx.body = successResponse();
   }
 }
 
