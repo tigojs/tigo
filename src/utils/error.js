@@ -16,6 +16,10 @@ function createHttpError(arg) {
 
 function registerErrorHandler(app) {
   app.context.onerror = function (err) {
+    // don't do anything if no error.
+    if (err === null) {
+      return;
+    }
     const ctx = this;
     ctx.status = 500;
     if (ctx.headers['origin'] || ctx.headers['x-requested-with']) {
