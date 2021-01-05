@@ -4,11 +4,16 @@ const moment = require('moment');
 const path = require('path');
 const fs = require('fs');
 
-const DEFAULT_PATH = path.resolve(__dirname, '../database/leveldb');
+const DEFAULT_PATH = path.resolve(__dirname, '../../database/leveldb');
 
 function openDatabase() {
   const { db: dbConfig } = this.config;
-  const dbPath = dbConfig.path || DEFAULT_PATH;
+  if (!dbConfig) {
+    this.logger.warn('Database config was not found, use default db path.');
+  }
+
+  const configDbPath = dbConfig ? dbConfig.path : null;
+  const dbPath =  configDbPath || DEFAULT_PATH;
   const dbDir = path.dirname(dbPath);
 
   // check directory

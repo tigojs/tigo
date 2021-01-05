@@ -101,11 +101,13 @@ function collectPages(dirPath) {
 
 function collectPlugins() {
   const { plugins: pluginsConfig } = this.config;
+  const plugins = {};
+
   if (!pluginsConfig) {
     this.logger.warn('Plugins config was not found.');
-    return;
+    return plugins;
   }
-  const plugins = {};
+
   Object.keys(pluginsConfig).forEach((pluginName, index) => {
     const { package } = pluginsConfig[pluginName];
     if (!package) {

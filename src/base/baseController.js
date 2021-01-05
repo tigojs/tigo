@@ -2,7 +2,7 @@ const path = require('path');
 
 class BaseController {
   constructor() {
-    this.name = path.basename(__filename, path.extname(__filename));
+    this.name = path.basename(module.filename, path.extname(__filename));
   }
   successResponse(data, message = 'success', code = 0) {
     return {

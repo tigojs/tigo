@@ -2,6 +2,7 @@ const Koa = require('koa');
 const Router = require('koa-rapid-router');
 const bodyParser = require('koa-bodyparser');
 const { createLogger } = require('./utils/logger');
+const { registerErrorHandler } = require('./utils/error');
 const {
   collectMiddleware,
   collectPages,
@@ -28,12 +29,18 @@ function initServer() {
     pages: collectPages.apply(this),
   };
   // init koa plugins
-  this.server.use(bodyParser);
-  this.server.use(this.router.Koa());
+  this.server.use(bodyParser());
+  this.server.use(this.routerContainer.Koa());
+  // register error handler
+  registerErrorHandler(this.server);
   // init middlewares
   const middlewares = collectMiddleware.apply(this);
   middlewares.forEach((middleware) => {
-    server.use(middleware);
+    if (!middleware) {
+      this.logger.error(`Cannot accept a empty middleware.`);
+      killProcess.call(this, 'middlewareCollectError');
+    }
+    this.server.use(middleware);
   });
   // init controller
   const controller = collectController.call(this);
@@ -42,6 +49,7 @@ function initServer() {
   this.tigo = tigo;
   this.server.tigo = tigo;
   this.server.context.tigo = tigo;
+  this.server.logger = this.logger;
   this.server.context.logger = this.logger;
   // bind controller and service object to koa
   this.server.controller = this.controller;
@@ -71,7 +79,10 @@ class App {
     this.config = config;
     // init koa server
     this.server = new Koa();
-    this.router = new Router();
+    this.routerContainer = new Router();
+    const basePath = this.config.routeBase || '';
+    this.router = this.routerContainer.create(basePath);
+    this.logger.debug(`Using route base path: [${basePath}]`);
     // init db
     initDb.call(this);
     // init server
@@ -80,7 +91,7 @@ class App {
   start() {
     const { port } = this.config;
     this.server.listen(port);
-    this.logger.info(`Server is listening on [${port}]...`);
+    this.logger.info(`Server is listening on port [${port}]...`);
   }
 }
 

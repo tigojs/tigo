@@ -10,7 +10,9 @@ function registerController(instance) {
   const routes = instance.getRoutes();
   Object.keys(routes).forEach((path) => {
     const info = routes[path];
-    this.router[info.type.toLowerCase()](path, info.target);
+    const type = info.type.toLowerCase();
+    this.router[type](path, info.target);
+    this.logger.debug(`Registered route [${type.toUpperCase()}: ${path}] of [${instance.name}] controller.`);
   });
 }
 
