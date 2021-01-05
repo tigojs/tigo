@@ -25,8 +25,9 @@ function collectController(dirPath) {
         return;
       }
       const instance = new Controller();
+      instance._tigoName = path.basename(filePath, path.extname(filePath));
       registerController.call(this, instance);
-      controller[instance.name] = instance;
+      controller[instance._tigoName] = instance;
     } catch (err) {
       this.logger.error(`Reading controller script [${filename}] error.`);
       this.logger.error(err);

@@ -1,9 +1,4 @@
-const path = require('path');
-
 class BaseController {
-  constructor() {
-    this.name = path.basename(module.filename, path.extname(__filename));
-  }
   successResponse(data, message = 'success', code = 0) {
     return {
       code,
