@@ -31,7 +31,6 @@ function initServer() {
   };
   // init koa plugins
   this.server.use(bodyParser());
-  this.server.use(this.routerContainer.Koa());
   // dev koa plugins
   if (process.env.NODE_ENV === 'dev') {
     const accessLogEnabled = this.config.dev && this.config.dev.accessLog;
@@ -41,6 +40,8 @@ function initServer() {
       }));
     }
   }
+  // use router
+  this.server.use(this.routerContainer.Koa());
   // register error handler
   registerErrorHandler(this.server);
   // init middlewares
