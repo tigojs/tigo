@@ -10,7 +10,9 @@ class PingController {
     };
   }
   async ping(ctx) {
-    ctx.body = successResponse();
+    ctx.body = successResponse({
+      auth: !!ctx.app.tigo.auth,
+    });
   }
 }
 

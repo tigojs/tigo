@@ -53,9 +53,6 @@ function initServer() {
     }
     this.server.use(middleware);
   });
-  // init controller
-  const controller = collectController.call(this);
-  this.controller = controller;
   // add tigo obj to app, server and context
   this.tigo = tigo;
   this.server.tigo = tigo;
@@ -65,6 +62,9 @@ function initServer() {
   // bind controller and service object to koa
   this.server.controller = this.controller;
   this.server.context.controller = this.controller;
+  // init controller
+  const controller = collectController.call(this);
+  this.controller = controller;
   // init plugins
   const plugins = collectPlugins.call(this);
   Object.keys(plugins).forEach((name) => {
@@ -73,11 +73,12 @@ function initServer() {
       return killProcess.call(this, 'pluginMountError');
     }
     try {
-      plugins[name].mount.call(this, this, this.config.plugin[name]);
+      plugins[name].mount.call(this, this, this.config.plugins[name].config);
+      this.logger.debug(`Plugin [${name}] mounted.`);
     } catch (err) {
       this.logger.error(`Mount plugin [${name}] failed.`);
       this.logger.error(err);
-      killProcess.call(this, pluginMountError);
+      killProcess.call(this, 'pluginMountError');
     }
   });
 }

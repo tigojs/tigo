@@ -121,7 +121,7 @@ function collectPlugins() {
     }
     // if not existed, import
     try {
-      plugins[pluginName] = require(pluginName);
+      plugins[pluginName] = require(package);
     } catch (err) {
       this.logger.error(`Import plugin [${pluginName}] failed.`);
       this.logger.error(err);

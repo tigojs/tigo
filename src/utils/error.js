@@ -21,7 +21,7 @@ function registerErrorHandler(app) {
       return;
     }
     const ctx = this;
-    ctx.status = 500;
+    ctx.status = err.status || 500;
     if (ctx.headers['origin'] || ctx.headers['x-requested-with']) {
       ctx.set('Content-Type', 'application/json');
       ctx.body = {
