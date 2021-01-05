@@ -1,5 +1,5 @@
 const Koa = require('koa');
-const Router = require('koa-rapid-router');
+const Router = require('@pwp-app/koa-rapid-router');
 const bodyParser = require('koa-bodyparser');
 const koaLogger = require('koa-logger');
 const { createLogger } = require('./utils/logger');
