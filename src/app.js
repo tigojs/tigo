@@ -1,6 +1,7 @@
 const Koa = require('koa');
 const Router = require('koa-rapid-router');
 const bodyParser = require('koa-bodyparser');
+const koaLogger = require('koa-logger');
 const { createLogger } = require('./utils/logger');
 const { registerErrorHandler } = require('./utils/error');
 const {
@@ -31,6 +32,15 @@ function initServer() {
   // init koa plugins
   this.server.use(bodyParser());
   this.server.use(this.routerContainer.Koa());
+  // dev koa plugins
+  if (process.env.NODE_ENV === 'dev') {
+    const accessLogEnabled = this.config.dev && this.config.dev.accessLog;
+    if (accessLogEnabled) {
+      this.server.use(koaLogger((str, args) => {
+        this.logger.debug(str);
+      }));
+    }
+  }
   // register error handler
   registerErrorHandler(this.server);
   // init middlewares
