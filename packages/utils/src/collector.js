@@ -1,23 +1,22 @@
 const path = require('path');
 const fs = require('fs');
-const { killProcess } = require('../utils/process');
+const { killProcess } = require('./process');
 const { pluginPackageExisted } = require('./plugins');
 const { registerController } = require('./controller');
 
-const controllerDir = path.resolve(__dirname, '../controller');
-const middlewareDir = path.resolve(__dirname, '../middleware');
-const pageDir = path.resolve(__dirname, '../pages');
-
 function collectController(dirPath) {
-  const actualDirPath = dirPath || controllerDir;
   const controller = {};
-  if (!fs.existsSync(actualDirPath)) {
-    this.logger.warn(`Controller directory ${actualDirPath} does not exist.`);
+  if (!dirPath) {
+    this.logger.error('Cannot find controller dir path.');
     return controller;
   }
-  const files = fs.readdirSync(actualDirPath);
+  if (!fs.existsSync(dirPath)) {
+    this.logger.error(`Controller directory ${dirPath} does not exist.`);
+    return controller;
+  }
+  const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
-    const filePath = path.resolve(actualDirPath, filename);
+    const filePath = path.resolve(dirPath, filename);
     try {
       const Controller = require(filePath);
       if (!Controller) {
@@ -41,7 +40,7 @@ function collectController(dirPath) {
 }
 
 function collectMiddleware(dirPath) {
-  const actualDirPath = dirPath || middlewareDir;
+  const actualDirPath = dirPath;
   const middlewares = [];
   if (!fs.existsSync(actualDirPath)) {
     this.logger.warn(`Middleware directory ${actualDirPath} does not exist.`);
@@ -78,7 +77,7 @@ function collectMiddleware(dirPath) {
 
 
 function collectPages(dirPath) {
-  const actualDirPath = dirPath || pageDir;
+  const actualDirPath = dirPath;
   const pages = {};
   if (!fs.existsSync(actualDirPath)) {
     this.logger.warn(`Pages directory ${actualDirPath} does not exist.`);

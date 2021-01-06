@@ -4,19 +4,23 @@ const Koa = require('koa');
 const Router = require('@pwp-app/koa-rapid-router');
 const bodyParser = require('koa-bodyparser');
 const koaLogger = require('koa-logger');
-const { createLogger } = require('./utils/logger');
-const { registerErrorHandler } = require('./utils/error');
 const {
+  createLogger,
+  registerErrorHandler,
+  killProcess,
   collectMiddleware,
   collectPages,
   collectPlugins,
   collectController,
-} = require('./utils/collector');
-const { killProcess } = require('./utils/process');
+} = require('@tigo/utils');
 const openDatabase = require('./db/level');
 
+const CONTROLLER_DIR = path.resolve(__dirname, './controller');
+const MIDDLWARE_DIR = path.resolve(__dirname, './middleware');
+const PAGES_DIR = path.resolve(__dirname, './pages');
+
 function checkDirectory() {
-  const runDirPath = path.resolve(__dirname, './run');
+  const runDirPath = path.resolve(__dirname, '../run');
   if (!fs.existsSync(runDirPath)) {
     fs.mkdirSync(runDirPath);
   }
@@ -37,13 +41,10 @@ function initServer() {
       },
       plugins: this.config.plugins,
     },
-    pages: collectPages.apply(this),
+    pages: collectPages.call(this, PAGES_DIR),
   };
   // init koa plugins
   this.server.use(bodyParser());
-  this.server.use(async (ctx) => {
-    ctx.body = ctx.request.body;
-  });
   // dev koa plugins
   if (process.env.NODE_ENV === 'dev') {
     const accessLogEnabled = this.config.dev && this.config.dev.accessLog;
@@ -58,7 +59,7 @@ function initServer() {
   // register error handler
   registerErrorHandler(this.server);
   // init middlewares
-  const middlewares = collectMiddleware.apply(this);
+  const middlewares = collectMiddleware.call(this, MIDDLWARE_DIR);
   middlewares.forEach((middleware) => {
     if (!middleware) {
       this.logger.error(`Cannot accept a empty middleware.`);
@@ -92,7 +93,7 @@ function initServer() {
     }
   });
   // init controller
-  const controllers = collectController.call(this);
+  const controllers = collectController.call(this, CONTROLLER_DIR);
   this.controller = controllers;
 }
 
@@ -100,10 +101,16 @@ class App {
   constructor(config) {
     // file system related check
     checkDirectory();
-    // init logger
-    this.logger = createLogger(config.logger);
     // init config
     this.config = config;
+    // init logger
+    if (!this.config.logger) {
+      this.config.logger = {};
+    }
+    if (!this.config.logger.path) {
+      this.config.logger.path = path.resolve(__dirname, '../run/logs');
+    }
+    this.logger = createLogger(this.config.logger);
     // init koa server
     this.server = new Koa();
     this.routerContainer = new Router();

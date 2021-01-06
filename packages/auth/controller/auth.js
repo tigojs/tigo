@@ -1,5 +1,5 @@
-const { getPluginConfig } = require("tigo/utils/plugins");
-const BaseController = require('tigo/base/controller');
+const { getPluginConfig } = require("@tigo/utils");
+const { BaseController } = require('@tigo/core');
 
 class AuthController extends BaseController {
   getRoutes() {
@@ -12,7 +12,7 @@ class AuthController extends BaseController {
       '/auth/register': {
         type: 'post',
         target: this.handleRegister,
-        cond: () => { return !!auth; },
+        cond: () => !!auth.allowRegister,
       },
       '/auth/refresh': {
         type: 'get',
@@ -23,8 +23,11 @@ class AuthController extends BaseController {
   handleLogin() {
 
   }
-  handleRegister() {
-
+  handleRegister(ctx) {
+    const { username, password, confirmPassword } = ctx.body;
+    if (password !== confirmPassword) {
+      ctx.throw(400, '两次输入的密码不一致');
+    }
   }
   handleRefresh() {
 

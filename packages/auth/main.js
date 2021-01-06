@@ -2,7 +2,7 @@ const path = require('path');
 const compose = require('koa-compose');
 const authErrorHandler = require('./middleware/authErrorHandler');
 const tokenVerifier = require('./middleware/tokenVerifier');
-const { collectController } = require('tigo/utils/collector');
+const { collectController } = require('@tigo/utils');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './controller');
 

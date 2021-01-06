@@ -1,4 +1,6 @@
-class SecurePingController {
+const { BaseController } = require('@tigo/core');
+
+class SecurePingController extends BaseController {
   getRoutes() {
     return {
       '/common/securePing': {

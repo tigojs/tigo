@@ -1,15 +1,9 @@
 const { errorMessage, errorCode } = require('../constants/httpError');
 
 function createHttpError(arg) {
-  if (typeof arg === 'number') {
-    return {
-      code: arg,
-      message: errorMessage[arg],
-    };
-  }
-  const code = errorCode[arg];
   return {
-    code,
+    success: false,
+    code: typeof arg === 'number' ? arg : errorCode[arg],
     message: errorMessage[code],
   };
 }
@@ -24,10 +18,7 @@ function registerErrorHandler(app) {
     ctx.status = err.status || 500;
     if (ctx.headers['origin'] || ctx.headers['x-requested-with']) {
       ctx.set('Content-Type', 'application/json');
-      ctx.body = {
-        success: false,
-        ...createHttpError('unknownError'),
-      };
+      ctx.body = createHttpError('unknownError');
     } else {
       ctx.set('Content-Type', 'text/html');
       ctx.body = ctx.tigo.pages.unknownError;

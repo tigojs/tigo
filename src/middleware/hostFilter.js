@@ -1,4 +1,4 @@
-const { createHttpError } = require("../utils/error");
+const { createHttpError } = require('@tigo/utils');
 
 const hostFilter = {
   priority: 100,
@@ -10,10 +10,7 @@ const hostFilter = {
       if (ctx.headers['origin'] || ctx.headers['x-requested-with']) {
         // xhr
         ctx.set('Content-Type', 'application/json');
-        ctx.body ={
-          success: false,
-          ...createHttpError('forbiddenAccess'),
-        };
+        ctx.body = createHttpError('forbiddenAccess');
         return;
       }
       ctx.set('Content-Type', 'text/html');

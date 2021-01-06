@@ -4,7 +4,7 @@ const moment = require('moment');
 const path = require('path');
 const fs = require('fs');
 
-const DEFAULT_PATH = path.resolve(__dirname, '../run/database');
+const DEFAULT_PATH = path.resolve(__dirname, '../../run/database');
 
 function openDatabase() {
   const { db: dbConfig } = this.config;

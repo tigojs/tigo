@@ -1,5 +1,5 @@
-const BaseController = require('../base/controller');
-const { successResponse } = require('../utils/response');
+const { BaseController } = require('@tigo/core');
+const { successResponse } = require('@tigo/utils');
 
 class PingController extends BaseController {
   getRoutes() {

@@ -1,7 +1,7 @@
-const processError = require('../constants/httpError');
+const processError = require('../constants/processError');
 const { shutdownLogger } = require('./logger');
 
-function exit() {
+function exit(arg) {
   // kill process
   if (typeof arg === 'string') {
     process.exit(processError[arg] || -1);
@@ -17,7 +17,7 @@ function killProcess(arg) {
   if (this && this.logger) {
     shutdownLogger(exit);
   } else {
-    exit();
+    exit(arg);
   }
 }
 

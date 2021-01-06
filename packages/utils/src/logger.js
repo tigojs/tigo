@@ -1,20 +1,13 @@
 const log4js = require('log4js');
 const path = require('path');
-const fs = require('fs');
-const { resolve } = require('path');
-
-let logPath = path.resolve(__dirname, '../run/logs');
-
-if (fs.existsSync('/var/logs') && fs.statSync('/var/logs').isDirectory()) {
-  const path = '/var/logs/tigo';
-  fs.mkdirSync(path);
-  logPath = path;
-}
 
 function createLogger(config) {
   if (!config) {
     config = {};
   };
+
+  const { path: logPath } = config;
+
   log4js.configure({
     appenders: {
       stdout: {

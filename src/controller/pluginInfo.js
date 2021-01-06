@@ -1,6 +1,9 @@
-const BaseController = require('../base/controller');
-const { successResponse } = require('../utils/response');
-const { getPluginList, getPluginConfig } = require('../utils/plugins');
+const { BaseController } = require('@tigo/core');
+const {
+  successResponse,
+  getPluginList,
+  getPluginConfig,
+} = require('@tigo/utils');
 
 class PluginInfoController extends BaseController {
   getRoutes() {
