@@ -41,6 +41,9 @@ function initServer() {
   };
   // init koa plugins
   this.server.use(bodyParser());
+  this.server.use(async (ctx) => {
+    ctx.body = ctx.request.body;
+  });
   // dev koa plugins
   if (process.env.NODE_ENV === 'dev') {
     const accessLogEnabled = this.config.dev && this.config.dev.accessLog;
