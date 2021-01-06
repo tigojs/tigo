@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const Koa = require('koa');
 const Router = require('@pwp-app/koa-rapid-router');
 const bodyParser = require('koa-bodyparser');
@@ -12,6 +14,13 @@ const {
 } = require('./utils/collector');
 const { killProcess } = require('./utils/process');
 const openDatabase = require('./db/level');
+
+function checkDirectory() {
+  const runDirPath = path.resolve(__dirname, './run');
+  if (!fs.existsSync(runDirPath)) {
+    fs.mkdirSync(runDirPath);
+  }
+}
 
 function initDb() {
   const db = openDatabase.call(this);
@@ -86,6 +95,8 @@ function initServer() {
 
 class App {
   constructor(config) {
+    // file system related check
+    checkDirectory();
     // init logger
     this.logger = createLogger(config.logger);
     // init config
