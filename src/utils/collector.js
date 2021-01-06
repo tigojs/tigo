@@ -24,7 +24,7 @@ function collectController(dirPath) {
         this.logger.warn(`Reading controller script [${filename}] error, object is empty.`);
         return;
       }
-      const instance = new Controller();
+      const instance = new Controller(this);
       instance._tigoName = path.basename(filePath, path.extname(filePath));
       registerController.call(this, instance);
       controller[instance._tigoName] = instance;

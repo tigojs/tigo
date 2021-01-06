@@ -10,6 +10,11 @@ function registerController(instance) {
   const routes = instance.getRoutes();
   Object.keys(routes).forEach((path) => {
     const info = routes[path];
+    if (info.cond && typeof info.cond === 'function') {
+      if (!info.cond()) {
+        return;
+      }
+    }
     const type = info.type.toLowerCase();
     if (this.tigo.auth && info.auth) {
       this.router[type](path, this.tigo.auth.verify, info.target);

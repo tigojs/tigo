@@ -11,6 +11,16 @@ function pluginPackageExisted(packageName) {
   return false;
 }
 
+function getPluginList(pluginConfig) {
+  const list = [];
+  Object.keys(pluginConfig).forEach((name) => {
+    // return a list contains package name of plugins.
+    list.push(pluginConfig[name].package);
+  });
+  return list;
+}
+
 module.exports = {
   pluginPackageExisted,
+  getPluginList,
 };

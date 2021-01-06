@@ -1,7 +1,7 @@
 class AuthController {
   getRoutes() {
     return {
-
+      
     };
   }
 }
