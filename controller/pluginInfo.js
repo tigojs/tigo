@@ -1,6 +1,6 @@
 const BaseController = require('../base/controller');
 const { successResponse } = require('../utils/response');
-const { getPluginList } = require('../utils/plugins');
+const { getPluginList, getPluginConfig } = require('../utils/plugins');
 
 class PluginInfoController extends BaseController {
   getRoutes() {
@@ -13,8 +13,10 @@ class PluginInfoController extends BaseController {
     };
   }
   async getPluginInfo(ctx) {
-    const plugins = getPluginList(ctx.app.tigo.config.plugins);
-    ctx.body = successResponse(plugins);
+    const plugins = getPluginList(getPluginConfig(ctx.app));
+    ctx.body = successResponse({
+      packages: plugins,
+    });
   }
 }
 

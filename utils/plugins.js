@@ -11,6 +11,13 @@ function pluginPackageExisted(packageName) {
   return false;
 }
 
+function getPluginConfig(app) {
+  if (!app || !app.tigo || !app.tigo.config) {
+    app.logger && app.logger.error(`[util:plugin] Cannot get plugin config.`);
+  }
+  return app.tigo.config.plugins;
+}
+
 function getPluginList(pluginConfig) {
   const list = [];
   Object.keys(pluginConfig).forEach((name) => {
@@ -22,5 +29,6 @@ function getPluginList(pluginConfig) {
 
 module.exports = {
   pluginPackageExisted,
+  getPluginConfig,
   getPluginList,
 };

@@ -26,6 +26,7 @@ function initServer() {
         host: this.config.host,
         port: this.config.port,
       },
+      plugins: this.config.plugins,
     },
     pages: collectPages.apply(this),
   };
@@ -62,9 +63,6 @@ function initServer() {
   // bind controller and service object to koa
   this.server.controller = this.controller;
   this.server.context.controller = this.controller;
-  // init controller
-  const controller = collectController.call(this);
-  this.controller = controller;
   // init plugins
   const plugins = collectPlugins.call(this);
   Object.keys(plugins).forEach((name) => {
@@ -81,6 +79,9 @@ function initServer() {
       killProcess.call(this, 'pluginMountError');
     }
   });
+  // init controller
+  const controllers = collectController.call(this);
+  this.controller = controllers;
 }
 
 class App {

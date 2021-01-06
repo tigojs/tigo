@@ -34,6 +34,9 @@ function collectController(dirPath) {
       killProcess.call(this, 'controllerCollectError');
     }
   });
+  if (Object.keys(controller).length > 0 && this.controller) {
+    Object.assign(this.controller, controller);
+  }
   return controller;
 }
 
