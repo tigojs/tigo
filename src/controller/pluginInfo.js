@@ -7,10 +7,11 @@ const {
 
 class PluginInfoController extends BaseController {
   getRoutes() {
+    const { framework: frameworkConfig } = this.app.config;
     return {
       '/common/pluginInfo': {
         type: 'get',
-        auth: !!this.app.tigo.auth,
+        auth: (frameworkConfig && frameworkConfig.protectPluginInfo) || !!this.app.tigo.auth,
         target: this.getPluginInfo,
       }
     };
