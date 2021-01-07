@@ -12,13 +12,20 @@ function exit(arg) {
   }
 }
 
-function killProcess(arg) {
+async function killProcess(arg) {
+  // shutdown db
+  if (this && this.db) {
+    try {
+      await this.db.close();
+    } catch (err) {
+      this.logger.error('Cannot close database.');
+    }
+  }
   // shutdown logger
   if (this && this.logger) {
-    shutdownLogger(exit);
-  } else {
-    exit(arg);
+    await shutdownLogger();
   }
+  exit(arg);
 }
 
 module.exports = {

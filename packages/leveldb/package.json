@@ -1,0 +1,13 @@
+{
+  "name": "@tigo/leveldb",
+  "version": "1.0.0",
+  "description": "LevelDB plugin for tigo.",
+  "main": "main.js",
+  "author": "BacKRunner",
+  "license": "MIT",
+  "dependencies": {
+    "leveldown": "^5.6.0",
+    "levelup": "^4.4.0",
+    "moment": "^2.29.1"
+  }
+}

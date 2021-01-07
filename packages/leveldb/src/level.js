@@ -4,12 +4,11 @@ const moment = require('moment');
 const path = require('path');
 const fs = require('fs');
 
-const DEFAULT_PATH = path.resolve(__dirname, '../../run/database');
+function openDatabase(app, dbConfig) {
+  const DEFAULT_PATH = path.resolve(app.config.runDirPath, './leveldb');
 
-function openDatabase() {
-  const { db: dbConfig } = this.config;
   if (!dbConfig) {
-    this.logger.warn('Database config was not found, use default db path.');
+    app.logger.warn('Database config was not found, use default db path.');
   }
 
   const configDbPath = dbConfig ? dbConfig.path : null;
@@ -21,15 +20,38 @@ function openDatabase() {
     if (dbDir === path.dirname(DEFAULT_PATH)) {
       fs.mkdirSync(dbDir);
     } else {
-      return killProcess.call(this, 'openDatabaseError');
+      return killProcess.call(app, 'openDatabaseError');
     }
   }
+
   // open database
   const db = levelup(leveldown(dbPath));
+
   // extend
+  db.hasObject = async (key) => {
+    const obj = await db.getObject(key);
+    if (!obj) {
+      return false;
+    }
+    return true;
+  }
+  db.getObject = async (key) => {
+    if (!key) {
+      app.logger.warn('Cannot get object from database because of key is empty.');
+      return null;
+    }
+    try {
+      return await db.get(key);
+    } catch (err) {
+      if (err.notFound) {
+        return null;
+      }
+      throw err;
+    }
+  }
   db.setExpires = (key, data, expires) => {
     if (typeof expires !== 'number') {
-      this.logger.error('Expires must be a number.');
+      app.logger.error('Expires must be a number.');
       return;
     }
     if (expires <= 0) {
@@ -43,7 +65,7 @@ function openDatabase() {
   }
   db.getExpires = async (key) => {
     if (!key) {
-      this.logger.warn('Key must be a string, can\'t get data by a empty key.');
+      app.logger.warn('Key must be a string, can\'t get data by a empty key.');
       return null;
     }
     const stored = await db.get(key);

@@ -14,7 +14,6 @@ const {
   collectPlugins,
   collectController,
 } = require('@tigo/utils');
-const openDatabase = require('./db/level');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './controller');
 const MIDDLWARE_DIR = path.resolve(__dirname, './middleware');
@@ -25,12 +24,6 @@ function checkDirectory() {
   if (!fs.existsSync(runDirPath)) {
     fs.mkdirSync(runDirPath);
   }
-}
-
-function initDb() {
-  const db = openDatabase.call(this);
-  this.server.db = db;
-  this.server.context.db = db;
 }
 
 function initServer() {
@@ -105,22 +98,19 @@ class App {
     checkDirectory();
     // init config
     this.config = config;
+    this.config.runDirPath = path.resolve(__dirname, '../run');
+    // init db related
+    this.dbEngine = {};
+    this.sqlDbEngine = [];
+    this.kvDbEngine = [];
     // init logger
-    if (!this.config.logger) {
-      this.config.logger = {};
-    }
-    if (!this.config.logger.path) {
-      this.config.logger.path = path.resolve(__dirname, '../run/logs');
-    }
-    this.logger = createLogger(this.config.logger);
+    this.logger = createLogger.call(this, this.config.logger);
     // init koa server
     this.server = new Koa();
     this.routerContainer = new Router();
     const basePath = this.config.routeBase || '';
     this.router = this.routerContainer.create(basePath);
     this.logger.debug(`Using route base path: [${basePath}]`);
-    // init db
-    initDb.call(this);
     // init server
     initServer.call(this);
   }
