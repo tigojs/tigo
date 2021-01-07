@@ -4,6 +4,7 @@ const Koa = require('koa');
 const Router = require('@pwp-app/koa-rapid-router');
 const bodyParser = require('koa-bodyparser');
 const koaLogger = require('koa-logger');
+const parameter = require('koa-parameter');
 const {
   createLogger,
   registerErrorHandler,
@@ -45,6 +46,7 @@ function initServer() {
   };
   // init koa plugins
   this.server.use(bodyParser());
+  parameter(this.server);
   // dev koa plugins
   if (process.env.NODE_ENV === 'dev') {
     const accessLogEnabled = this.config.dev && this.config.dev.accessLog;
