@@ -92,7 +92,7 @@ function initServer() {
   });
   // init controller
   const controllers = collectController.call(this, CONTROLLER_DIR);
-  this.controller = controllers;
+  this.controller.main = controllers;
 }
 
 class App {
@@ -106,6 +106,9 @@ class App {
     this.dbEngine = {};
     this.sqlDbEngine = [];
     this.kvDbEngine = [];
+    // init base
+    this.controller = {};
+    this.service = {};
     // init logger
     this.logger = createLogger.call(this, this.config.logger);
     // init koa server

@@ -34,8 +34,10 @@ const plugin = {
       app.logger.warn(`Use first db engine [${app.sqlDbEngine[0]}] by default.`);
       app.tigo.auth.config.engine = app.sqlDbEngine[0];
     }
-    // register controllers
-    collectController.call(app, CONTROLLER_DIR);
+    // collect controllers
+    const controller = collectController.call(app, CONTROLLER_DIR);
+    app.controller.auth = controller;
+    // collect services
   },
 };
 

@@ -39,16 +39,35 @@ function collectController(dirPath) {
   return controller;
 }
 
+function collectService(dirPath) {
+  const services = {};
+  if (!fs.existsSync(dirPath)) {
+    this.logger.warn(`Service directory ${dirPath} does not exist.`);
+    return services;
+  }
+  const files = fs.readFileSync(dirPath);
+  files.forEach((filename) => {
+    const filePath = path.resolve(dirPath, filename);
+    try {
+      const Service = require(filePath);
+      const instance = new Service();
+    } catch (err) {
+      this.logger.error(`Reading service script [${filename}] error.`);
+      this.logger.error(err);
+      killProcess.call(this, 'serviceCollectError');
+    }
+  });
+}
+
 function collectMiddleware(dirPath) {
-  const actualDirPath = dirPath;
   const middlewares = [];
-  if (!fs.existsSync(actualDirPath)) {
-    this.logger.warn(`Middleware directory ${actualDirPath} does not exist.`);
+  if (!fs.existsSync(dirPath)) {
+    this.logger.warn(`Middleware directory ${dirPath} does not exist.`);
     return middlewares;
   }
-  const files = fs.readdirSync(actualDirPath);
+  const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
-    const filePath = path.resolve(actualDirPath, filename);
+    const filePath = path.resolve(dirPath, filename);
     try {
       const middleware = require(filePath);
       if (!middleware) {
@@ -77,15 +96,14 @@ function collectMiddleware(dirPath) {
 
 
 function collectPages(dirPath) {
-  const actualDirPath = dirPath;
   const pages = {};
-  if (!fs.existsSync(actualDirPath)) {
-    this.logger.warn(`Pages directory ${actualDirPath} does not exist.`);
+  if (!fs.existsSync(dirPath)) {
+    this.logger.warn(`Pages directory ${dirPath} does not exist.`);
     return pages;
   }
-  const files = fs.readdirSync(actualDirPath);
+  const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
-    const filePath = path.resolve(actualDirPath, filename);
+    const filePath = path.resolve(dirPath, filename);
     try {
       const page = fs.readFileSync(filePath, { encoding: 'utf-8' });
       if (!page) {
@@ -194,6 +212,7 @@ function collectPluginDependencies(
 module.exports = {
   collectMiddleware,
   collectController,
+  collectService,
   collectPages,
   collectPlugins,
 };
