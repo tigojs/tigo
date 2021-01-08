@@ -8,17 +8,17 @@ const { Sequelize } = sequelize;
 const plugins = {
   mount(app, config) {
     if (!config) {
-      app.logger && app.logger.warn('[sqlite] Cannot find the configuration of sqlite db, use default settings.');
+      app.logger.warn('Cannot find the configuration of sqlite db, use default settings.');
     }
 
     const conf = config || {};
     if (conf.storage && !fs.existsSync(path.dirname(conf.storage))) {
-      app.logger && app.logger.error('[sqlite] Directory of sqlite storage does not exist.');
+      app.logge.error('Directory of sqlite storage does not exist.');
       throw new Error('Sqlite storage directory does not exist.');
     }
 
     if (!conf.storage) {
-      app.logger && app.logger.warn('[sqlite] Use default storage path.')
+      app.logger.warn('Use default storage path.')
     }
     const storagePath = conf.storage || path.resolve(app.config.runDirPath, './sqlite.db');
 

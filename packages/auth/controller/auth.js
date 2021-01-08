@@ -24,10 +24,25 @@ class AuthController extends BaseController {
 
   }
   handleRegister(ctx) {
-    const { username, password, confirmPassword } = ctx.body;
+    ctx.verifyParams({
+      username: {
+        type: 'string',
+        required: 'true',
+      },
+      password: {
+        type: 'string',
+        required: 'true',
+      },
+      confirmPassword: {
+        type: 'string',
+        required: 'true',
+      },
+    });
+    const { username, password, confirmPassword } = ctx.request.body;
     if (password !== confirmPassword) {
       ctx.throw(400, '两次输入的密码不一致');
     }
+    
   }
   handleRefresh() {
 

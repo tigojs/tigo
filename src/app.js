@@ -68,6 +68,9 @@ function initServer() {
   this.server.context.tigo = tigo;
   this.server.logger = this.logger;
   this.server.context.logger = this.logger;
+  this.server.dbEngine = this.dbEngine;
+  this.server.sqlDbEngine = this.sqlDbEngine;
+  this.server.kvDbEngine = this.kvDbEngine;
   // bind controller and service object to koa
   this.server.controller = this.controller;
   this.server.context.controller = this.controller;
