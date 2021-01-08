@@ -51,12 +51,19 @@ function collectService(dirPath) {
     try {
       const Service = require(filePath);
       const instance = new Service();
+      if (!instance) {
+        this.logger.error(`Reading service script [${filename}] error, object is empty.`);
+        killProcess.call(this, 'serviceCollectError');
+      }
+      instance._tigoName = path.basename(filePath, path.extname(filePath));
+      services[instance._tigoName] = instance;
     } catch (err) {
       this.logger.error(`Reading service script [${filename}] error.`);
       this.logger.error(err);
       killProcess.call(this, 'serviceCollectError');
     }
   });
+  return services;
 }
 
 function collectMiddleware(dirPath) {

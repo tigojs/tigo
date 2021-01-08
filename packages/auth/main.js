@@ -3,8 +3,10 @@ const compose = require('koa-compose');
 const authErrorHandler = require('./middleware/authErrorHandler');
 const tokenVerifier = require('./middleware/tokenVerifier');
 const { collectController } = require('@tigo/utils');
+const { collectService } = require('@tigo/utils/src/collector');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './controller');
+const SERVICE_DIR = path.resolve(__dirname, './service');
 
 const plugin = {
   mount(app, config) {
@@ -35,9 +37,11 @@ const plugin = {
       app.tigo.auth.config.engine = app.sqlDbEngine[0];
     }
     // collect controllers
-    const controller = collectController.call(app, CONTROLLER_DIR);
-    app.controller.auth = controller;
+    const controllers = collectController.call(app, CONTROLLER_DIR);
+    app.controller.auth = controllers;
     // collect services
+    const services = collectService.call(app, SERVICE_DIR);
+    app.service.auth = services;
   },
 };
 
