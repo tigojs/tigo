@@ -167,7 +167,8 @@ function collectPages(dirPath) {
         killProcess.call(this, 'singlePageCollectError');
         return;
       }
-      pages[path.basename(filePath, path.extname(filePath))];
+      const name = path.basename(filePath, path.extname(filePath));
+      pages[name] = page;
     } catch (err) {
       this.logger.error(`Something was wrong when collecting page [${filename}]`);
       this.logger.error(err);
