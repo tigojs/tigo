@@ -94,7 +94,7 @@ function collectModel(dirPath, engineName) {
         killProcess.call(this, 'modelCollectError');
         return;
       }
-      const instance = defineFunc.call(null, engine);
+      const instance = defineFunc.call(null, this, engine);
       if (!instance) {
         this.logger.error(`Create model instance [${filename}] failed.`);
         killProcess.call(this, 'modelCollectError');
