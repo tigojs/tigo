@@ -2,7 +2,10 @@ const log4js = require('log4js');
 const path = require('path');
 
 function createLogger() {
-  const { logger: loggerConfig } = this.config;
+  let { logger: loggerConfig } = this.config;
+  if (!loggerConfig) {
+    loggerConfig = {};
+  }
 
   let logPath;
   if (loggerConfig && loggerConfig.path) {

@@ -109,6 +109,7 @@ class App {
     // init base
     this.controller = {};
     this.service = {};
+    this.model = {};
     // init logger
     this.logger = createLogger.call(this, this.config.logger);
     // init koa server

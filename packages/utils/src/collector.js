@@ -11,7 +11,7 @@ function collectController(dirPath) {
     return controller;
   }
   if (!fs.existsSync(dirPath)) {
-    this.logger.error(`Controller directory ${dirPath} does not exist.`);
+    this.logger.error(`Controller directory [${dirPath}] does not exist.`);
     return controller;
   }
   const files = fs.readdirSync(dirPath);
@@ -21,6 +21,7 @@ function collectController(dirPath) {
       const Controller = require(filePath);
       if (!Controller) {
         this.logger.warn(`Reading controller script [${filename}] error, object is empty.`);
+        killProcess.call(this, 'controllerCollectError');
         return;
       }
       const instance = new Controller(this);
@@ -42,10 +43,10 @@ function collectController(dirPath) {
 function collectService(dirPath) {
   const services = {};
   if (!fs.existsSync(dirPath)) {
-    this.logger.warn(`Service directory ${dirPath} does not exist.`);
+    this.logger.warn(`Service directory [${dirPath}] does not exist.`);
     return services;
   }
-  const files = fs.readFileSync(dirPath);
+  const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
     const filePath = path.resolve(dirPath, filename);
     try {
@@ -54,6 +55,7 @@ function collectService(dirPath) {
       if (!instance) {
         this.logger.error(`Reading service script [${filename}] error, object is empty.`);
         killProcess.call(this, 'serviceCollectError');
+        return;
       }
       instance._tigoName = path.basename(filePath, path.extname(filePath));
       services[instance._tigoName] = instance;
@@ -66,10 +68,54 @@ function collectService(dirPath) {
   return services;
 }
 
+function collectModel(dirPath, engineName) {
+  const models = {};
+
+  const engine = this.dbEngine[engineName];
+  if (!engine) {
+    this.logger.error(`Database engine is not found.`);
+    killProcess.call(this, 'modelCollectError');
+    return;
+  }
+
+  if (!fs.existsSync(dirPath)) {
+    this.logger.error(`Model directory [${dirPath}] does not exist.`);
+    killProcess.call(this, 'modelCollectError');
+    return;
+  }
+
+  const files = fs.readdirSync(dirPath);
+  files.forEach((filename) => {
+    const filePath = path.resolve(dirPath, filename);
+    try {
+      const defineFunc = require(filePath);
+      if (!defineFunc) {
+        this.logger.error(`Reading model script [${filename}] error, function is empty.`);
+        killProcess.call(this, 'modelCollectError');
+        return;
+      }
+      const instance = defineFunc.call(null, engine);
+      if (!instance) {
+        this.logger.error(`Create model instance [${filename}] failed.`);
+        killProcess.call(this, 'modelCollectError');
+        return;
+      }
+      instance._tigoName = path.basename(filePath, path.extname(filePath));
+      models[instance._tigoName] = instance;
+    } catch (err) {
+      this.logger.error('Collecting model failed.');
+      this.logger.error(err);
+      killProcess.call(this, 'modelCollectError');
+    }
+  });
+
+  return models;
+}
+
 function collectMiddleware(dirPath) {
   const middlewares = [];
   if (!fs.existsSync(dirPath)) {
-    this.logger.warn(`Middleware directory ${dirPath} does not exist.`);
+    this.logger.warn(`Middleware directory [${dirPath}] does not exist.`);
     return middlewares;
   }
   const files = fs.readdirSync(dirPath);
@@ -78,7 +124,8 @@ function collectMiddleware(dirPath) {
     try {
       const middleware = require(filePath);
       if (!middleware) {
-        this.logger.warn(`Reading middleware script [${filename}] error, object is empty.`);
+        this.logger.error(`Reading middleware script [${filename}] error, object is empty.`);
+        killProcess.call(this, 'middlewareCollectError');
         return;
       }
       middlewares.push(middleware);
@@ -104,17 +151,20 @@ function collectMiddleware(dirPath) {
 
 function collectPages(dirPath) {
   const pages = {};
+
   if (!fs.existsSync(dirPath)) {
     this.logger.warn(`Pages directory ${dirPath} does not exist.`);
     return pages;
   }
+
   const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
     const filePath = path.resolve(dirPath, filename);
     try {
       const page = fs.readFileSync(filePath, { encoding: 'utf-8' });
       if (!page) {
-        this.logger.warn(`Reading page file [${filename}] error, page file is empty.`);
+        this.logger.error(`Reading page file [${filename}] error, page file is empty.`);
+        killProcess.call(this, 'singlePageCollectError');
         return;
       }
       pages[path.basename(filePath, path.extname(filePath))];
@@ -124,6 +174,7 @@ function collectPages(dirPath) {
       killProcess.call(this, 'singlePageCollectError');
     }
   });
+
   return pages;
 }
 
@@ -220,6 +271,7 @@ module.exports = {
   collectMiddleware,
   collectController,
   collectService,
+  collectModel,
   collectPages,
   collectPlugins,
 };

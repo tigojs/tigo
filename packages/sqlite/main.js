@@ -28,9 +28,9 @@ const plugins = {
       storage: storagePath,
       define: {
         paranoid: conf.paranoid || false,
-        underscored: config.underscored || true,
-        freezeTableName: config.freezeTableName || true,
-      }
+        underscored: conf.underscored || true,
+        freezeTableName: conf.freezeTableName || true,
+      },
     });
 
     // add info to app
