@@ -3,12 +3,12 @@ const escapeHtml = require('escape-html');
 const sendToWormhole = require('stream-wormhole');
 const { errorMessage, errorCode } = require('../constants/httpError');
 
-function createHttpError(arg) {
+function createHttpError(arg, message) {
   const code = typeof arg === 'number' ? arg : errorCode[arg];
   return {
     success: false,
     code,
-    message: errorMessage[code],
+    message: message || errorMessage[code],
   };
 }
 
@@ -26,6 +26,23 @@ function renderErrorPage(
     .replace(/{{statusText}}/g, text)
     .replace(/{{stack}}/g, stack);
   return rendered;
+}
+
+function getStatusText(code) {
+  switch(code) {
+    default:
+      return 'Unknown Error';
+    case 400:
+      return 'Bad Request';
+    case 401:
+      return 'Authorization Failed';
+    case 402:
+      return 'Parameter Validation Failed';
+    case 403:
+      return 'Access Forbidden';
+    case 404:
+      return 'Not Found';
+  }
 }
 
 function registerErrorHandler(app) {
