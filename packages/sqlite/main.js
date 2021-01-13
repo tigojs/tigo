@@ -31,6 +31,7 @@ const plugins = {
         underscored: conf.underscored || true,
         freezeTableName: conf.freezeTableName || true,
       },
+      logging: process.env.DB_ENV === 'dev' ? msg => app.logger.debug(msg): false,
     });
 
     // add info to app

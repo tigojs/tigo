@@ -1,9 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 
-const authFailedPagePath = path.resolve(__dirname, '../pages/authFailed.html');
-const authFailedPage = fs.readFileSync(authFailedPagePath, { encoding: 'utf-8' });
-
 const authErrorHandler = async (ctx, next) => {
   return next().catch((err) => {
     if (err.status === 401) {
@@ -19,7 +16,7 @@ const authErrorHandler = async (ctx, next) => {
         return;
       }
       ctx.set('Content-Type', 'text/html');
-      ctx.body = authFailedPage;
+      ctx.body = ctx.static.auth.html.authFailed;
     } else {
       throw err;
     }

@@ -1,23 +1,25 @@
 const path = require('path');
 const fs = require('fs');
+const zlib = require('zlib');
 const Koa = require('koa');
 const Router = require('@pwp-app/koa-rapid-router');
 const bodyParser = require('koa-bodyparser');
 const koaLogger = require('koa-logger');
+const compress = require('koa-compress');
 const parameter = require('koa-parameter');
 const {
   createLogger,
   registerErrorHandler,
   killProcess,
   collectMiddleware,
-  collectPages,
+  collectStaticFiles,
   collectPlugins,
   collectController,
 } = require('@tigo/utils');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './controller');
 const MIDDLWARE_DIR = path.resolve(__dirname, './middleware');
-const PAGES_DIR = path.resolve(__dirname, './pages');
+const STATIC_DIR = path.resolve(__dirname, './static');
 
 function checkDirectory() {
   const runDirPath = path.resolve(__dirname, '../run');
@@ -28,17 +30,31 @@ function checkDirectory() {
 
 function initServer() {
   const tigo = {
-    config: {
-      server: {
-        host: this.config.host,
-        port: this.config.port,
-      },
-      plugins: this.config.plugins,
-    },
-    pages: collectPages.call(this, PAGES_DIR),
+    config: this.config,
   };
+  // collect static files
+  const static = collectStaticFiles.call(this, STATIC_DIR);
+  this.static.main = static;
   // init koa plugins
   this.server.use(bodyParser());
+  this.server.use(compress({
+    filter(type) {
+      return /^text/i.test(type) || type === 'application/json';
+    },
+    threshold: 2048,
+    flush: zlib.constants.Z_SYNC_FLUSH,
+    br: (type) => {
+      // we can be as selective as we can:
+      if (/^image\//i.test(type)) return null;
+      if (/^text\//i.test(type) || type === 'application/json') {
+        return {
+          [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+          [zlib.constants.BROTLI_PARAM_QUALITY]: 6,
+        };
+      }
+      return { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 }
+    }
+  }));
   parameter(this.server);
   // dev koa plugins
   if (process.env.NODE_ENV === 'dev') {
@@ -57,10 +73,14 @@ function initServer() {
   const middlewares = collectMiddleware.call(this, MIDDLWARE_DIR);
   middlewares.forEach((middleware) => {
     if (!middleware) {
-      this.logger.error(`Cannot accept a empty middleware.`);
+      this.logger.error(`Cannot accept an empty middleware.`);
       killProcess.call(this, 'middlewareCollectError');
     }
-    this.server.use(middleware);
+    const func = middleware.install(this);
+    if (!func || typeof func !== 'function') {
+      return;
+    }
+    this.server.use(func);
   });
   // add tigo obj to app, server and context
   this.tigo = tigo;
@@ -74,6 +94,10 @@ function initServer() {
   // bind controller and service object to koa
   this.server.controller = this.controller;
   this.server.context.controller = this.controller;
+  this.server.service = this.service;
+  this.server.context.service = this.service;
+  this.server.static = this.static;
+  this.server.context.static = this.static;
   // init plugins
   const plugins = collectPlugins.call(this);
   Object.keys(plugins).forEach((name) => {
@@ -110,6 +134,7 @@ class App {
     this.controller = {};
     this.service = {};
     this.model = {};
+    this.static = {};
     // init logger
     this.logger = createLogger.call(this, this.config.logger);
     // init koa server
@@ -122,7 +147,7 @@ class App {
     initServer.call(this);
   }
   start() {
-    const { port } = this.config;
+    const port = (this.config.server ? this.config.server.port : 8800) || 8800;
     this.server.listen(port);
     this.logger.info(`Server is listening on port [${port}]...`);
   }

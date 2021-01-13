@@ -3,6 +3,7 @@ const fs = require('fs');
 const { killProcess } = require('./process');
 const { pluginPackageExisted } = require('./plugins');
 const { registerController } = require('./controller');
+const { MEMO_EXT_PATTERN } = require('../constants/pattern');
 
 function collectController(dirPath) {
   const controller = {};
@@ -145,38 +146,55 @@ function collectMiddleware(dirPath) {
     }
     return 0;
   });
-  return middlewares.map(m => m.install);
+  return middlewares;
 }
 
+function getStaticFile(path, useMemo = false) {
+  if (!useMemo) {
+    return path;
+  }
+  return fs.readFileSync(path, { encoding: 'utf-8' });
+}
 
-function collectPages(dirPath) {
-  const pages = {};
+function collectStaticFiles(dirPath, first = true) {
+  const statics = {};
 
   if (!fs.existsSync(dirPath)) {
-    this.logger.warn(`Pages directory ${dirPath} does not exist.`);
-    return pages;
+    this.logger.warn(`Directory [${dirPath}] does not exist.`);
+    return statics;
+  }
+  const useMemo = this.config.static && this.config.static.memo;
+  if (!this.config.static && first) {
+    this.logger.warn(`Cannot find static files configuration, use stream mode by default.`);
   }
 
   const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
     const filePath = path.resolve(dirPath, filename);
-    try {
-      const page = fs.readFileSync(filePath, { encoding: 'utf-8' });
-      if (!page) {
-        this.logger.error(`Reading page file [${filename}] error, page file is empty.`);
-        killProcess.call(this, 'singlePageCollectError');
-        return;
-      }
-      const name = path.basename(filePath, path.extname(filePath));
-      pages[name] = page;
-    } catch (err) {
-      this.logger.error(`Something was wrong when collecting page [${filename}]`);
-      this.logger.error(err);
-      killProcess.call(this, 'singlePageCollectError');
+    const fileStat = fs.statSync(filePath);
+    // is directory
+    if (fileStat.isDirectory()) {
+      const ret = collectStaticFiles.call(this, filePath, false);
+      Object.keys(ret).forEach((key) => {
+        if (!statics[key]) {
+          statics[key] = {};
+        }
+        Object.assign(statics[key], ret[key]);
+      });
+      return;
     }
+    // is file
+    const originExt = path.extname(filePath);
+    const ext = originExt.toLowerCase().substr(1);
+    const base = path.basename(filePath, originExt);
+    if (!statics[ext]) {
+      statics[ext] = {};
+    }
+    const memo = !MEMO_EXT_PATTERN.test(ext);
+    statics[ext][base] = getStaticFile(filePath, useMemo && memo);
   });
 
-  return pages;
+  return statics;
 }
 
 function collectPlugins() {
@@ -273,6 +291,6 @@ module.exports = {
   collectController,
   collectService,
   collectModel,
-  collectPages,
+  collectStaticFiles,
   collectPlugins,
 };

@@ -4,5 +4,12 @@
   "description": "Utils for tigo.",
   "main": "main.js",
   "author": "BackRunner",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "dev": "cd ../../ && npm run dev"
+  },
+  "dependencies": {
+    "escape-html": "^1.0.3",
+    "stream-wormhole": "^1.1.0"
+  }
 }
