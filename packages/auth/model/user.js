@@ -3,12 +3,6 @@ const define = function (app, engine) {
   const { STRING, UUID, UUIDV4 } = engine.Sequelize;
 
   const User = engine.define('user', {
-    id: {
-      type: UUID,
-      defaultValue: UUIDV4,
-      allowNull: false,
-      primaryKey: true,
-    },
     username: {
       type: STRING,
       allowNull: false,

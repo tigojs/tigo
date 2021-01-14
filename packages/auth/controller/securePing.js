@@ -12,7 +12,7 @@ class SecurePingController extends BaseController {
   }
   async ping(ctx) {
     ctx.body = successResponse({
-      user: ctx.state.user
+      user: ctx.state.user,
     });
   }
 }
