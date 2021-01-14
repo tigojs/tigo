@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@pwp-app/koa-rapid-router": "^1.1.0",
-    "@tigo/simple-auth": "file:packages\\auth",
+    "@tigo/auth": "file:packages\\auth",
     "@tigo/core": "file:packages\\core",
     "@tigo/sqlite": "file:packages\\sqlite",
     "@tigo/utils": "file:packages\\utils",

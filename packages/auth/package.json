@@ -1,5 +1,5 @@
 {
-  "name": "@tigo/simple-auth",
+  "name": "@tigo/auth",
   "version": "1.0.0",
   "description": "Authentication plugin for tigo",
   "main": "main.js",
