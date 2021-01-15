@@ -1,5 +1,7 @@
+const { getTablePrefix } = require('@tigo/utils');
+
 const define = function (app, engine) {
-  const prefix = (app.config.db ? app.config.db.prefix : 'tigo') || 'tigo';
+  const prefix = getTablePrefix(app);
   const { STRING } = engine.Sequelize;
 
   const User = engine.define('user', {
