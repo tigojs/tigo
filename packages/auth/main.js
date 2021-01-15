@@ -21,13 +21,11 @@ const plugin = {
     if (!secret) {
       throw new Error('Cannot find secret in config');
     }
-    if (!app.tigo.auth) {
-      app.tigo.auth = {
-        config: config || {},
-        secret,
-        verify: compose([authErrorHandler, tokenVerifier]),
-      };
-    }
+    app.tigo.auth = {
+      config: config || {},
+      secret,
+      verify: compose([authErrorHandler, tokenVerifier]),
+    };
     let { engine } = app.tigo.auth.config;
     if (engine) {
       if (!app.sqlDbEngine.includes(engine)) {
