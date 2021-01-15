@@ -4,7 +4,7 @@ const define = function (app, engine) {
   const prefix = getTablePrefix(app);
   const { STRING } = engine.Sequelize;
 
-  const User = engine.define('user', {
+  const User = engine.define('authUser', {
     username: {
       type: STRING,
       allowNull: false,
