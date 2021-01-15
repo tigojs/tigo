@@ -69,11 +69,12 @@ function collectService(dirPath) {
   return services;
 }
 
-function collectModel(dirPath, engineName) {
+function collectModel(dirPath, e) {
   const models = {};
 
-  const engine = this.dbEngine[engineName];
-  if (!engine) {
+  // compatible with direct pass
+  const engine = typeof e === 'string' ? this.dbEngine[e] : e;
+  if (!engine || typeof engine !== 'object') {
     this.logger.error(`Database engine is not found.`);
     killProcess.call(this, 'modelCollectError');
     return;

@@ -1,0 +1,14 @@
+{
+  "name": "@tigo/faas",
+  "version": "1.0.0",
+  "description": "FaaS plugin for tigo",
+  "main": "main.js",
+  "author": "BackRunner",
+  "license": "MIT",
+  "dependencies": {
+    "@tigo/core": "file:..\\core",
+    "@tigo/utils": "file:..\\utils",
+    "uuid": "^8.3.2",
+    "vm2": "^3.9.2"
+  }
+}

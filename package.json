@@ -13,6 +13,8 @@
     "@pwp-app/koa-rapid-router": "^1.1.0",
     "@tigo/auth": "file:packages\\auth",
     "@tigo/core": "file:packages\\core",
+    "@tigo/faas": "file:packages\\faas",
+    "@tigo/leveldb": "file:packages\\leveldb",
     "@tigo/sqlite": "file:packages\\sqlite",
     "@tigo/utils": "file:packages\\utils",
     "koa": "^2.13.0",
