@@ -1,6 +1,6 @@
 const define = function (app, engine) {
   const prefix = (app.config.db ? app.config.db.prefix : 'tigo') || 'tigo';
-  const { STRING, UUID, UUIDV4 } = engine.Sequelize;
+  const { STRING } = engine.Sequelize;
 
   const User = engine.define('user', {
     username: {
