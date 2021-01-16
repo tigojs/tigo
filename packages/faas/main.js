@@ -54,10 +54,13 @@ const plugin = {
         app.logger.warn('Use leveldb for FaaS by default.');
       }
     }
-    // set object to tigo
-    app.tigo.faas = {
+    // set object to app
+    const faas = {
       storage: kvEngine,
     };
+    app.tigo.faas = faas;
+    app.server.faas = faas;
+    app.server.context.faas = faas;
     // collect controllers
     const controllers = collectController.call(app, CONTROLLER_DIR);
     app.controller.faas = controllers;
