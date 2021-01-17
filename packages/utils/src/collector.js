@@ -252,20 +252,36 @@ function collectPluginDependencies(
     return;
   }
   // require existed
-  dependencies.forEach((package, index) => {
+  dependencies.forEach((dependency, index) => {
+    const isObject = typeof dependency === 'object';
+    let packageName;
+    if (isObject) {
+      packageName = dependency.package;
+    } else if (typeof dependency === 'string') {
+      packageName = dependency;
+    } else {
+      this.logger.error(`Plugin [${pluginName}] contains contains an unrecognized dependency.`);
+      this.logger.error(err);
+      killProcess.call(this, 'pluginCollectError');
+    }
     const priority = plugin.priority - dependencies.length + index;
-    const dependencyName = getPluginNameByPackage.call(pluginsConfig, package) || package.replace('@tigo/', '');
+    const dependencyName = getPluginNameByPackage.call(pluginsConfig, packageName) || packageName.replace('@tigo/', '');
     // check if imported
     if (pluginPackageExisted.apply(plugins)) {
       plugins[dependencyName].priority = priority;
       return;
+    } else if (isObject && !dependency.allowAutoImport) {
+      // if the dependency is only allowed to be imported manually, exit
+      this.logger.error(`Dependency [${packageName}] of plugin [${pluginName}] needs to be imported manually.`);
+    } else {
+      this.logger.warn(`Try to import [${packageName}] automatically by default.`);
     }
     // import dependency
     try {
-      plugins[dependencyName] = require(package);
+      plugins[dependencyName] = require(packageName);
     } catch (err) {
       // load plugin dependency err
-      this.logger.error(`Load dependency [${package}] of plugins [${pluginName}] failed.`);
+      this.logger.error(`Load dependency [${packageName}] of plugins [${pluginName}] failed.`);
       this.logger.error(err);
       killProcess.call(this, 'pluginCollectError');
     }

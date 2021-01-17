@@ -142,7 +142,11 @@ class App {
     this.routerContainer = new Router();
     const basePath = this.config.routeBase || '';
     this.router = this.routerContainer.create(basePath);
-    this.logger.debug(`Using route base path: [${basePath}]`);
+    if (basePath) {
+      this.logger.debug(`Using route base path: [${basePath}]`);
+    } else {
+      this.logger.debug('Router base path is not set.');
+    }
     // init server
     initServer.call(this);
   }
