@@ -19,6 +19,10 @@ const define = function (app, engine) {
 
   User.sync({ alter: true });
 
+  User.prototype.getById = async function (id) {
+    return await this.findByPk(id);
+  }
+
   return User;
 };
 

@@ -31,9 +31,6 @@ class UserService extends BaseService {
     }
     return user;
   }
-  async getById(ctx, id) {
-    return await ctx.model.auth.User.findByPk(id);
-  }
 }
 
 module.exports = UserService;
