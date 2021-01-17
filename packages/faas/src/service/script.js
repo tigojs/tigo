@@ -15,7 +15,7 @@ const getScriptKey = (id) => `faas_script_${id || uuid.v4()}`;
 
 class ScriptService extends BaseService {
   constructor(app) {
-    let { faas: config } = app.config.plugins;
+    let { config } = app.config.plugins.faas;
     if (!config) {
       app.logger.warn('Cannot find configuration for FaaS plugin, use default options.');
       config = {};
@@ -24,13 +24,14 @@ class ScriptService extends BaseService {
     if (!cacheConfig) {
       cacheConfig = {};
     }
+    super(app);
+    // set vm and cache
     this.vm = new NodeVM();
     this.cache = new LRU({
       max: cacheConfig.max || 1000,
       maxAge: cacheConfig.maxAge || 60 * 60 * 1000,  // default max age is 1h,
       updateAgeOnGet: true,
     });
-    super(app);
   }
   async exec(ctx, scriptId) {
     let handleRequestFunc = this.cache.get(scriptId);

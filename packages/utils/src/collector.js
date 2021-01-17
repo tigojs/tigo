@@ -52,7 +52,7 @@ function collectService(dirPath) {
     const filePath = path.resolve(dirPath, filename);
     try {
       const Service = require(filePath);
-      const instance = new Service();
+      const instance = new Service(this);
       if (!instance) {
         this.logger.error(`Reading service script [${filename}] error, object is empty.`);
         killProcess.call(this, 'serviceCollectError');

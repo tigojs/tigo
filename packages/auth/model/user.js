@@ -7,15 +7,12 @@ const define = function (app, engine) {
   const User = engine.define('authUser', {
     username: {
       type: STRING,
-      allowNull: false,
     },
     password: {
       type: STRING,
-      allowNull: false,
     },
     scopeId: {
       type: STRING,
-      allowNull: false,
     },
   }, {
     tableName: `${prefix}_auth_user`,

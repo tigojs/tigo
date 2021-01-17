@@ -7,19 +7,15 @@ const define = function (app, engine) {
   const Script = engine.define('fassScript', {
     uid: {
       type: INTEGER,
-      allowNull: false,
     },
     scopeId: {
       type: STRING,
-      allowNull: false,
     },
     name: {
       type: STRING,
-      allowNull: false,
     },
     scriptId: {
       type: STRING,
-      allowNull: false,
     },
   }, {
     tableName: `${prefix}_faas_script`,
