@@ -9,6 +9,10 @@ const define = function (app, engine) {
       type: INTEGER,
       allowNull: false,
     },
+    scopeId: {
+      type: STRING,
+      allowNull: false,
+    },
     name: {
       type: STRING,
       allowNull: false,

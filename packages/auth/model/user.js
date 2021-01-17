@@ -13,15 +13,15 @@ const define = function (app, engine) {
       type: STRING,
       allowNull: false,
     },
+    scopeId: {
+      type: STRING,
+      allowNull: false,
+    },
   }, {
     tableName: `${prefix}_auth_user`,
   });
 
   User.sync({ alter: true });
-
-  User.prototype.getById = async function (id) {
-    return await this.findByPk(id);
-  }
 
   return User;
 };

@@ -8,6 +8,7 @@
   "dependencies": {
     "@tigo/core": "file:..\\core",
     "@tigo/utils": "file:..\\utils",
+    "lru-cache": "^6.0.0",
     "uuid": "^8.3.2",
     "vm2": "^3.9.2"
   }

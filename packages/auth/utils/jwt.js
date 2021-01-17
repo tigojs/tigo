@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
 
 function createToken(user, secret) {
-  const { id, username } = user;
+  const { id, username, scopeId } = user;
   const token = jwt.sign(
     {
       id,
       username,
+      scopeId,
       type: 'auth',
     },
     secret,
@@ -17,6 +18,7 @@ function createToken(user, secret) {
     {
       id,
       username,
+      scopeId,
       type: 'refresh',
     },
     secret,
