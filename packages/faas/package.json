@@ -5,6 +5,9 @@
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
+  "scripts": {
+    "dev": "cd ../../ && npm run dev"
+  },
   "dependencies": {
     "@tigo/core": "file:..\\core",
     "@tigo/utils": "file:..\\utils",

@@ -11,7 +11,7 @@ const USERSCRIPT_TEMPLATE = fs.readFileSync(
   { encoding: 'utf-8' },
 );
 
-const getScriptKey = (id) => `faas_script_${id || uuid.v4()}`;
+const getStorageKey = (scriptId) => `faas_script_${scriptId}`;
 
 class ScriptService extends BaseService {
   constructor(app) {
@@ -33,33 +33,93 @@ class ScriptService extends BaseService {
       updateAgeOnGet: true,
     });
   }
-  async exec(ctx, scriptId) {
-    let handleRequestFunc = this.cache.get(scriptId);
+  async exec(ctx, scopeId, name) {
+    const key = `${scopeId}_${name}`;
+    let handleRequestFunc = this.cache.get(key);
     if (!handleRequestFunc) {
       // func not in cache
-      const script = await ctx.faas.storage.get(getScriptKey(scriptId));
+      const script = await ctx.faas.storage.get(getScriptKey(key));
       if (!script) {
         ctx.throw(400, '无法找到对应的脚本');
       }
-      handleRequestFunc = this.vm.run(script);
-      this.cache.set(scriptId, handleRequestFunc);
+      handleRequestFunc = this.vm.run(USERSCRIPT_TEMPLATE.replace('{{inject}}', script));
+      this.cache.set(key, handleRequestFunc);
     }
     await handleRequestFunc(createContextProxy(ctx));
   }
-  async write(ctx, content, scriptId = null) {
-    const id = scriptId || uuid.v4();
-    await ctx.faas.storage.set(
-      getScriptKey(id),
-      USERSCRIPT_TEMPLATE.replace('{{inject}}', content),
-    );
-    // remove cache if exists, script should be recompiled
-    if (scriptId) {
-      this.cache.del(scriptId);
+  async add(ctx, requestBody) {
+    const { name, content } = requestBody;
+    const { id: uid, scopeId } = ctx.state.user;
+    // check duplicate items
+    if (ctx.model.faas.script.hasName(uid, name)) {
+      ctx.throw(400, '脚本名称已被占用');
     }
-    return id;
+    // write content to kv storage
+    const key = getStorageKey(`${scopeId}_${name}`);
+    await ctx.faas.storage.set(
+      key,
+      Buffer.from(content, 'base64').toString('utf-8'),
+    );
+    // save relation to db
+    const script = await ctx.model.faas.script.create({
+      uid: ctx.state.user.id,
+      name,
+    });
+    return requestBody.id;
   }
-  async delete(ctx, scriptId) {
-    await ctx.faas.storage.del(getScriptKey(scriptId));
+  async edit(ctx, requestBody) {
+    const { id, name, content } = requestBody;
+    const { id: uid, scopeId } = ctx.state.user;
+    // check name conflict
+    if (ctx.model.faas.script.hasName(uid, name)) {
+      ctx.throw(400, '脚本名称已被占用');
+    }
+    // check db item
+    const dbItem = await ctx.model.faas.script.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!dbItem) {
+      ctx.throw(400, '找不到该脚本');
+    }
+    // update script
+    await ctx.faas.storage.set(
+      getStorageKey(`${scopeId}_${name}`),
+      Buffer.from(content, 'base64').toString('utf-8')
+    )
+    // flush cache
+    this.cache.del(getStorageKey(oldKey));
+    // if name changed, delete previous version in storage
+    if (dbItem.name !== name) {
+      const oldKey = `${scopeId}_${dbItem.name}`;
+      await ctx.faas.storage.del(getStorageKey(oldKey));
+      this.cache.del(oldKey);
+      await ctx.model.faas.script.update({
+        id,
+        uid,
+        name,
+      });
+    }
+  }
+  async delete(ctx, id) {
+    const { scopeId } = ctx.state.user;
+    const dbItem = await ctx.model.faas.script.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!dbItem) {
+      ctx.throw(400, '找不到该脚本');
+    }
+    const key = `${scopeId}_${dbItem.name}`;
+    await ctx.faas.storage.del(getStorageKey(key));
+    this.cache.del(key);
+    await ctx.model.faas.script.destory({
+      where: {
+        id,
+      },
+    });
   }
 }
 
