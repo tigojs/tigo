@@ -4,6 +4,10 @@
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
+  "files": [
+    "server.js",
+    "src"
+  ],
   "scripts": {
     "start": "cross-env NODE_ENV=prod node ./server.js",
     "dev": "cross-env NODE_ENV=dev DB_ENV=prod nodemon ./server.js",
@@ -12,6 +16,7 @@
   "dependencies": {
     "@pwp-app/koa-rapid-router": "^1.1.0",
     "@tigo/auth": "file:packages\\auth",
+    "@tigo/config-storage": "file:packages\\config-storage",
     "@tigo/core": "file:packages\\core",
     "@tigo/faas": "file:packages\\faas",
     "@tigo/leveldb": "file:packages\\leveldb",
