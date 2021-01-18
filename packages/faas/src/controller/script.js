@@ -4,14 +4,15 @@ const { successResponse } = require('@tigo/utils');
 class ScriptController extends BaseController {
   getRoutes() {
     return {
-      '/faas/api/{scopeId:string}/{name:string}': {
+      '/lambda/{scopeId:string}/{name:string}': {
         type: 'get',
         target: this.handleExec,
+        external: true,
       },
-      '/faas/upload': {
+      '/faas/save': {
         type: 'post',
         auth: true,
-        target: this.handleUpload,
+        target: this.handleSave,
       },
       '/faas/delete': {
         type: 'post',
@@ -24,7 +25,7 @@ class ScriptController extends BaseController {
     const { scopeId, name } = ctx.params;
     await ctx.service.faas.script.exec(ctx, scopeId, name);
   }
-  async handleUpload(ctx) {
+  async handleSave(ctx) {
     ctx.verifyParams({
       action: {
         type: 'enum',

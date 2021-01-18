@@ -140,13 +140,7 @@ class App {
     // init koa server
     this.server = new Koa();
     this.routerContainer = new Router();
-    const basePath = this.config.routeBase || '';
-    this.router = this.routerContainer.create(basePath);
-    if (basePath) {
-      this.logger.debug(`Using route base path: [${basePath}]`);
-    } else {
-      this.logger.debug('Router base path is not set.');
-    }
+    this.router = this.routerContainer.create();
     // init server
     initServer.call(this);
   }

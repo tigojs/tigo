@@ -7,6 +7,10 @@ function registerController(instance) {
     this.logger.warn(`Controller [${instance._tigoName}] doesn't contain the getRoutes function.`)
     return;
   }
+  const { router: routerConfig } =  this.config;
+  let { internal: internalConfig, external: externalConfig } = routerConfig;
+  internalConfig = internalConfig || {};
+  externalConfig = externalConfig || {};
   const routes = instance.getRoutes();
   Object.keys(routes).forEach((path) => {
     const info = routes[path];
@@ -15,11 +19,17 @@ function registerController(instance) {
         return;
       }
     }
+    let realPath;
+    if (info.external && !info.internal) {
+      realPath = `${externalConfig.base || ''}${path}`;
+    } else {
+      realPath = `${internalConfig.base || '/api'}${path}`;
+    }
     const type = info.type.toLowerCase();
     if (this.tigo.auth && info.auth) {
-      this.router[type](path, this.tigo.auth.verify, info.target);
+      this.router[type](realPath, this.tigo.auth.verify, info.target);
     } else {
-      this.router[type](path, info.target);
+      this.router[type](realPath, info.target);
     }
     this.logger.debug(`Registered route [${type.toUpperCase()}: ${path}] of [${instance._tigoName}] controller.`);
   });
