@@ -74,9 +74,12 @@ class ScriptService extends BaseService {
     if (!dbItem) {
       ctx.throw(400, '找不到该脚本');
     }
+    if (dbItem.uid !== uid) {
+      ctx.throw(401, '无权访问');
+    }
     // if name changed, delete previous version in storage
     if (dbItem.name !== name) {
-      if (ctx.model.faas.script.hasName(name)) {
+      if (ctx.model.faas.script.hasName(uid, name)) {
         ctx.throw(400, '名称已被占用');
       }
       const oldKey = `${scopeId}_${dbItem.name}`;
@@ -84,12 +87,13 @@ class ScriptService extends BaseService {
       this.cache.del(oldKey);
     }
     // update script
+    const key = `${scopeId}_${name}`;
     await ctx.faas.storage.set(
-      getStorageKey(`${scopeId}_${name}`),
+      getStorageKey(key),
       Buffer.from(content, 'base64').toString('utf-8')
     )
     // flush cache
-    this.cache.del(getStorageKey(oldKey));
+    this.cache.del(key);
     // update sql db
     await ctx.model.faas.script.update({
       id,
