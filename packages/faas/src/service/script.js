@@ -69,14 +69,19 @@ class ScriptService extends BaseService {
   async edit(ctx) {
     const { id, name, content, remark } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
-    // check name conflict
-    if (ctx.model.faas.script.hasName(uid, name)) {
-      ctx.throw(400, '脚本名称已被占用');
-    }
     // check db item
     const dbItem = await ctx.model.faas.script.findByPk(id);
     if (!dbItem) {
       ctx.throw(400, '找不到该脚本');
+    }
+    // if name changed, delete previous version in storage
+    if (dbItem.name !== name) {
+      if (ctx.model.faas.script.hasName(name)) {
+        ctx.throw(400, '名称已被占用');
+      }
+      const oldKey = `${scopeId}_${dbItem.name}`;
+      await ctx.faas.storage.del(getStorageKey(oldKey));
+      this.cache.del(oldKey);
     }
     // update script
     await ctx.faas.storage.set(
@@ -85,18 +90,13 @@ class ScriptService extends BaseService {
     )
     // flush cache
     this.cache.del(getStorageKey(oldKey));
-    // if name changed, delete previous version in storage
-    if (dbItem.name !== name) {
-      const oldKey = `${scopeId}_${dbItem.name}`;
-      await ctx.faas.storage.del(getStorageKey(oldKey));
-      this.cache.del(oldKey);
-      await ctx.model.faas.script.update({
-        id,
-        uid,
-        name,
-        remark,
-      });
-    }
+    // update sql db
+    await ctx.model.faas.script.update({
+      id,
+      uid,
+      name,
+      remark,
+    });
   }
   async delete(ctx, id) {
     const { scopeId } = ctx.state.user;
