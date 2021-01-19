@@ -49,7 +49,7 @@ class ScriptController extends BaseController {
         uid: ctx.state.user.id,
       },
     });
-    successResponse(list);
+    ctx.body = successResponse(list);
   }
   async handleGetContent(ctx) {
     ctx.verifyParams({
@@ -66,9 +66,9 @@ class ScriptController extends BaseController {
     if (dbItem.uid !== ctx.state.user.id) {
       ctx.throw(401, '无权访问');
     }
-    ctx.body = {
+    ctx.body = successResponse({
       content: Buffer.from(await ctx.service.faas.script.getContent(ctx.state.user.scopeId, id), 'utf-8').toString('base64'),
-    };
+    });
   }
   async handleExec(ctx) {
     const { scopeId, name } = ctx.params;
