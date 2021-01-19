@@ -6,6 +6,8 @@ const isDev = process.env.NODE_ENV === 'dev';
 class UserService extends BaseService {
   async add(ctx, user) {
     user.password = crypto.createHmac('sha256', 'tigo').update(user.password).digest('hex');
+    // generate scopeId
+    user.scopeId = crypto.createHmac('md5', 'tigo').update(`${user.username}_${new Date().valueOf()}`).digest('hex');
     await ctx.model.auth.User.create(user);
   }
   async has(ctx, username) {
