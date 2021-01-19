@@ -28,6 +28,7 @@ function openDatabase(app, dbConfig) {
   const db = levelup(leveldown(dbPath));
 
   // extend
+  db.set = db.put;
   db.hasObject = async (key) => {
     const obj = await db.getObject(key);
     if (!obj) {
