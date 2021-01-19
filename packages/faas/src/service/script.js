@@ -120,7 +120,9 @@ class ScriptService extends BaseService {
       },
     });
   }
-  async getContent(ctx, scopeId, scriptId) {
+  async getContent(ctx) {
+    const { id: scriptId } = ctx.query;
+    const { scopeId } = ctx.state.user;
     const dbItem = ctx.model.faas.script.findByPk(scriptId);
     if (!dbItem) {
       ctx.throw(400, '找不到对应的脚本');

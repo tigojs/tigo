@@ -58,9 +58,8 @@ class ScriptController extends BaseController {
         min: 1,
       },
     });
-    const { id } = ctx.query;
     ctx.body = successResponse({
-      content: Buffer.from(await ctx.service.faas.script.getContent(ctx.state.user.scopeId, id), 'utf-8').toString('base64'),
+      content: Buffer.from(await ctx.service.faas.script.getContent(ctx), 'utf-8').toString('base64'),
     });
   }
   async handleExec(ctx) {
