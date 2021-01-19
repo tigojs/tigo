@@ -21,14 +21,12 @@ class ScriptService extends BaseService {
       config = {};
     }
     let { cache: cacheConfig } = config;
-    if (!cacheConfig) {
-      cacheConfig = {};
-    }
+    cacheConfig = cacheConfig || {};
     super(app);
     // set vm and cache
     this.vm = new NodeVM();
     this.cache = new LRU({
-      max: cacheConfig.max || 1000,
+      max: cacheConfig.max || 500,
       maxAge: cacheConfig.maxAge || 60 * 60 * 1000,  // default max age is 1h,
       updateAgeOnGet: true,
     });
@@ -47,8 +45,8 @@ class ScriptService extends BaseService {
     }
     await handleRequestFunc(createContextProxy(ctx));
   }
-  async add(ctx, requestBody) {
-    const { name, content } = requestBody;
+  async add(ctx) {
+    const { name, content } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
     // check duplicate items
     if (ctx.model.faas.script.hasName(uid, name)) {
@@ -65,10 +63,10 @@ class ScriptService extends BaseService {
       uid: ctx.state.user.id,
       name,
     });
-    return requestBody.id;
+    return script.id;
   }
-  async edit(ctx, requestBody) {
-    const { id, name, content } = requestBody;
+  async edit(ctx) {
+    const { id, name, content } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
     // check name conflict
     if (ctx.model.faas.script.hasName(uid, name)) {

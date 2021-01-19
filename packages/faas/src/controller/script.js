@@ -9,6 +9,11 @@ class ScriptController extends BaseController {
         target: this.handleExec,
         external: true,
       },
+      '/faas/getConfig': {
+        type: 'get',
+        auth: true,
+        target: this.handleGetConfig,
+      },
       '/faas/save': {
         type: 'post',
         auth: true,
@@ -19,6 +24,12 @@ class ScriptController extends BaseController {
         auth: true,
         target: this.handleDelete,
       }
+    };
+  }
+  async handleGetConfig(ctx) {
+    ctx.body = {
+      resourcePack: !!ctx.faas.resourcePackEnabled,
+      hostBinder: !!ctx.faas.hostBinderEnabled,
     };
   }
   async handleExec(ctx) {
@@ -49,13 +60,13 @@ class ScriptController extends BaseController {
 
     if (action === 'add') {
       // add a new script
-      const id = await ctx.service.script.add(ctx.request.body);
+      const id = await ctx.service.script.add(ctx);
       ctx.body = successResponse({
         id,
       }, '保存成功');
     } else if (action === 'edit') {
       // edit existed script
-      await ctx.service.script.edit(ctx.request.body);
+      await ctx.service.script.edit(ctx);
       ctx.body = successResponse(null, '保存成功');
     }
   }
