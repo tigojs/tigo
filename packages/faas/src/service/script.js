@@ -108,6 +108,9 @@ class ScriptService extends BaseService {
     if (!dbItem) {
       ctx.throw(400, '找不到该脚本');
     }
+    if (!dbItem.uid !== ctx.state.user.id) {
+      ctx.throw(401, '无权访问');
+    }
     const key = `${scopeId}_${dbItem.name}`;
     await ctx.faas.storage.del(getStorageKey(key));
     this.cache.del(key);
@@ -118,7 +121,15 @@ class ScriptService extends BaseService {
     });
   }
   async getContent(ctx, scopeId, scriptId) {
+    const dbItem = ctx.model.faas.script.findByPk(scriptId);
+    if (!dbItem) {
+      ctx.throw(400, '找不到对应的脚本');
+    }
+    if (dbItem.uid !== ctx.state.user.id) {
+      ctx.throw(401, '无权访问');
+    }
     const key = `${scopeId}_${scriptId}`;
+
     return await ctx.faas.storage.get(getStorageKey(key));
   }
 }
