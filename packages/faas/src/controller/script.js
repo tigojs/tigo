@@ -56,6 +56,10 @@ class ScriptController extends BaseController {
         type: 'string',
         required: true,
       },
+      remark: {
+        type: 'string',
+        required: false,
+      }
     });
 
     if (action === 'add') {

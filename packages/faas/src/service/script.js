@@ -46,7 +46,7 @@ class ScriptService extends BaseService {
     await handleRequestFunc(createContextProxy(ctx));
   }
   async add(ctx) {
-    const { name, content } = ctx.request.body;
+    const { name, content, remark } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
     // check duplicate items
     if (ctx.model.faas.script.hasName(uid, name)) {
@@ -62,11 +62,12 @@ class ScriptService extends BaseService {
     const script = await ctx.model.faas.script.create({
       uid: ctx.state.user.id,
       name,
+      remark,
     });
     return script.id;
   }
   async edit(ctx) {
-    const { id, name, content } = ctx.request.body;
+    const { id, name, content, remark } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
     // check name conflict
     if (ctx.model.faas.script.hasName(uid, name)) {
@@ -97,6 +98,7 @@ class ScriptService extends BaseService {
         id,
         uid,
         name,
+        remark,
       });
     }
   }

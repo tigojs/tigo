@@ -11,6 +11,9 @@ const define = function (app, engine) {
     name: {
       type: STRING,
     },
+    remark: {
+      type: STRING,
+    },
   }, {
     tableName: `${prefix}_faas_script`,
   });
