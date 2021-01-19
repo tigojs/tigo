@@ -74,11 +74,7 @@ class ScriptService extends BaseService {
       ctx.throw(400, '脚本名称已被占用');
     }
     // check db item
-    const dbItem = await ctx.model.faas.script.findOne({
-      where: {
-        id,
-      },
-    });
+    const dbItem = await ctx.model.faas.script.findByPk(id);
     if (!dbItem) {
       ctx.throw(400, '找不到该脚本');
     }
@@ -104,11 +100,7 @@ class ScriptService extends BaseService {
   }
   async delete(ctx, id) {
     const { scopeId } = ctx.state.user;
-    const dbItem = await ctx.model.faas.script.findOne({
-      where: {
-        id,
-      },
-    });
+    const dbItem = await ctx.model.faas.script.findByPk(id);
     if (!dbItem) {
       ctx.throw(400, '找不到该脚本');
     }
@@ -120,6 +112,10 @@ class ScriptService extends BaseService {
         id,
       },
     });
+  }
+  async getContent(ctx, scopeId, scriptId) {
+    const key = `${scopeId}_${scriptId}`;
+    return await ctx.faas.storage.get(getStorageKey(key));
   }
 }
 

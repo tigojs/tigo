@@ -9,10 +9,21 @@ class ScriptController extends BaseController {
         target: this.handleExec,
         external: true,
       },
+      // internal apis
       '/faas/getConfig': {
         type: 'get',
         auth: true,
         target: this.handleGetConfig,
+      },
+      '/faas/list': {
+        type: 'get',
+        auth: true,
+        target: this.handleList,
+      },
+      '/faas/getContent': {
+        type: 'get',
+        auth: true,
+        target: this.handleGetContent,
       },
       '/faas/save': {
         type: 'post',
@@ -30,6 +41,33 @@ class ScriptController extends BaseController {
     ctx.body = {
       resourcePack: !!ctx.faas.resourcePackEnabled,
       hostBinder: !!ctx.faas.hostBinderEnabled,
+    };
+  }
+  async handleList(ctx) {
+    const list = ctx.model.script.findAll({
+      where: {
+        uid: ctx.state.user.id,
+      },
+    });
+    successResponse(list);
+  }
+  async handleGetContent(ctx) {
+    ctx.verifyParams({
+      id: {
+        type: 'number',
+        min: 1,
+      },
+    });
+    const { id } = ctx.query;
+    const dbItem = ctx.model.faas.script.findByPk(id);
+    if (!dbItem) {
+      ctx.throw(400, '找不到对应的脚本');
+    }
+    if (dbItem.uid !== ctx.state.user.id) {
+      ctx.throw(401, '无权访问');
+    }
+    ctx.body = {
+      content: Buffer.from(await ctx.service.faas.script.getContent(ctx.state.user.scopeId, id), 'utf-8').toString('base64'),
     };
   }
   async handleExec(ctx) {
