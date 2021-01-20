@@ -8,14 +8,25 @@ class ConfigurationController extends BaseController {
         target: this.handleRequest,
         external: true,
       },
-      '/config/save': {
+      '/config-storage/list': {
         type: 'get',
-      }
+        target: this.handleList,
+      },
+      '/config-storage/getContent': {
+        type: 'get',
+        target: this.handleGetContent,
+      },
     }
   }
-  async handleRequest(ctx) {
+  async handleList(ctx) {
 
+  }
+  async handleGetContent(ctx) {
+    
+  }
+  async handleRequest(ctx) {
+    
   }
 }
 
-module.exports = RequestController;
+module.exports = ConfigurationController;

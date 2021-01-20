@@ -11,21 +11,30 @@ const define = function (app, engine) {
     name: {
       type: STRING,
     },
+    type: {
+      type: STRING,
+    },
+    remark: {
+      type: STRING,
+    }
   }, {
     tableName: `${prefix}_stored_config`,
   });
 
   Config.sync({ alter: true });
 
-  Config.prototype.hasName = async function (uid, name) {
+  Config.prototype.exists = async function (uid, type, name) {
     const item = this.findOne({
       where: {
         uid,
         name,
+        type,
       },
     });
     return !!item;
   }
+
+  return Config;
 }
 
 module.exports = define;

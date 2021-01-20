@@ -55,10 +55,20 @@ const plugin = {
         app.logger.warn('Use leveldb for config storage by default.');
       }
     }
+    // set object to app
+    const configStorage = {
+      storage: kvEngine,
+    };
+    app.tigo.configStorage = configStorage;
+    app.server.configStorage = configStorage;
+    app.server.context.configStorage = configStorage;
     // collect controller, service and model
-    collectController.call(app, CONTROLLER_DIR);
-    collectService.call(app, SERVICE_DIR);
-    collectModel.call(app, MODEL_DIR, sqlEngine);
+    const controllers = collectController.call(app, CONTROLLER_DIR);
+    app.controller.configStorage = controllers;
+    const services = collectService.call(app, SERVICE_DIR);
+    app.service.configStorage = services;
+    const models = collectModel.call(app, MODEL_DIR, sqlEngine);
+    app.model.configStorage = models;
   },
 };
 
