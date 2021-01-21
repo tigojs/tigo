@@ -38,10 +38,10 @@ class ScriptController extends BaseController {
     };
   }
   async handleGetConfig(ctx) {
-    ctx.body = {
+    ctx.body = successResponse({
       resourcePack: !!ctx.faas.resourcePackEnabled,
       hostBinder: !!ctx.faas.hostBinderEnabled,
-    };
+    });
   }
   async handleList(ctx) {
     const list = ctx.model.script.findAll({
