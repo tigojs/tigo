@@ -11,6 +11,7 @@
   "dependencies": {
     "@tigo/core": "file:..\\core",
     "@tigo/utils": "file:..\\utils",
-    "lru-cache": "^6.0.0"
+    "lru-cache": "^6.0.0",
+    "mime": "^2.5.0"
   }
 }
