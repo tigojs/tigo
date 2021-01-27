@@ -1,0 +1,12 @@
+{
+  "name": "@tigo/faas-resource",
+  "version": "1.0.0",
+  "description": "FaaS resource pack plugin",
+  "main": "main.js",
+  "author": "BackRunner",
+  "license": "MIT",
+  "dependencies": {
+    "@tigo/core": "file:..\\core",
+    "@tigo/utils": "file:..\\utils"
+  }
+}

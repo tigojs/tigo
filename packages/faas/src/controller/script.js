@@ -10,11 +10,6 @@ class ScriptController extends BaseController {
         external: true,
       },
       // internal apis
-      '/faas/getConfig': {
-        type: 'get',
-        auth: true,
-        target: this.handleGetConfig,
-      },
       '/faas/list': {
         type: 'get',
         auth: true,
@@ -36,12 +31,6 @@ class ScriptController extends BaseController {
         target: this.handleDelete,
       }
     };
-  }
-  async handleGetConfig(ctx) {
-    ctx.body = successResponse({
-      resourcePack: !!ctx.faas.resourcePackEnabled,
-      hostBinder: !!ctx.faas.hostBinderEnabled,
-    });
   }
   async handleList(ctx) {
     const list = ctx.model.script.findAll({

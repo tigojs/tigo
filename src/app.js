@@ -3,7 +3,7 @@ const fs = require('fs');
 const zlib = require('zlib');
 const Koa = require('koa');
 const Router = require('@pwp-app/koa-rapid-router');
-const bodyParser = require('koa-bodyparser');
+const koaBody = require('koa-body');
 const koaLogger = require('koa-logger');
 const compress = require('koa-compress');
 const parameter = require('koa-parameter');
@@ -36,7 +36,7 @@ function initServer() {
   const static = collectStaticFiles.call(this, STATIC_DIR);
   this.static.main = static;
   // init koa plugins
-  this.server.use(bodyParser());
+  this.server.use(koaBody());
   this.server.use(compress({
     filter(type) {
       return /^text/i.test(type) || type === 'application/json';
