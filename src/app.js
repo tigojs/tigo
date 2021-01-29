@@ -16,6 +16,7 @@ const {
   collectPlugins,
   collectController,
 } = require('@tigo/utils');
+const packageJson = require('../package.json');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './controller');
 const MIDDLWARE_DIR = path.resolve(__dirname, './middleware');
@@ -30,6 +31,7 @@ function checkDirectory() {
 
 function initServer() {
   const tigo = {
+    version: packageJson.version,
     config: this.config,
   };
   // collect static files

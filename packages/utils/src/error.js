@@ -38,7 +38,8 @@ function renderErrorPage(
   }
   const rendered = template.replace(/{{statusCode}}/g, code)
     .replace(/{{statusText}}/g, text)
-    .replace(/{{stack}}/g, stack);
+    .replace(/{{stack}}/g, stack)
+    .replace('{{ver}}', ctx.tigo.version);
   return rendered;
 }
 

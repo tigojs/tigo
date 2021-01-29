@@ -2,4 +2,79 @@ html, body, #app {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  margin: 0;
+  background: #1e1e1e;
+  user-select: none;
+}
+
+span {
+  color: #F16D41;
+  font-family: MicroSoft Yahei;
+}
+
+#app {
+  display: flex;
+  align-items: center;
+}
+
+.main {
+  max-width: 89.25vw;
+  margin: 0 auto;
+  transform: translateY(-2.75vh);
+  flex: 1;
+}
+
+.main > .status-code {
+  font-size: 48px;
+  letter-spacing: 0.375rem;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.main > .status-text {
+  font-size: 24px;
+  letter-spacing: 0.2rem;
+  font-weight: 600;
+}
+
+.main > .stack {
+  margin-top: 72px;
+  color: #F16D41;
+  font-size: 13px;
+  max-width: 85vw;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.main > .stack > pre {
+  margin: 0;
+  padding-bottom: 12px;
+  padding-right: 28px;
+  font-family: Consolas, MicroSoft Yahei;
+}
+
+.main > .stack::-webkit-scrollbar {
+  width: 5px;
+  height: 4px;
+}
+.main > .stack::-webkit-scrollbar-button {
+  display: none;
+}
+.main > .stack::-webkit-scrollbar-thumb {
+  width: 5px;
+  height: 4px;
+  border-radius: 3px;
+  background: #F16D41;
+}
+
+.main > .stack::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.main > .footer {
+  margin-top: 96px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #F16D41;
+  letter-spacing: 0.15rem;
 }

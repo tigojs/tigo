@@ -4,6 +4,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>{{statusCode}} - tigo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/main/errorPage.css">
   </head>
   <body>
     <div id="app">
@@ -14,8 +15,23 @@
         <div class="status-text">
           <span>{{statusText}}</span>
         </div>
-        {{stack}}
+        <div id="stackWrap" class="stack">
+          <pre id="stack">{{stack}}</pre>
+        </div>
+        <div class="footer" id="footer">
+          <span>tigo - ver {{ver}}</span>
+        </div>
       </div>
     </div>
+    <script>
+      const stackEl = document.getElementById('stack');
+      if (stackEl.innerText.trim().length < 1) {
+        // stack is empty
+        const stackWrapEl = document.getElementById('stackWrap');
+        stackWrapEl.style.display = 'none';
+        const footerEl = document.getElementById('footer');
+        footerEl.style.marginTop = '128px';
+      }
+    </script>
   </body>
 </html>
