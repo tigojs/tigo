@@ -13,10 +13,12 @@ class StaticFileController extends BaseController {
       '/view/{scope:string}/{name:string}': {
         type: 'get',
         target: this.handleView,
+        external: true,
       },
       '/static/{scope:string}/{base:string}.{ext:string}': {
         type: 'get',
         target: this.handleFile,
+        external: true,
       },
     };
   }
@@ -30,7 +32,7 @@ class StaticFileController extends BaseController {
     ) {
       ctx.throw(404, '文件未找到');
     }
-    const memo = !MEMO_EXT_PATTERN.test(ext) && useMemo;
+    const memo = MEMO_EXT_PATTERN.test(ext) && useMemo;
     const file = ctx.static[scope][ext][base];
     ctx.set('Content-Type', mime.getType(ext));
     ctx.body = memo ? file : fs.createReadStream(file);
@@ -41,7 +43,6 @@ class StaticFileController extends BaseController {
     if (ctx.header.origin) {
       ctx.throw(400, '非法请求');
     }
-    console.log(ctx.static);
     if (!ctx.static[scope] || !ctx.static[scope][name]) {
       ctx.throw(404, '页面未找到');
     }

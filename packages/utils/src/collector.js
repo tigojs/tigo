@@ -191,7 +191,7 @@ function collectStaticFiles(dirPath, first = true) {
     if (!statics[ext]) {
       statics[ext] = {};
     }
-    const memo = !MEMO_EXT_PATTERN.test(ext);
+    const memo = MEMO_EXT_PATTERN.test(ext);
     statics[ext][base] = getStaticFile(filePath, useMemo && memo);
   });
 

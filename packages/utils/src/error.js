@@ -1,7 +1,10 @@
 const http = require('http');
+const fs = require('fs');
 const escapeHtml = require('escape-html');
 const sendToWormhole = require('stream-wormhole');
 const { errorMessage, errorCode } = require('../constants/httpError');
+
+const templateCache = {};
 
 function createHttpError(arg, message) {
   const code = typeof arg === 'number' ? arg : errorCode[arg];
@@ -18,9 +21,20 @@ function renderErrorPage(
   text = 'Unknown Error',
   stack = '',
 ) {
-  const template = ctx.static.main.html.errorPage;
+  let template = ctx.static.main.html.errorPage;
   if (!template) {
     return;
+  }
+  // if not use memo, read error page into memory
+  const useMemo = ctx.tigo.config.static && ctx.tigo.config.static.memo;
+  if (!useMemo) {
+    if (templateCache[template]) {
+      template = templateCache[template];
+    } else {
+      const content = fs.readFileSync(template, { encoding: 'utf-8' });
+      templateCache[template] = content;
+      template = content;
+    }
   }
   const rendered = template.replace(/{{statusCode}}/g, code)
     .replace(/{{statusText}}/g, text)
@@ -104,6 +118,25 @@ function registerErrorHandler(app) {
     ctx.logger.error(`[${ctx.method}] ${ctx.path} request failed.`);
     ctx.logger.error(err);
   }
+
+  // catch 404
+  app.use(async function (ctx, next) {
+    await next();
+    if (ctx.status === 404) {
+      if (ctx.headers['origin'] || ctx.headers['x-requested-with']) {
+        ctx.set('Content-Type', 'application/json');
+        ctx.body = createHttpError('notFound');
+      } else {
+        ctx.set('Content-Type', 'text/html');
+        ctx.body = renderErrorPage(
+          ctx,
+          404,
+          getStatusText(404)
+        );
+      }
+      ctx.status = 404;
+    }
+  });
 }
 
 module.exports = {

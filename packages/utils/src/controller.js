@@ -7,7 +7,8 @@ function registerController(instance) {
     this.logger.warn(`Controller [${instance._tigoName}] doesn't contain the getRoutes function.`)
     return;
   }
-  const { router: routerConfig } =  this.config;
+  let { router: routerConfig } =  this.config;
+  routerConfig = routerConfig || {};
   let { internal: internalConfig, external: externalConfig } = routerConfig;
   internalConfig = internalConfig || {};
   externalConfig = externalConfig || {};
