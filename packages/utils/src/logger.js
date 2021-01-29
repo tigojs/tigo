@@ -60,9 +60,12 @@ function createLogger() {
   const methods = ['debug', 'info', 'warn', 'error'];
   methods.forEach((method) => {
     logger[`_original_${method}`] = logger[method];
-    logger[method] = function (str, p) {
-      const prefix = p || this.prefix;
-      this[`_original_${method}`](`${prefix ? `[${prefix}]` : ''} ${str}`);
+    logger[method] = function (...args) {
+      const prefix = this.prefix;
+      if (prefix) {
+        args.unshift(`[${prefix}]`)
+      }
+      this[`_original_${method}`](...args);
     }
   });
 
