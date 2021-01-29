@@ -57,8 +57,8 @@ class ConfigStorageService extends BaseService {
     }
     // write
     const key = getStorageKey(`${scopeId}_${name}_${formattedType}`);
-    const content = Buffer.from(content, 'base64').toString('utf-8');
-    await ctx.configStorage.storage.put(key, content);
+    const decoded = Buffer.from(content, 'base64').toString('utf-8');
+    await ctx.configStorage.storage.put(key, decoded);
     const conf = await ctx.model.configStorage.conf.create({
       uid: ctx.state.user.id,
       type: formattedType,

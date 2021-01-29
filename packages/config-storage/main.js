@@ -6,9 +6,9 @@ const {
   collectModel,
 } = require('@tigo/utils');
 
-const CONTROLLER_DIR = path.resolve('./src/controller');
-const SERVICE_DIR = path.resolve('./src/service');
-const MODEL_DIR = path.resolve('./src/model');
+const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
+const SERVICE_DIR = path.resolve(__dirname, './src/service');
+const MODEL_DIR = path.resolve(__dirname, './src/model');
 
 const plugin = {
   mount(app, config) {
