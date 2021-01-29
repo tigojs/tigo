@@ -101,19 +101,21 @@ function initServer() {
   // init plugins
   const plugins = collectPlugins.call(this);
   Object.keys(plugins).forEach((name) => {
+    this.logger.setPrefix(name);
     if (typeof plugins[name].mount !== 'function') {
-      this.logger.error(`Plugin [${name}] doesn't have mount function.`);
+      this.logger.error(`Plugin doesn't have mount function.`);
       return killProcess.call(this, 'pluginMountError');
     }
     try {
       plugins[name].mount.call(this, this, this.config.plugins[name].config);
-      this.logger.debug(`Plugin [${name}] mounted.`);
+      this.logger.debug(`Plugin mounted.`);
     } catch (err) {
-      this.logger.error(`Mount plugin [${name}] failed.`);
+      this.logger.error(`Mount pluginfailed.`);
       this.logger.error(err);
       killProcess.call(this, 'pluginMountError');
     }
   });
+  this.logger.setPrefix(null);
   // init controller
   const controllers = collectController.call(this, CONTROLLER_DIR);
   this.controller.main = controllers;

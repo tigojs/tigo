@@ -208,9 +208,10 @@ function collectPlugins() {
   }
 
   Object.keys(pluginsConfig).forEach((pluginName, index) => {
+    this.logger.setPrefix(pluginName);
     const { package } = pluginsConfig[pluginName];
     if (!package) {
-      this.logger.warn(`Package name of plugin [${pluginName}] was not set.`);
+      this.logger.warn(`Package name of plugin was not set.`);
       return;
     }
     // if existed, skip
@@ -221,7 +222,7 @@ function collectPlugins() {
     try {
       plugins[pluginName] = require(package);
     } catch (err) {
-      this.logger.error(`Import plugin [${pluginName}] failed.`);
+      this.logger.error(`Import plugin failed.`);
       this.logger.error(err);
       killProcess.call(this, 'pluginCollectError');
     }
@@ -239,6 +240,8 @@ function collectPlugins() {
       plugins[pluginName].dependencies,
     );
   });
+
+  this.logger.setPrefix(null);
   return plugins;
 }
 
@@ -253,6 +256,7 @@ function collectPluginDependencies(
   }
   // require existed
   dependencies.forEach((dependency, index) => {
+    this.logger.setPrefix(dependency);
     const isObject = typeof dependency === 'object';
     let packageName;
     if (isObject) {
@@ -260,7 +264,7 @@ function collectPluginDependencies(
     } else if (typeof dependency === 'string') {
       packageName = dependency;
     } else {
-      this.logger.error(`Plugin [${pluginName}] contains contains an unrecognized dependency.`);
+      this.logger.error(`Plugin contains contains an unrecognized dependency.`);
       this.logger.error(err);
       killProcess.call(this, 'pluginCollectError');
     }
@@ -272,7 +276,7 @@ function collectPluginDependencies(
       return;
     } else if (isObject && !dependency.allowAutoImport) {
       // if the dependency is only allowed to be imported manually, exit
-      this.logger.error(`Dependency [${packageName}] of plugin [${pluginName}] needs to be imported manually.`);
+      this.logger.error(`Dependency [${packageName}] needs to be imported manually.`);
     } else {
       this.logger.warn(`Try to import [${packageName}] automatically by default.`);
     }
@@ -281,7 +285,7 @@ function collectPluginDependencies(
       plugins[dependencyName] = require(packageName);
     } catch (err) {
       // load plugin dependency err
-      this.logger.error(`Load dependency [${packageName}] of plugins [${pluginName}] failed.`);
+      this.logger.error(`Load dependency [${packageName}] failed.`);
       this.logger.error(err);
       killProcess.call(this, 'pluginCollectError');
     }
@@ -301,6 +305,8 @@ function collectPluginDependencies(
       plugins[dependencyName].dependencies,
     );
   });
+
+  this.logger.setPrefix(null);
 }
 
 module.exports = {

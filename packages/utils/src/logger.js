@@ -48,11 +48,29 @@ function createLogger() {
     pm2: loggerConfig.pm2 || false,
   });
 
+  let logger;
+
   if (process.env.NODE_ENV === 'dev') {
     // inject console
-    return log4js.getLogger('dev');
+    logger = log4js.getLogger('dev');
+  } else {
+    logger = log4js.getLogger();
   }
-  return log4js.getLogger();
+
+  const methods = ['debug', 'info', 'warn', 'error'];
+  methods.forEach((method) => {
+    logger[`_original_${method}`] = logger[method];
+    logger[method] = function (str, p) {
+      const prefix = p || this.prefix;
+      this[`_original_${method}`](`${prefix ? `[${prefix}]` : ''} ${str}`);
+    }
+  });
+
+  logger.setPrefix = function (prefix) {
+    this.prefix = prefix;
+  }
+
+  return logger;
 }
 
 function shutdownLogger() {
