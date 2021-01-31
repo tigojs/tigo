@@ -36,7 +36,11 @@ class AuthController extends BaseController {
     });
     const { username, password } = ctx.query;
     const user = await ctx.service.auth.user.verify(ctx, username, password);
-    ctx.body = successResponse(createToken(user, ctx.tigo.auth.secret));
+    ctx.body = successResponse({
+      uid: user.id,
+      user: user.username,
+      token: createToken(user, ctx.tigo.auth.secret)
+    });
   }
   async handleRegister(ctx) {
     ctx.verifyParams({
@@ -64,7 +68,7 @@ class AuthController extends BaseController {
       username,
       password,
     });
-    ctx.body = successResponse(null, '用户注册成功');
+    ctx.body = successResponse(null, '注册成功');
   }
   async handleRefresh(ctx) {
     ctx.verifyParams({
@@ -81,7 +85,7 @@ class AuthController extends BaseController {
     if (!user) {
       ctx.throw(400, isDev ? 'Token包含的用户信息不正确' : 'Token类型不正确');
     }
-    ctx.body = createToken(user, ctx.tigo.auth.secret);
+    ctx.body = successResponse(createToken(user, ctx.tigo.auth.secret));
   }
 }
 
