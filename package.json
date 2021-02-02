@@ -25,6 +25,7 @@
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",
+    "koa-cors": "^0.0.16",
     "koa-logger": "^3.2.1",
     "koa-parameter": "^3.0.1",
     "log4js": "^6.3.0",
