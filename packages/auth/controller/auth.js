@@ -85,7 +85,11 @@ class AuthController extends BaseController {
     if (!user) {
       ctx.throw(400, isDev ? 'Token包含的用户信息不正确' : 'Token类型不正确');
     }
-    ctx.body = successResponse(createToken(user, ctx.tigo.auth.secret));
+    ctx.body = successResponse({
+      uid: user.id,
+      useranme: user.username,
+      ...createToken(user, ctx.tigo.auth.secret),
+    });
   }
 }
 
