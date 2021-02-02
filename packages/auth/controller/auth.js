@@ -9,7 +9,7 @@ class AuthController extends BaseController {
     const { auth } = getPluginConfig(this.app);
     return {
       '/auth/login': {
-        type: 'get',
+        type: 'post',
         target: this.handleLogin,
       },
       '/auth/register': {

@@ -1,9 +1,9 @@
 const { BaseController } = require('@tigo/core');
 
-class SecurePingController extends BaseController {
+class CheckController extends BaseController {
   getRoutes() {
     return {
-      '/common/securePing': {
+      '/common/checkStatus': {
         type: 'get',
         auth: true,
         target: this.ping,
@@ -12,9 +12,10 @@ class SecurePingController extends BaseController {
   }
   async ping(ctx) {
     ctx.body = successResponse({
-      user: ctx.state.user,
+      uid: ctx.state.user.id,
+      username: ctx.state.user.username,
     });
   }
 }
 
-module.exports = SecurePingController;
+module.exports = CheckController;
