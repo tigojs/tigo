@@ -103,6 +103,9 @@ function registerErrorHandler(app) {
       }
       if (err.message) {
         ctx.body.message = err.message;
+        if (err.status !== 500) {
+          err._innerType = 'business';
+        }
       }
       ctx.body = JSON.stringify(ctx.body);
     } else {
@@ -119,8 +122,10 @@ function registerErrorHandler(app) {
     ctx.res.end(ctx.body);
 
     // output log
-    ctx.logger.error(`[${ctx.method}] ${ctx.path} request failed.`);
-    ctx.logger.error(err);
+    if (err._innerType !== 'business') {
+      ctx.logger.error(`[${ctx.method}] ${ctx.path} request failed.`);
+      ctx.logger.error(err);
+    }
   }
 
   // catch 404
