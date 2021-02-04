@@ -11,7 +11,6 @@ class PingController extends BaseController {
     };
   }
   async ping(ctx) {
-    ctx.throw(500, error);
     ctx.body = successResponse({
       auth: !!ctx.app.tigo.auth,
     });
