@@ -100,6 +100,8 @@ function initServer() {
   this.server.context.controller = this.controller;
   this.server.service = this.service;
   this.server.context.service = this.service;
+  this.server.model = this.model;
+  this.server.context.model = this.model;
   this.server.static = this.static;
   this.server.context.static = this.static;
   // init plugins

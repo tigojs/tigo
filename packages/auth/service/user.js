@@ -8,10 +8,10 @@ class UserService extends BaseService {
     user.password = crypto.createHmac('sha256', 'tigo').update(user.password).digest('hex');
     // generate scopeId
     user.scopeId = crypto.createHmac('md5', 'tigo').update(`${user.username}_${new Date().valueOf()}`).digest('hex');
-    await ctx.model.auth.User.create(user);
+    await ctx.model.auth.user.create(user);
   }
   async has(ctx, username) {
-    const ret = await ctx.model.auth.User.count({
+    const ret = await ctx.model.auth.user.count({
       where: {
         username,
       },
@@ -19,7 +19,7 @@ class UserService extends BaseService {
     return ret > 0;
   }
   async verify(ctx, username, password) {
-    const user = await ctx.model.auth.User.findOne({
+    const user = await ctx.model.auth.user.findOne({
       where: {
         username,
       },

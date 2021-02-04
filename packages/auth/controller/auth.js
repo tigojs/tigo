@@ -34,7 +34,7 @@ class AuthController extends BaseController {
         required: true,
       },
     });
-    const { username, password } = ctx.query;
+    const { username, password } = ctx.request.body;
     const user = await ctx.service.auth.user.verify(ctx, username, password);
     ctx.body = successResponse({
       uid: user.id,

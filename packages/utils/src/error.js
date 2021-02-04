@@ -101,6 +101,9 @@ function registerErrorHandler(app) {
           ctx.body = createHttpError('notFound');
           break;
       }
+      if (err.message) {
+        ctx.body.message = err.message;
+      }
       ctx.body = JSON.stringify(ctx.body);
     } else {
       ctx.set('Content-Type', 'text/html');
