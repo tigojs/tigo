@@ -51,12 +51,12 @@ function getStatusText(code) {
       return 'Bad Request';
     case 401:
       return 'Authorization Failed';
-    case 402:
-      return 'Parameter Validation Failed';
     case 403:
       return 'Access Forbidden';
     case 404:
       return 'Not Found';
+    case 422:
+      return 'Parameter Validation Failed';
   }
 }
 
@@ -91,17 +91,17 @@ function registerErrorHandler(app) {
         case 401:
           ctx.body = createHttpError('authorizationFailed');
           break;
-        case 402:
-          ctx.body = createHttpError('paramValidationFailed');
-          break;
         case 403:
           ctx.body = createHttpError('forbiddenAccess');
           break;
         case 404:
           ctx.body = createHttpError('notFound');
           break;
+        case 422:
+          ctx.body = createHttpError('paramValidationFailed');
+          break;
       }
-      if (err.message) {
+      if (err.message && err.status !== 422) {
         ctx.body.message = err.message;
         if (err.status !== 500) {
           err._innerType = 'business';

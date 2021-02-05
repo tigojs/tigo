@@ -8,7 +8,7 @@ const middleware = async function (ctx, next) {
   if (!ctx.header.authorization) {
     ctx.throw(401, '无法获取Token');
   }
-  const token = ctx.header.authorization.replace(/^B|bearer:\s?/, '');
+  const token = ctx.header.authorization.replace(/^(B|b)earer\s?/, '');
   let decoded;
   try {
     decoded = await verifyToken(token, secret);

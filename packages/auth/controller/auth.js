@@ -6,8 +6,12 @@ const isDev = process.env.NODE_ENV === 'dev';
 
 class AuthController extends BaseController {
   getRoutes() {
-    const { auth } = getPluginConfig(this.app);
     return {
+      '/auth/checkStatus': {
+        type: 'get',
+        auth: true,
+        target: this.handleCheckStatus,
+      },
       '/auth/login': {
         type: 'post',
         target: this.handleLogin,
@@ -15,13 +19,18 @@ class AuthController extends BaseController {
       '/auth/register': {
         type: 'post',
         target: this.handleRegister,
-        cond: () => !!auth.allowRegister,
       },
       '/auth/refresh': {
         type: 'get',
         target: this.handleRefresh,
       },
     };
+  }
+  async handleCheckStatus(ctx) {
+    ctx.body = successResponse({
+      uid: ctx.state.user.id,
+      username: ctx.state.user.username,
+    });
   }
   async handleLogin(ctx) {
     ctx.verifyParams({
