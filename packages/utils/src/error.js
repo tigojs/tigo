@@ -107,6 +107,9 @@ function registerErrorHandler(app) {
           err._innerType = 'business';
         }
       }
+      if (err.stack && process.env.NODE_ENV === 'dev') {
+        ctx.body.stack = err.stack;
+      }
       ctx.body = JSON.stringify(ctx.body);
     } else {
       ctx.set('Content-Type', 'text/html');
