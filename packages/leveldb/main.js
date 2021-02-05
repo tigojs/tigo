@@ -1,6 +1,7 @@
 const openDatabase = require("./src/level");
 
 const plugin = {
+  type: 'dbEngine',
   mount(app, config) {
     const db = openDatabase(app, config);
     app.dbEngine.leveldb = db;

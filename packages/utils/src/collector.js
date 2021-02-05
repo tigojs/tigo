@@ -209,8 +209,8 @@ function collectPlugins() {
 
   Object.keys(pluginsConfig).forEach((pluginName, index) => {
     this.logger.setPrefix(pluginName);
-    const { package } = pluginsConfig[pluginName];
-    if (!package) {
+    const { package: packageName } = pluginsConfig[pluginName];
+    if (!packageName) {
       this.logger.warn(`Package name of plugin was not set.`);
       return;
     }
@@ -220,11 +220,17 @@ function collectPlugins() {
     }
     // if not existed, import
     try {
-      plugins[pluginName] = require(package);
+      plugins[pluginName] = require(packageName);
     } catch (err) {
       this.logger.error(`Import plugin failed.`);
       this.logger.error(err);
       killProcess.call(this, 'pluginCollectError');
+    }
+    if (!plugins[pluginName].name) {
+      plugins[pluginName].name = pluginName;
+    }
+    if (!plugins[pluginName].package) {
+      plugins[pluginName].packageName = packageName;
     }
     // plugins priority: lower first
     plugins[pluginName].priority = (index + 1) * 100;
@@ -288,6 +294,12 @@ function collectPluginDependencies(
       this.logger.error(`Load dependency [${packageName}] failed.`);
       this.logger.error(err);
       killProcess.call(this, 'pluginCollectError');
+    }
+    if (!plugins[dependencyName].name) {
+      plugins[dependencyName].name = dependencyName;
+    }
+    if (!plugins[dependencyName].package) {
+      plugins[dependencyName].packageName = packageName;
     }
     plugins[dependencyName].priority = priority;
     if (pluginsConfig[dependencyName]) {

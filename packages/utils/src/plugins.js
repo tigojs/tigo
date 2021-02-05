@@ -18,17 +18,14 @@ function getPluginConfig(app) {
   return app.tigo.config.plugins;
 }
 
-function getPluginList(pluginConfig) {
-  const list = [];
-  Object.keys(pluginConfig).forEach((name) => {
-    // return a list contains package name of plugins.
-    list.push(pluginConfig[name].package);
-  });
-  return list;
+function getPublicPluginList(app) {
+  return Object.keys(app.plugins)
+    .filter((k) => app.plugins[k].type === 'module')
+    .map((k) => app.plugins[k].packageName);
 }
 
 module.exports = {
   pluginPackageExisted,
   getPluginConfig,
-  getPluginList,
+  getPublicPluginList,
 };

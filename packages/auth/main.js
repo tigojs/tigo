@@ -13,6 +13,7 @@ const SERVICE_DIR = path.resolve(__dirname, './service');
 const MODEL_DIR = path.resolve(__dirname, './model');
 
 const plugin = {
+  type: 'basic',
   mount(app, config) {
     // use error handler
     app.server.use(authErrorHandler);

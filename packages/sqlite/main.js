@@ -6,6 +6,7 @@ const fs = require('fs');
 const { Sequelize } = sequelize;
 
 const plugins = {
+  type: 'dbEngine',
   mount(app, config) {
     if (!config) {
       app.logger.warn('Cannot find the configuration of sqlite db, use default settings.');

@@ -122,6 +122,8 @@ function initServer() {
     }
   });
   this.logger.setPrefix(null);
+  this.plugins = plugins;
+  this.server.plugins = this.plugins;
   // init controller
   const controllers = collectController.call(this, CONTROLLER_DIR);
   this.controller.main = controllers;

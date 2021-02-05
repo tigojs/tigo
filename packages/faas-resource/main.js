@@ -9,6 +9,7 @@ const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const SERVICE_DIR = path.resolve(__dirname, './src/service');
 
 const plugin = {
+  type: 'subModule',
   dependencies: [
     {
       package: '@tigo/faas',

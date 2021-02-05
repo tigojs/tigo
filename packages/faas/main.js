@@ -10,6 +10,7 @@ const SERVICE_DIR = path.resolve(__dirname, './src/service');
 const MODEL_DIR = path.resolve(__dirname, './src/model');
 
 const plugin = {
+  type: 'module',
   mount(app, config) {
     // check auth plugin
     if (!app.tigo.auth) {
