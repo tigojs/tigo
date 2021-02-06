@@ -6,7 +6,7 @@ const mime = require('mime');
 class ConfigurationController extends BaseController {
   getRoutes() {
     return {
-      '/config/{scopeId:string}/{name:string}.{type:string}': {
+      '/config/{scopeId:string}/{name:any}.{type:string}': {
         type: 'get',
         target: this.handleRequest,
         external: true,
@@ -42,15 +42,19 @@ class ConfigurationController extends BaseController {
     ctx.body = successResponse(list);
   }
   async handleGetContent(ctx) {
+    ctx.query.id = parseInt(ctx.query.id, 10);
     ctx.verifyParams({
       id: {
         type: 'number',
+        required: true,
         min: 1,
       },
     });
     const { id } = ctx.query;
-    const content = await ctx.service.configStorage.getContent(ctx, id);
-    ctx.body = successResponse(content);
+    const content = await ctx.service.configStorage.conf.getContent(ctx, id);
+    ctx.body = successResponse({
+      content,
+    });
   }
   async handleRequest(ctx) {
     const { scopeId, name, type } = ctx.params;
@@ -58,7 +62,7 @@ class ConfigurationController extends BaseController {
     if (!formattedType || !allowedType.includes(formattedType)) {
       ctx.throw(400, '类型错误');
     }
-    const content = await ctx.service.configStorage.getContentViaPublic(scopeId, formattedType, name);
+    const content = await ctx.service.configStorage.conf.getContentViaPublic(ctx, scopeId, formattedType, name);
     if (!content) {
       ctx.throw(404, '找不到对应的脚本');
     }

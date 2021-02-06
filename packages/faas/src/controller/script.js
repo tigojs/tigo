@@ -4,7 +4,7 @@ const { successResponse } = require('@tigo/utils');
 class ScriptController extends BaseController {
   getRoutes() {
     return {
-      '/lambda/{scopeId:string}/{name:string}': {
+      '/lambda/{scopeId:string}/{name:any}': {
         type: 'get',
         target: this.handleExec,
         external: true,
@@ -90,6 +90,7 @@ class ScriptController extends BaseController {
     }
   }
   async handleDelete(ctx) {
+    ctx.query.id = parseInt(ctx.query.id, 10);
     ctx.verifyParams({
       id: {
         type: 'number',

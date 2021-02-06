@@ -20,28 +20,30 @@ class ConfigStorageService extends BaseService {
       updateAgeOnGet: true,
     });
   }
-  async getContentViaPublic(scopeId, type, name) {
+  async getContentViaPublic(ctx, scopeId, type, name) {
     const key = `${scopeId}_${type}_${name}`;
     const stored = this.cache.get(key);
     if (stored) {
       return stored;
     }
-    const content = await ctx.configStorage.storage.key(getStorageKey(key));
+    const content = (await ctx.configStorage.storage.get(getStorageKey(key))).toString();
     if (!content) {
       return null;
     }
-    this.cache.set(key, content);
-    return content;
+    const decoded = Buffer.from(content, 'base64').toString('utf-8');
+    this.cache.set(key, decoded);
+    return decoded;
   }
   async getContent(ctx, id) {
-    const dbItem = ctx.model.configStorage.conf.findByPk(id);
+    const dbItem = await ctx.model.configStorage.conf.findByPk(id);
     if (!dbItem) {
       ctx.throw(400, '找不到该配置文件');
     }
     if (dbItem.uid !== ctx.state.user.id) {
       ctx.throw(401, '无权访问');
     }
-    return await ctx.configStorage.storage.getStorageKey(`${ctx.state.user.scopeId}_${dbItem.type}_${dbItem.name}`);
+    const ret = await ctx.configStorage.storage.get(getStorageKey(`${ctx.state.user.scopeId}_${dbItem.type}_${dbItem.name}`));
+    return ret.toString();
   }
   async add(ctx) {
     const { name, content, type } = ctx.request.body;
@@ -52,13 +54,12 @@ class ConfigStorageService extends BaseService {
       ctx.throw(400, '不支持该类型的配置文件');
     }
     // check name
-    if (ctx.model.configStorage.conf.exists(uid, formattedType, name)) {
+    if (await ctx.model.configStorage.conf.exists(uid, formattedType, name)) {
       ctx.throw(400, '配置文件名称已被占用');
     }
     // write
-    const key = getStorageKey(`${scopeId}_${name}_${formattedType}`);
-    const decoded = Buffer.from(content, 'base64').toString('utf-8');
-    await ctx.configStorage.storage.put(key, decoded);
+    const key = getStorageKey(`${scopeId}_${formattedType}_${name}`);
+    await ctx.configStorage.storage.put(key, content);
     const conf = await ctx.model.configStorage.conf.create({
       uid: ctx.state.user.id,
       type: formattedType,
@@ -85,7 +86,7 @@ class ConfigStorageService extends BaseService {
     }
     // if name or type changed, delete cache and previous stored file.
     if (dbItem.name !== name || dbItem.type !== formattedType) {
-      if (ctx.model.configStorage.conf.exists(uid, formattedType, name)) {
+      if (await ctx.model.configStorage.conf.exists(uid, formattedType, name)) {
         ctx.throw(400, '名称已被占用');
       }
       const oldKey = `${scopeId}_${dbItem.type}_${dbItem.name}`;

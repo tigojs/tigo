@@ -49,7 +49,7 @@ class ScriptService extends BaseService {
     const { name, content } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
     // check duplicate items
-    if (ctx.model.faas.script.hasName(uid, name)) {
+    if (await ctx.model.faas.script.hasName(uid, name)) {
       ctx.throw(400, '脚本名称已被占用');
     }
     // write content to kv storage
@@ -78,7 +78,7 @@ class ScriptService extends BaseService {
     }
     // if name changed, delete previous version in storage
     if (dbItem.name !== name) {
-      if (ctx.model.faas.script.hasName(uid, name)) {
+      if (await ctx.model.faas.script.hasName(uid, name)) {
         ctx.throw(400, '名称已被占用');
       }
       const oldKey = `${scopeId}_${dbItem.name}`;
@@ -121,7 +121,7 @@ class ScriptService extends BaseService {
   async getContent(ctx) {
     const { id: scriptId } = ctx.query;
     const { scopeId } = ctx.state.user;
-    const dbItem = ctx.model.faas.script.findByPk(scriptId);
+    const dbItem = await ctx.model.faas.script.findByPk(scriptId);
     if (!dbItem) {
       ctx.throw(400, '找不到对应的脚本');
     }

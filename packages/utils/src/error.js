@@ -101,7 +101,7 @@ function registerErrorHandler(app) {
           ctx.body = createHttpError('paramValidationFailed');
           break;
       }
-      if (err.message && err.status !== 422) {
+      if (err.message && err.status !== 422 && process.env.NODE_ENV === 'dev') {
         ctx.body.message = err.message;
         if (err.status !== 500) {
           err._innerType = 'business';

@@ -32,7 +32,7 @@ function registerController(instance) {
     } else {
       this.router[type](realPath, info.target);
     }
-    this.logger.debug(`Registered route [${type.toUpperCase()}: ${path}] of [${instance._tigoName}] controller.`);
+    this.logger.debug(`Registered route [${type.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
   });
 }
 

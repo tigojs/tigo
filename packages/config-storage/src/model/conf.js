@@ -20,8 +20,8 @@ const define = function (app, engine) {
 
   Config.sync({ alter: true });
 
-  Config.prototype.exists = async function (uid, type, name) {
-    const item = this.findOne({
+  Config.exists = async function (uid, type, name) {
+    const item = await this.findOne({
       where: {
         uid,
         name,

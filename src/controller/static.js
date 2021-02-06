@@ -10,12 +10,12 @@ const getMemoConf = (ctx) => {
 class StaticFileController extends BaseController {
   getRoutes() {
     return {
-      '/view/{scope:string}/{name:string}': {
+      '/view/{scope:string}/{name:any}': {
         type: 'get',
         target: this.handleView,
         external: true,
       },
-      '/static/{scope:string}/{base:string}.{ext:string}': {
+      '/static/{scope:string}/{base:any}.{ext:string}': {
         type: 'get',
         target: this.handleFile,
         external: true,
