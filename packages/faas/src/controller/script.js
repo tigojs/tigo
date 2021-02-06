@@ -76,7 +76,7 @@ class ScriptController extends BaseController {
         required: true,
       },
     });
-
+    const { action } = ctx.request.body;
     if (action === 'add') {
       // add a new script
       const id = await ctx.service.faas.script.add(ctx);

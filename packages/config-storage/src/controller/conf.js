@@ -34,7 +34,7 @@ class ConfigurationController extends BaseController {
     }
   }
   async handleList(ctx) {
-    const list = await ctx.model.configStorage.findAll({
+    const list = await ctx.model.configStorage.conf.findAll({
       where: {
         uid: ctx.state.user.id,
       },
@@ -91,6 +91,7 @@ class ConfigurationController extends BaseController {
         required: true,
       },
     });
+    const { action } = ctx.request.body;
     if (action === 'add') {
       const id = await ctx.service.configStorage.conf.add(ctx);
       ctx.body = successResponse({
