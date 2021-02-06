@@ -91,19 +91,21 @@ class ConfigStorageService extends BaseService {
       }
       const oldKey = `${scopeId}_${dbItem.type}_${dbItem.name}`;
       await ctx.configStorage.storage.del(getStorageKey(oldKey));
+      await ctx.model.configStorage.conf.update({
+        name,
+        type: formattedType,
+      }, {
+        where: {
+          id,
+        },
+      });
       this.cache.del(oldKey);
     }
     // update config file
     const key = `${scopeId}_${formattedType}_${name}`;
-    await ctx.configStorage.storage.put(key, content);
+    await ctx.configStorage.storage.put(getStorageKey(key), content);
     // flush cache
     this.cache.del(key);
-    await ctx.model.configStorage.conf.update({
-      id,
-      uid,
-      name,
-      type: formattedType,
-    });
   }
   async delete(ctx, id) {
     const { scopeId } = ctx.state.user;

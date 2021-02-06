@@ -54,7 +54,7 @@ class ScriptService extends BaseService {
     }
     // write content to kv storage
     const key = getStorageKey(`${scopeId}_${name}`);
-    await ctx.faas.storage.set(
+    await ctx.faas.storage.put(
       key,
       Buffer.from(content, 'base64').toString('utf-8'),
     );
@@ -83,22 +83,23 @@ class ScriptService extends BaseService {
       }
       const oldKey = `${scopeId}_${dbItem.name}`;
       await ctx.faas.storage.del(getStorageKey(oldKey));
+      await ctx.model.faas.script.update({
+        name,
+      }, {
+        where: {
+          id,
+        },
+      });
       this.cache.del(oldKey);
     }
     // update script
     const key = `${scopeId}_${name}`;
-    await ctx.faas.storage.set(
+    await ctx.faas.storage.put(
       getStorageKey(key),
       Buffer.from(content, 'base64').toString('utf-8')
     )
     // flush cache
     this.cache.del(key);
-    // update sql db
-    await ctx.model.faas.script.update({
-      id,
-      uid,
-      name,
-    });
   }
   async delete(ctx, id) {
     const { scopeId } = ctx.state.user;
