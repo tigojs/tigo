@@ -14,9 +14,6 @@ const define = function (app, engine) {
     type: {
       type: STRING,
     },
-    remark: {
-      type: STRING,
-    }
   }, {
     tableName: `${prefix}_stored_config`,
   });

@@ -44,7 +44,7 @@ class ConfigStorageService extends BaseService {
     return await ctx.configStorage.storage.getStorageKey(`${ctx.state.user.scopeId}_${dbItem.type}_${dbItem.name}`);
   }
   async add(ctx) {
-    const { name, content, type, remark } = ctx.request.body;
+    const { name, content, type } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
     // check type
     const formattedType = type.toLowerCase();
@@ -63,13 +63,12 @@ class ConfigStorageService extends BaseService {
       uid: ctx.state.user.id,
       type: formattedType,
       name,
-      remark,
     });
 
     return conf.id;
   }
   async edit(ctx) {
-    const { id, name, content, type, remark } = ctx.request.body;
+    const { id, name, content, type } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
     // check type
     const formattedType = type.toLowerCase();
@@ -103,7 +102,6 @@ class ConfigStorageService extends BaseService {
       uid,
       name,
       type: formattedType,
-      remark,
     });
   }
   async delete(ctx, id) {

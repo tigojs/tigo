@@ -29,7 +29,7 @@ class ScriptController extends BaseController {
         type: 'post',
         auth: true,
         target: this.handleDelete,
-      }
+      },
     };
   }
   async handleList(ctx) {
@@ -60,7 +60,7 @@ class ScriptController extends BaseController {
       action: {
         type: 'enum',
         values: ['add', 'edit'],
-        required: false,
+        required: true,
       },
       id: {
         type: 'number',
@@ -75,21 +75,17 @@ class ScriptController extends BaseController {
         type: 'string',
         required: true,
       },
-      remark: {
-        type: 'string',
-        required: false,
-      }
     });
 
     if (action === 'add') {
       // add a new script
-      const id = await ctx.service.script.add(ctx);
+      const id = await ctx.service.faas.script.add(ctx);
       ctx.body = successResponse({
         id,
       }, '保存成功');
     } else if (action === 'edit') {
       // edit existed script
-      await ctx.service.script.edit(ctx);
+      await ctx.service.faas.script.edit(ctx);
       ctx.body = successResponse(null, '保存成功');
     }
   }
@@ -100,7 +96,7 @@ class ScriptController extends BaseController {
         required: true,
         min: 1,
       }
-    })
+    });
     const { id } = ctx.request.body;
     await ctx.service.faas.script.delete(ctx, id);
     ctx.body = successResponse(null, '删除成功');

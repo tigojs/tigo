@@ -21,6 +21,16 @@ class ConfigurationController extends BaseController {
         auth: true,
         target: this.handleGetContent,
       },
+      '/config-storage/save': {
+        type: 'post',
+        auth: true,
+        target: this.handleSave,
+      },
+      '/config-storage/delete': {
+        type: 'post',
+        auth: true,
+        target: this.handleDelete,
+      },
     }
   }
   async handleList(ctx) {
@@ -54,6 +64,54 @@ class ConfigurationController extends BaseController {
     }
     ctx.set('Content-Type', mime.getType(formattedType));
     ctx.body = content;
+  }
+  async handleSave(ctx) {
+    ctx.verifyParams({
+      action: {
+        type: 'enum',
+        values: ['add', 'edit'],
+        required: true,
+      },
+      id: {
+        type: 'number',
+        required: false,
+        min: 1,
+      },
+      name: {
+        type: 'string',
+        required: true,
+      },
+      type: {
+        type: 'enum',
+        values: ['json', 'xml', 'yaml'],
+        required: true,
+      },
+      content: {
+        type: 'string',
+        required: true,
+      },
+    });
+    if (action === 'add') {
+      const id = await ctx.service.configStorage.conf.add(ctx);
+      ctx.body = successResponse({
+        id,
+      }, '保存成功');
+    } else if (action === 'edit') {
+      await ctx.service.configStorage.conf.edit(ctx);
+      ctx.body = successResponse(null, '保存成功');
+    }
+  }
+  async handleDelete(ctx) {
+    ctx.verifyParams({
+      id: {
+        type: 'number',
+        required: true,
+        min: 1,
+      }
+    });
+    const { id } = ctx.request.body;
+    await ctx.service.configStorage.conf.delete(ctx, id);
+    ctx.body = successResponse(null, '删除成功');
   }
 }
 
