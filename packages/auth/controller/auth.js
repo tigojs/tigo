@@ -47,7 +47,7 @@ class AuthController extends BaseController {
     const user = await ctx.service.auth.user.verify(ctx, username, password);
     ctx.body = successResponse({
       uid: user.id,
-      user: user.username,
+      username: user.username,
       token: createToken(user, ctx.tigo.auth.secret)
     });
   }
@@ -86,9 +86,10 @@ class AuthController extends BaseController {
         required: true,
       },
     });
+    const { token } = ctx.query;
     const decoded = await verifyToken(token, ctx.tigo.auth.secret);
-    if (!decoded.type || decoded.type !== 'refresh') {
-      ctx.throw(400, 'Token类型不正确');
+    if (!decoded) {
+      ctx.throw(400, '无法校验提交的Token');
     }
     const user = await ctx.model.auth.user.findByPk(decoded.id);
     if (!user) {
