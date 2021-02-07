@@ -113,13 +113,13 @@ class ConfigStorageService extends BaseService {
     if (!dbItem) {
       ctx.throw(400, '找不到该脚本');
     }
-    if (!dbItem.uid !== ctx.state.user.id) {
+    if (dbItem.uid !== ctx.state.user.id) {
       ctx.throw(401, '无权访问');
     }
     const key = `${scopeId}_${dbItem.type}_${dbItem.name}`;
     await ctx.configStorage.storage.del(getStorageKey(key));
     this.cache.del(key);
-    await ctx.model.configStorage.conf.destory({
+    await ctx.model.configStorage.conf.destroy({
       where: {
         id,
       },
