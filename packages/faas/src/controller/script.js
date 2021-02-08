@@ -33,7 +33,7 @@ class ScriptController extends BaseController {
     };
   }
   async handleList(ctx) {
-    const list = ctx.model.script.findAll({
+    const list = await ctx.model.faas.script.findAll({
       where: {
         uid: ctx.state.user.id,
       },

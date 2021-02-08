@@ -2,8 +2,8 @@ const { getTablePrefix } = require('@tigo/utils');
 
 const define = function (app, engine) {
   const prefix = getTablePrefix(app);
-
   const { INTEGER, STRING } = engine.Sequelize;
+
   const Config = engine.define('storedConfig', {
     uid: {
       type: INTEGER,
