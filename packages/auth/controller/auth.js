@@ -30,6 +30,7 @@ class AuthController extends BaseController {
     ctx.body = successResponse({
       uid: ctx.state.user.id,
       username: ctx.state.user.username,
+      scopeId: ctx.state.user.scopeId,
     });
   }
   async handleLogin(ctx) {
@@ -48,6 +49,7 @@ class AuthController extends BaseController {
     ctx.body = successResponse({
       uid: user.id,
       username: user.username,
+      scopeId: user.scopeId,
       token: createToken(user, ctx.tigo.auth.secret)
     });
   }
@@ -98,6 +100,7 @@ class AuthController extends BaseController {
     ctx.body = successResponse({
       uid: user.id,
       useranme: user.username,
+      scopeId: user.scopeId,
       ...createToken(user, ctx.tigo.auth.secret),
     });
   }
