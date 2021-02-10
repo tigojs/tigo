@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-const uuid = require('uuid');
 const LRU = require('lru-cache');
 const { NodeVM } = require('vm2');
 const { BaseService } = require('@tigo/core');
