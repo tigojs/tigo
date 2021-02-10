@@ -41,6 +41,7 @@ class ScriptController extends BaseController {
     ctx.body = successResponse(list);
   }
   async handleGetContent(ctx) {
+    ctx.query.id = parseInt(ctx.query.id, 10);
     ctx.verifyParams({
       id: {
         type: 'number',

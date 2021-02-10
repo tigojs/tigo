@@ -129,7 +129,7 @@ class ScriptService extends BaseService {
     if (dbItem.uid !== ctx.state.user.id) {
       ctx.throw(401, '无权访问');
     }
-    const key = `${scopeId}_${scriptId}`;
+    const key = `${scopeId}_${dbItem.name}`;
 
     return await ctx.faas.storage.get(getStorageKey(key));
   }

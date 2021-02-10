@@ -18,7 +18,7 @@ const define = function (app, engine) {
   Script.sync({ alter: true });
 
   Script.hasName = async function (uid, name) {
-    const item = this.findOne({
+    const item = await this.findOne({
       where: {
         uid,
         name,
