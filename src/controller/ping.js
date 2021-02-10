@@ -20,6 +20,7 @@ class PingController extends BaseController {
     });
   }
   async heartbeat(ctx) {
+    ctx.set('Cache-Control', 'no-store');
     ctx.set('Content-Type', 'text/plain');
     ctx.body = 1;
   }

@@ -44,6 +44,7 @@ class ConfigurationController extends BaseController {
         uid: ctx.state.user.id,
       },
     });
+    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(list);
   }
   async handleGetContent(ctx) {
@@ -57,6 +58,7 @@ class ConfigurationController extends BaseController {
     });
     const { id } = ctx.query;
     const content = await ctx.service.configStorage.conf.getContent(ctx, id);
+    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse({
       content,
     });
@@ -71,6 +73,15 @@ class ConfigurationController extends BaseController {
     if (!content) {
       ctx.throw(404, '找不到对应的脚本');
     }
+    const cacheAge = ctx.query?.cacheAge;
+    if (
+      typeof cacheAge !== 'undefined'
+      && cacheAge !== null
+      && !/\d+/.test(cacheAge)
+    ) {
+      ctx.throw(400, '缓存参数不合法');
+    }
+    ctx.set('Cache-Control', `max-age=${cacheAge || 3600}`);
     ctx.set('Content-Type', mime.getType(formattedType));
     ctx.body = content;
   }
@@ -110,6 +121,7 @@ class ConfigurationController extends BaseController {
       await ctx.service.configStorage.conf.edit(ctx);
       ctx.body = successResponse(null, '保存成功');
     }
+    ctx.set('Cache-Control', 'no-store');
   }
   async handleRename(ctx) {
     ctx.verifyParams({
@@ -124,6 +136,7 @@ class ConfigurationController extends BaseController {
       },
     });
     await ctx.service.configStorage.conf.rename(ctx);
+    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(null, '修改成功');
   }
   async handleDelete(ctx) {
@@ -136,6 +149,7 @@ class ConfigurationController extends BaseController {
     });
     const { id } = ctx.request.body;
     await ctx.service.configStorage.conf.delete(ctx, id);
+    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(null, '删除成功');
   }
 }

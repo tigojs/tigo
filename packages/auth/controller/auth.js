@@ -46,6 +46,7 @@ class AuthController extends BaseController {
     });
     const { username, password } = ctx.request.body;
     const user = await ctx.service.auth.user.verify(ctx, username, password);
+    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse({
       uid: user.id,
       username: user.username,
@@ -79,6 +80,7 @@ class AuthController extends BaseController {
       username,
       password,
     });
+    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(null, '注册成功');
   }
   async handleRefresh(ctx) {
@@ -97,6 +99,7 @@ class AuthController extends BaseController {
     if (!user) {
       ctx.throw(400, isDev ? 'Token包含的用户信息不正确' : 'Token类型不正确');
     }
+    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse({
       uid: user.id,
       useranme: user.username,

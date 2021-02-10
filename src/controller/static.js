@@ -34,6 +34,7 @@ class StaticFileController extends BaseController {
     }
     const memo = MEMO_EXT_PATTERN.test(ext) && useMemo;
     const file = ctx.static[scope][ext][base];
+    ctx.set('Cache-Control', 'max-age=3600');
     ctx.set('Content-Type', mime.getType(ext));
     ctx.body = memo ? file : fs.createReadStream(file);
   }
@@ -47,6 +48,7 @@ class StaticFileController extends BaseController {
       ctx.throw(404, '页面未找到');
     }
     const view = ctx.static[scope][name];
+    ctx.set('Cache-Control', 'max-age=3600');
     ctx.set('Content-Type', 'text/html');
     ctx.body = useMemo ? view : fs.createReadStream(view);
   }
