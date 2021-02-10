@@ -5,6 +5,7 @@ const LRU = require('lru-cache');
 const { NodeVM } = require('vm2');
 const { BaseService } = require('@tigo/core');
 const { createContextProxy } = require('../utils/context');
+const { stackFilter } = require('../utils/stackFilter');
 
 const USERSCRIPT_TEMPLATE = fs.readFileSync(
   path.resolve(__dirname, '../template/userscript.js'),
@@ -36,14 +37,19 @@ class ScriptService extends BaseService {
     let handleRequestFunc = this.cache.get(key);
     if (!handleRequestFunc) {
       // func not in cache
-      const script = await ctx.faas.storage.get(getScriptKey(key));
+      const script = await ctx.faas.storage.get(getStorageKey(key));
       if (!script) {
         ctx.throw(400, '无法找到对应的脚本');
       }
       handleRequestFunc = this.vm.run(USERSCRIPT_TEMPLATE.replace('{{inject}}', script));
       this.cache.set(key, handleRequestFunc);
     }
-    await handleRequestFunc(createContextProxy(ctx));
+    try {
+      await handleRequestFunc(createContextProxy(ctx));
+    } catch (err) {
+      err.stack = stackFilter(err.stack);
+      throw err;
+    }
   }
   async add(ctx) {
     const { name, content } = ctx.request.body;
