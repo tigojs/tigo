@@ -108,20 +108,24 @@ class ConfigStorageService extends BaseService {
   }
   async rename(ctx) {
     const { id, newName } = ctx.request.body;
-    if (ctx.model.configStorage.storage.exists(newName)) {
+    const { id: uid, scopeId } = ctx.state.user;
+    const dbItem = await generalCheck(ctx, id);
+    if (await ctx.model.configStorage.storage.exists(uid, dbItem.type, newName)) {
       ctx.throw(400, '名称已被占用');
     }
-    const dbItem = await generalCheck(ctx, id);
     await ctx.model.faas.script.update({
       name: newName,
     }, {
-      where: id,
+      where: {
+        id,
+      },
     });
     const key = `${scopeId}_${dbItem.type}_${dbItem.name}`;
     const newKey = `${scopeId}_${dbItem.type}_${newName}`;
-    await ctx.service.configStorage.storage.del(getStorageKey(key));
+    const content = await ctx.faas.storage.get(key);
+    await ctx.configStorage.storage.del(getStorageKey(key));
     this.cache.del(key);
-    await ctx.service.configStorage.storage.put(getStorageKey(newKey));
+    await ctx.configStorage.storage.put(getStorageKey(newKey), content);
   }
   async delete(ctx, id) {
     const { scopeId } = ctx.state.user;

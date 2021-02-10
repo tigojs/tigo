@@ -113,20 +113,24 @@ class ScriptService extends BaseService {
   }
   async rename(ctx) {
     const { id, newName } = ctx.request.body;
-    if (ctx.model.faas.script.hasName(newName)) {
+    const { id: uid, scopeId } = ctx.state.user;
+    if (await ctx.model.faas.script.hasName(uid, newName)) {
       ctx.throw(400, '名称已被占用');
     }
     const dbItem = await generalCheck(ctx, id);
     await ctx.model.faas.script.update({
       name: newName,
     }, {
-      where: id,
+      where: {
+        id,
+      },
     });
     const key = `${scopeId}_${dbItem.name}`;
     const newKey = `${scopeId}_${dbItem.newName}`;
-    await ctx.service.faas.storage.del(getStorageKey(key));
+    const content = await ctx.faas.storage.get(key);
+    await ctx.faas.storage.del(getStorageKey(key));
     this.cache.del(key);
-    await ctx.service.faas.storage.put(getStorageKey(newKey));
+    await ctx.faas.storage.put(getStorageKey(newKey), content);
   }
   async delete(ctx) {
     const { id } = ctx.request.body;
@@ -135,7 +139,7 @@ class ScriptService extends BaseService {
     const key = `${scopeId}_${dbItem.name}`;
     await ctx.faas.storage.del(getStorageKey(key));
     this.cache.del(key);
-    await ctx.model.faas.script.destory({
+    await ctx.model.faas.script.destroy({
       where: {
         id,
       },
