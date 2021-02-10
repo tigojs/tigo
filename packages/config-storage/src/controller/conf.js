@@ -26,6 +26,11 @@ class ConfigurationController extends BaseController {
         auth: true,
         target: this.handleSave,
       },
+      '/config-storage/rename': {
+        type: 'post',
+        auth: true,
+        target: this.handleRename,
+      },
       '/config-storage/delete': {
         type: 'post',
         auth: true,
@@ -105,6 +110,21 @@ class ConfigurationController extends BaseController {
       await ctx.service.configStorage.conf.edit(ctx);
       ctx.body = successResponse(null, '保存成功');
     }
+  }
+  async handleRename(ctx) {
+    ctx.verifyParams({
+      id: {
+        type: 'number',
+        required: true,
+        min: 1,
+      },
+      newName: {
+        type: 'string',
+        required: true,
+      },
+    });
+    await ctx.service.configStorage.conf.rename(ctx);
+    ctx.body = successResponse(null, '修改成功');
   }
   async handleDelete(ctx) {
     ctx.verifyParams({

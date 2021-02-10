@@ -13,6 +13,17 @@ const USERSCRIPT_TEMPLATE = fs.readFileSync(
 
 const getStorageKey = (scriptId) => `faas_script_${scriptId}`;
 
+const generalCheck = async (ctx, id) => {
+  const dbItem = await ctx.model.faas.script.findByPk(id);
+  if (!dbItem) {
+    ctx.throw(400, '找不到该脚本');
+  }
+  if (!dbItem.uid !== ctx.state.user.id) {
+    ctx.throw(401, '无权访问');
+  }
+  return dbItem;
+}
+
 class ScriptService extends BaseService {
   constructor(app) {
     let { config } = app.config.plugins.faas;
@@ -55,7 +66,7 @@ class ScriptService extends BaseService {
     const { id: uid, scopeId } = ctx.state.user;
     // check duplicate items
     if (await ctx.model.faas.script.hasName(uid, name)) {
-      ctx.throw(400, '脚本名称已被占用');
+      ctx.throw(400, '名称已被占用');
     }
     // write content to kv storage
     const key = getStorageKey(`${scopeId}_${name}`);
@@ -74,13 +85,7 @@ class ScriptService extends BaseService {
     const { id, name, content } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
     // check db item
-    const dbItem = await ctx.model.faas.script.findByPk(id);
-    if (!dbItem) {
-      ctx.throw(400, '找不到该脚本');
-    }
-    if (dbItem.uid !== uid) {
-      ctx.throw(401, '无权访问');
-    }
+    const dbItem = await generalCheck(ctx, id);
     // if name changed, delete previous version in storage
     if (dbItem.name !== name) {
       if (await ctx.model.faas.script.hasName(uid, name)) {
@@ -106,15 +111,27 @@ class ScriptService extends BaseService {
     // flush cache
     this.cache.del(key);
   }
-  async delete(ctx, id) {
+  async rename(ctx) {
+    const { id, newName } = ctx.request.body;
+    if (ctx.model.faas.script.hasName(newName)) {
+      ctx.throw(400, '名称已被占用');
+    }
+    const dbItem = await generalCheck(ctx, id);
+    await ctx.model.faas.script.update({
+      name: newName,
+    }, {
+      where: id,
+    });
+    const key = `${scopeId}_${dbItem.name}`;
+    const newKey = `${scopeId}_${dbItem.newName}`;
+    await ctx.service.faas.storage.del(getStorageKey(key));
+    this.cache.del(key);
+    await ctx.service.faas.storage.put(getStorageKey(newKey));
+  }
+  async delete(ctx) {
+    const { id } = ctx.request.body;
     const { scopeId } = ctx.state.user;
-    const dbItem = await ctx.model.faas.script.findByPk(id);
-    if (!dbItem) {
-      ctx.throw(400, '找不到该脚本');
-    }
-    if (!dbItem.uid !== ctx.state.user.id) {
-      ctx.throw(401, '无权访问');
-    }
+    const dbItem = await generalCheck(ctx, id);
     const key = `${scopeId}_${dbItem.name}`;
     await ctx.faas.storage.del(getStorageKey(key));
     this.cache.del(key);
@@ -125,17 +142,10 @@ class ScriptService extends BaseService {
     });
   }
   async getContent(ctx) {
-    const { id: scriptId } = ctx.query;
+    const { id } = ctx.query;
     const { scopeId } = ctx.state.user;
-    const dbItem = await ctx.model.faas.script.findByPk(scriptId);
-    if (!dbItem) {
-      ctx.throw(400, '找不到对应的脚本');
-    }
-    if (dbItem.uid !== ctx.state.user.id) {
-      ctx.throw(401, '无权访问');
-    }
+    const dbItem = await generalCheck(ctx, id);
     const key = `${scopeId}_${dbItem.name}`;
-
     return await ctx.faas.storage.get(getStorageKey(key));
   }
 }

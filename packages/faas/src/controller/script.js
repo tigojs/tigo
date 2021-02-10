@@ -20,6 +20,11 @@ class ScriptController extends BaseController {
         auth: true,
         target: this.handleGetContent,
       },
+      '/faas/rename': {
+        type: 'post',
+        auth: true,
+        target: this.handleRename,
+      },
       '/faas/save': {
         type: 'post',
         auth: true,
@@ -90,6 +95,21 @@ class ScriptController extends BaseController {
       ctx.body = successResponse(null, '保存成功');
     }
   }
+  async handleRename(ctx) {
+    ctx.verifyParams({
+      id: {
+        type: 'number',
+        required: true,
+        min: 1,
+      },
+      newName: {
+        type: 'string',
+        required: true,
+      },
+    });
+    await ctx.service.faas.script.rename(ctx);
+    ctx.body = successResponse(null, '修改成功');
+  }
   async handleDelete(ctx) {
     ctx.query.id = parseInt(ctx.query.id, 10);
     ctx.verifyParams({
@@ -99,8 +119,7 @@ class ScriptController extends BaseController {
         min: 1,
       }
     });
-    const { id } = ctx.request.body;
-    await ctx.service.faas.script.delete(ctx, id);
+    await ctx.service.faas.script.delete(ctx);
     ctx.body = successResponse(null, '删除成功');
   }
 }

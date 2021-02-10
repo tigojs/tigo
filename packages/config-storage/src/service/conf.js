@@ -4,6 +4,17 @@ const { allowedType } = require('../constants/type');
 
 const getStorageKey = (configId) => `confsto_item_${configId}`;
 
+const generalCheck = async (ctx, id) => {
+  const dbItem = await ctx.model.configStorage.conf.findByPk(id);
+  if (!dbItem) {
+    ctx.throw(400, '找不到该配置文件');
+  }
+  if (dbItem.uid !== uid) {
+    ctx.throw(401, '无权访问');
+  }
+  return dbItem;
+}
+
 class ConfigStorageService extends BaseService {
   constructor(app) {
     super(app);
@@ -35,13 +46,7 @@ class ConfigStorageService extends BaseService {
     return decoded;
   }
   async getContent(ctx, id) {
-    const dbItem = await ctx.model.configStorage.conf.findByPk(id);
-    if (!dbItem) {
-      ctx.throw(400, '找不到该配置文件');
-    }
-    if (dbItem.uid !== ctx.state.user.id) {
-      ctx.throw(401, '无权访问');
-    }
+    const dbItem = await generalCheck(ctx, id);
     const ret = await ctx.configStorage.storage.get(getStorageKey(`${ctx.state.user.scopeId}_${dbItem.type}_${dbItem.name}`));
     return ret.toString();
   }
@@ -55,7 +60,7 @@ class ConfigStorageService extends BaseService {
     }
     // check name
     if (await ctx.model.configStorage.conf.exists(uid, formattedType, name)) {
-      ctx.throw(400, '配置文件名称已被占用');
+      ctx.throw(400, '名称已被占用');
     }
     // write
     const key = getStorageKey(`${scopeId}_${formattedType}_${name}`);
@@ -77,13 +82,7 @@ class ConfigStorageService extends BaseService {
       ctx.throw(400, '不支持该类型的配置文件');
     }
     // check db item
-    const dbItem = await ctx.model.configStorage.conf.findByPk(id);
-    if (!dbItem) {
-      ctx.throw(400, '找不到该配置文件');
-    }
-    if (dbItem.uid !== uid) {
-      ctx.throw(401, '无权访问');
-    }
+    const dbItem = await generalCheck(ctx, id);
     // if name or type changed, delete cache and previous stored file.
     if (dbItem.name !== name || dbItem.type !== formattedType) {
       if (await ctx.model.configStorage.conf.exists(uid, formattedType, name)) {
@@ -107,15 +106,26 @@ class ConfigStorageService extends BaseService {
     // flush cache
     this.cache.del(key);
   }
+  async rename(ctx) {
+    const { id, newName } = ctx.request.body;
+    if (ctx.model.configStorage.storage.exists(newName)) {
+      ctx.throw(400, '名称已被占用');
+    }
+    const dbItem = await generalCheck(ctx, id);
+    await ctx.model.faas.script.update({
+      name: newName,
+    }, {
+      where: id,
+    });
+    const key = `${scopeId}_${dbItem.type}_${dbItem.name}`;
+    const newKey = `${scopeId}_${dbItem.type}_${newName}`;
+    await ctx.service.configStorage.storage.del(getStorageKey(key));
+    this.cache.del(key);
+    await ctx.service.configStorage.storage.put(getStorageKey(newKey));
+  }
   async delete(ctx, id) {
     const { scopeId } = ctx.state.user;
-    const dbItem = await ctx.model.configStorage.conf.findByPk(id);
-    if (!dbItem) {
-      ctx.throw(400, '找不到该脚本');
-    }
-    if (dbItem.uid !== ctx.state.user.id) {
-      ctx.throw(401, '无权访问');
-    }
+    const dbItem = await generalCheck(ctx, id);
     const key = `${scopeId}_${dbItem.type}_${dbItem.name}`;
     await ctx.configStorage.storage.del(getStorageKey(key));
     this.cache.del(key);
