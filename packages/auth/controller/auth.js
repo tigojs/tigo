@@ -1,4 +1,4 @@
-const { getPluginConfig, successResponse } = require("@tigo/utils");
+const { successResponse } = require("@tigo/utils");
 const { BaseController } = require('@tigo/core');
 const { createToken, verifyToken } = require("../utils/jwt");
 
