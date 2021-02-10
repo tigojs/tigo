@@ -11,7 +11,7 @@ function createToken(user, secret) {
     },
     secret,
     {
-      expiresIn: '1h',
+      expiresIn: '2h',
     },
   );
   const refreshToken = jwt.sign(
