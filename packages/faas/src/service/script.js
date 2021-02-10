@@ -18,7 +18,7 @@ const generalCheck = async (ctx, id) => {
   if (!dbItem) {
     ctx.throw(400, '找不到该脚本');
   }
-  if (!dbItem.uid !== ctx.state.user.id) {
+  if (dbItem.uid !== ctx.state.user.id) {
     ctx.throw(401, '无权访问');
   }
   return dbItem;
