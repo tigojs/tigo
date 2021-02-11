@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const {
   collectController,
   collectService,
@@ -55,9 +56,23 @@ const plugin = {
         app.logger.warn('Use leveldb for FaaS by default.');
       }
     }
+    // open database
+    let dbPath;
+    if (config && config.storage && config.storage.path) {
+      if (!fs.existsSync(config.storage.path)) {
+        throw new Error(`Cannot find the specific storage path [${config.storage.path}] for config-storage.`);
+      }
+      dbPath = config.storage.path;
+    } else {
+      dbPath = path.resolve(app.config.runDirPath, './faas/storage');
+      app.logger.warn('Use default storage path for config-storage.');
+      if (!fs.existsSync(dbPath)) {
+        fs.mkdirSync(dbPath, { recursive: true });
+      }
+    }
     // set object to app
     const faas = {
-      storage: kvEngine,
+      storage: kvEngine.open(app, dbPath),
     };
     app.tigo.faas = faas;
     app.server.faas = faas;

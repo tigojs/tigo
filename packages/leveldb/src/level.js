@@ -1,29 +1,8 @@
 const levelup = require('levelup');
 const leveldown = require('leveldown');
 const moment = require('moment');
-const path = require('path');
-const fs = require('fs');
 
-function openDatabase(app, dbConfig) {
-  const DEFAULT_PATH = path.resolve(app.config.runDirPath, './leveldb');
-
-  if (!dbConfig) {
-    app.logger.warn('Database config was not found, use default db path.');
-  }
-
-  const configDbPath = dbConfig ? dbConfig.path : null;
-  const dbPath =  configDbPath || DEFAULT_PATH;
-  const dbDir = path.dirname(dbPath);
-
-  // check directory
-  if (!fs.existsSync(dbDir)) {
-    if (dbDir === path.dirname(DEFAULT_PATH)) {
-      fs.mkdirSync(dbDir);
-    } else {
-      return killProcess.call(app, 'openDatabaseError');
-    }
-  }
-
+function openDatabase(app, dbPath) {
   // open database
   const db = levelup(leveldown(dbPath));
 

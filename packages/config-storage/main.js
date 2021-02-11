@@ -56,9 +56,23 @@ const plugin = {
         app.logger.warn('Use leveldb for config storage by default.');
       }
     }
+    // open database
+    let dbPath;
+    if (config && config.storage && config.storage.path) {
+      if (!fs.existsSync(config.storage.path)) {
+        throw new Error(`Cannot find the specific storage path [${config.storage.path}] for config-storage.`);
+      }
+      dbPath = config.storage.path;
+    } else {
+      app.logger.warn('Use default storage path for config-storage.');
+      dbPath = path.resolve(app.config.runDirPath, './cfs/storage');
+      if (!fs.existsSync(dbPath)) {
+        fs.mkdirSync(dbPath, { recursive: true });
+      }
+    }
     // set object to app
     const configStorage = {
-      storage: kvEngine,
+      storage: kvEngine.open(app, dbPath),
     };
     app.tigo.configStorage = configStorage;
     app.server.configStorage = configStorage;
