@@ -12,6 +12,7 @@
     "@tigo/core": "file:..\\core",
     "@tigo/utils": "file:..\\utils",
     "jsonwebtoken": "^8.5.1",
-    "koa-compose": "^4.1.0"
+    "lru-cache": "^6.0.0",
+    "uuid": "^8.3.2"
   }
 }

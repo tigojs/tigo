@@ -4,18 +4,21 @@ const define = function (app, engine) {
   const prefix = getTablePrefix();
   const { INTEGER, STRING } = engine.Sequelize;
 
-  const AccessToken = engine.define('accessToken', {
+  const ApiKey = engine.define('ApiKey', {
     uid: {
       type: INTEGER,
     },
-    token: {
+    ak: {
+      type: STRING,
+    },
+    sk: {
       type: STRING,
     },
   }, {
-    tableName: `${prefix}_auth_token`,
+    tableName: `${prefix}_auth_apikeys`,
   });
 
-  AccessToken.sync({ alter: true });
+  ApiKey.sync({ alter: true });
 
   return AccessToken;
 };

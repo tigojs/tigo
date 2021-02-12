@@ -1,7 +1,6 @@
 const path = require('path');
-const compose = require('koa-compose');
-const authErrorHandler = require('./middleware/authErrorHandler');
 const tokenVerifier = require('./middleware/tokenVerifier');
+const apiRequestVerifier = require('./middleware/apiRequestVerifier');
 const {
   collectController,
   collectService,
@@ -25,7 +24,8 @@ const plugin = {
     app.tigo.auth = {
       config: config || {},
       secret,
-      verify: compose([authErrorHandler, tokenVerifier]),
+      verify: tokenVerifier,
+      apiVerify: apiRequestVerifier,
     };
     let { engine } = app.tigo.auth.config;
     if (engine) {

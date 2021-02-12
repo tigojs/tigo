@@ -2,20 +2,20 @@ const { BaseController } = require("@tigo/core");
 const { successResponse } = require('@tigo/utils');
 const { BaseController } = require('@tigo/core');
 
-class AccessToken extends BaseController {
+class ApiKeysController extends BaseController {
   getRoutes() {
     return {
-      '/auth/accessToken/add': {
+      '/user/keys/add': {
         type: 'post',
         auth: true,
         target: this.handleAdd,
       },
-      '/auth/accessToken/delete': {
+      '/user/keys/delete': {
         type: 'post',
         auth: true,
         target: this.handleDelete,
       },
-      '/auth/accessToken/list': {
+      '/user/keys/list': {
         type: 'get',
         auth: true,
         target: this.handleList,
@@ -23,8 +23,8 @@ class AccessToken extends BaseController {
     };
   }
   async handleAdd(ctx) {
-    await ctx.service.auth.accessToken.add(ctx);
-    ctx.body = successResponse(null, '添加成功');
+    const apiKey = await ctx.service.auth.apiKey.add(ctx);
+    ctx.body = successResponse(apiKey, '添加成功');
   }
   async handleDelete(ctx) {
     ctx.verifyParams({
@@ -34,11 +34,11 @@ class AccessToken extends BaseController {
         min: 1,
       },
     });
-    await ctx.service.auth.accessToken.delete(ctx);
+    await ctx.service.auth.apiKey.delete(ctx);
     ctx.body = successResponse(null, '删除成功');
   }
   async handleList(ctx) {
-    const list = await ctx.model.auth.accessToken.findAll({
+    const list = await ctx.model.auth.apiKey.findAll({
       where: {
         uid: ctx.state.user.id,
       },
@@ -47,4 +47,4 @@ class AccessToken extends BaseController {
   }
 }
 
-module.exports = AccessToken;
+module.exports = ApiKeysController;

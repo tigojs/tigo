@@ -29,6 +29,8 @@ function registerController(instance) {
     const type = info.type.toLowerCase();
     if (this.tigo.auth && info.auth) {
       this.router[type](realPath, this.tigo.auth.verify, info.target);
+    } else if (this.tigo.auth && info.apiAccess) {
+      this.router[type](realPath, this.tigo.auth.apiVerify, info.target);
     } else {
       this.router[type](realPath, info.target);
     }
