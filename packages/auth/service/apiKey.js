@@ -16,6 +16,11 @@ const generalCheck = async (ctx, id) => {
 class ApiKeysService extends BaseService {
   constructor(app) {
     super(app);
+    let { config } = app.config.plugins.auth;
+    if (!config) {
+      app.logger.warn('Cannot find cache config for config storage plugin, use default options.');
+      config = {};
+    }
     let { cache: cacheConfig } = config;
     cacheConfig = cacheConfig || {};
     this.cache = new LRU({

@@ -20,7 +20,7 @@ class ConfigStorageService extends BaseService {
     super(app);
     let { config } = app.config.plugins.configStorage;
     if (!config) {
-      app.logger.warn('Cannot find configuration for config storage plugin, use default options.');
+      app.logger.warn('Cannot find cache config for config storage plugin, use default options.');
       config = {};
     }
     let { cache: cacheConfig } = config;

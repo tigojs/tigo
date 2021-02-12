@@ -1,6 +1,5 @@
-const { BaseController } = require("@tigo/core");
-const { successResponse } = require('@tigo/utils');
 const { BaseController } = require('@tigo/core');
+const { successResponse } = require('@tigo/utils');
 
 class ApiKeysController extends BaseController {
   getRoutes() {

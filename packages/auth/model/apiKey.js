@@ -1,7 +1,7 @@
 const { getTablePrefix } = require('@tigo/utils');
 
 const define = function (app, engine) {
-  const prefix = getTablePrefix();
+  const prefix = getTablePrefix(app);
   const { INTEGER, STRING } = engine.Sequelize;
 
   const ApiKey = engine.define('ApiKey', {
@@ -20,7 +20,7 @@ const define = function (app, engine) {
 
   ApiKey.sync({ alter: true });
 
-  return AccessToken;
+  return ApiKey;
 };
 
 module.exports = define;

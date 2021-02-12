@@ -14,8 +14,6 @@ const MODEL_DIR = path.resolve(__dirname, './model');
 const plugin = {
   type: 'basic',
   mount(app, config) {
-    // use error handler
-    app.server.use(authErrorHandler);
     // create auth object
     const { secret } = config;
     if (!secret) {
