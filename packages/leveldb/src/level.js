@@ -15,13 +15,13 @@ function openDatabase(app, dbPath) {
     }
     return true;
   }
+  db.putObject = async (key, value) => {
+    return await db.set(key, JSON.stringify(value));
+  }
+  db.setObject = db.putObject;
   db.getObject = async (key) => {
-    if (!key) {
-      app.logger.warn('Cannot get object from database because of key is empty.');
-      return null;
-    }
     try {
-      return await db.get(key);
+      return JSON.parse(await db.get(key)) || null;
     } catch (err) {
       if (err.notFound) {
         return null;
@@ -31,24 +31,19 @@ function openDatabase(app, dbPath) {
   }
   db.setExpires = (key, data, expires) => {
     if (typeof expires !== 'number') {
-      app.logger.error('Expires must be a number.');
-      return;
+      throw new Error('Expires must be a number');
     }
     if (expires <= 0) {
       return;
     }
-    return db.set(key, {
+    return db.setObject(key, {
       expires,
       value: data,
       createAt: moment().valueOf(),
     });
   }
   db.getExpires = async (key) => {
-    if (!key) {
-      app.logger.warn('Key must be a string, can\'t get data by a empty key.');
-      return null;
-    }
-    const stored = await db.get(key);
+    const stored = await db.getObject(key);
     if (!stored) {
       return null;
     }
