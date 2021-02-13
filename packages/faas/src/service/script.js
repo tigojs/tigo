@@ -35,12 +35,19 @@ class ScriptService extends BaseService {
     cacheConfig = cacheConfig || {};
     super(app);
     // set vm and cache
-    this.vm = new NodeVM();
+    this.vm = new NodeVM({
+      require: {
+        external: {
+          modules: ['@tigo/lambda-*'],
+        },
+      },
+    });
     this.cache = new LRU({
       max: cacheConfig.max || 500,
       maxAge: cacheConfig.maxAge || 60 * 60 * 1000,  // default max age is 1h,
       updateAgeOnGet: true,
     });
+    this.scriptPathPrefix = path.resolve(app.rootDirPath, './lambda_userscript');
   }
   async exec(ctx, scopeId, name) {
     const key = `${scopeId}_${name}`;
@@ -51,7 +58,10 @@ class ScriptService extends BaseService {
       if (!script) {
         ctx.throw(400, '无法找到对应的脚本');
       }
-      handleRequestFunc = this.vm.run(USERSCRIPT_TEMPLATE.replace('{{inject}}', script));
+      handleRequestFunc = this.vm.run(
+        USERSCRIPT_TEMPLATE.replace('{{inject}}', script),
+        `${this.scriptPathPrefix}_${new Date().valueOf()}.js`,
+      );
       this.cache.set(key, handleRequestFunc);
     }
     try {
