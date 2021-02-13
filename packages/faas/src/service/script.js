@@ -5,6 +5,7 @@ const { NodeVM } = require('vm2');
 const { BaseService } = require('@tigo/core');
 const { createContextProxy } = require('../utils/context');
 const { stackFilter } = require('../utils/stackFilter');
+const { getEnvStorageKey } = require('../utils/env');
 
 const USERSCRIPT_TEMPLATE = fs.readFileSync(
   path.resolve(__dirname, '../template/userscript.js'),
@@ -72,7 +73,7 @@ class ScriptService extends BaseService {
     }
   }
   async add(ctx) {
-    const { name, content } = ctx.request.body;
+    const { name, content, env } = ctx.request.body;
     const { id: uid, scopeId } = ctx.state.user;
     // check duplicate items
     if (await ctx.model.faas.script.hasName(uid, name)) {
@@ -89,6 +90,13 @@ class ScriptService extends BaseService {
       uid: ctx.state.user.id,
       name,
     });
+    // if env exists, add env to kv db
+    if (env) {
+      await ctx.faas.storage.put(
+        getEnvStorageKey(script.id),
+        Buffer.from(content, 'base64').toString('utf-8')
+      );
+    }
     return script.id;
   }
   async edit(ctx) {
@@ -147,6 +155,7 @@ class ScriptService extends BaseService {
     const { scopeId } = ctx.state.user;
     const dbItem = await generalCheck(ctx, id);
     const key = `${scopeId}_${dbItem.name}`;
+    await ctx.faas.storage.del(getEnvStorageKey(dbItem.id));
     await ctx.faas.storage.del(getStorageKey(key));
     this.cache.del(key);
     await ctx.model.faas.script.destroy({

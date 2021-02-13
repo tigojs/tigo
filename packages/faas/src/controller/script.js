@@ -83,6 +83,9 @@ class ScriptController extends BaseController {
         type: 'string',
         required: true,
       },
+      env: {
+        type: 'string',
+      },
     });
     const { action } = ctx.request.body;
     if (action === 'add') {
