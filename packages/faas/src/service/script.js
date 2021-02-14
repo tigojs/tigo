@@ -44,7 +44,8 @@ class ScriptService extends BaseService {
     this.scriptPathPrefix = path.resolve(app.rootDirPath, './lambda_userscript');
   }
   async exec(ctx, scopeId, name) {
-    let handleRequestFunc = this.cache.get(key);
+    const cacheKey = `${scopeId}_${name}`;
+    let handleRequestFunc = this.cache.get(cacheKey);
     if (!handleRequestFunc) {
       // func not in cache
       const script = await ctx.faas.storage.get(getStorageKey(scopeId, name));
@@ -66,7 +67,7 @@ class ScriptService extends BaseService {
         USERSCRIPT_TEMPLATE.replace('{{inject}}', script),
         `${this.scriptPathPrefix}_${new Date().valueOf()}.js`,
       );
-      this.cache.set(key, handleRequestFunc);
+      this.cache.set(cacheKey, handleRequestFunc);
     }
     try {
       await handleRequestFunc(createContextProxy(ctx));
@@ -120,22 +121,22 @@ class ScriptService extends BaseService {
           id,
         },
       });
-      this.cache.del(oldKey);
+      this.cache.del(`${scopeId}_${dbItem.name}`);
       // env
       const envKey = getEnvStorageKey(scopeId, dbItem.name);
       const env = await ctx.faas.storage.get(envKey);
       if (env) {
-        await ctx.faas.storage.del(getStorageKey(envKey));
+        await ctx.faas.storage.del(envKey);
         await ctx.faas.storage.putObject(getEnvStorageKey(scopeId, name), env);
       }
+    } else {
+      this.cache.del(`${scopeId}_${name}`);
     }
     // update script
     await ctx.faas.storage.put(
       getStorageKey(scopeId, name),
       Buffer.from(content, 'base64').toString('utf-8')
     )
-    // flush cache
-    this.cache.del(key);
   }
   async rename(ctx) {
     const { id, newName } = ctx.request.body;
@@ -155,7 +156,7 @@ class ScriptService extends BaseService {
     const oldKey = getStorageKey(scopeId, dbItem.name);
     const content = await ctx.faas.storage.get(oldKey);
     await ctx.faas.storage.del(oldKey);
-    this.cache.del(key);
+    this.cache.del(`${scopeId}_${dbItem.name}`);
     await ctx.faas.storage.put(getStorageKey(scopeId, newName), content);
     // env
     const envKey = getEnvStorageKey(scopeId, dbItem.name);
@@ -171,7 +172,7 @@ class ScriptService extends BaseService {
     const dbItem = await generalCheck(ctx, id);
     await ctx.faas.storage.del(getEnvStorageKey(scopeId, dbItem.name));
     await ctx.faas.storage.del(getStorageKey(scopeId, dbItem.name));
-    this.cache.del(key);
+    this.cache.del(`${scopeId}_${dbItem.name}`);
     await ctx.model.faas.script.destroy({
       where: {
         id,
