@@ -96,10 +96,7 @@ class ScriptService extends BaseService {
     });
     // if env exists, add env to kv db
     if (env) {
-      await ctx.faas.storage.put(
-        getEnvStorageKey(scopeId, name),
-        Buffer.from(content, 'base64').toString('utf-8')
-      );
+      await ctx.faas.storage.putObject(getEnvStorageKey(scopeId, name), env);
     }
     return script.id;
   }
