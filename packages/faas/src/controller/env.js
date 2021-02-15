@@ -36,11 +36,6 @@ class ScriptEnvController extends BaseController {
         auth: true,
         target: this.handleDelete,
       },
-      '/faas/env/clear': {
-        type: 'post',
-        auth: 'true',
-        target: this.handleClear,
-      },
     };
   }
   async handleGet(ctx) {
