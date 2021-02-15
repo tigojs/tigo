@@ -82,7 +82,7 @@ class ScriptEnvController extends BaseController {
       await ctx.faas.storage.setObject(key, envObj);
     } else {
       await ctx.faas.storage.setObject(key, {
-        k: v,
+        [k]: v,
       });
     }
     ctx.body = successResponse(null, '添加成功');
@@ -102,9 +102,9 @@ class ScriptEnvController extends BaseController {
         required: true,
       },
     });
-    const script = await generalCheck(ctx, scriptId);
     const { scriptId, k, v } = ctx.request.body;
     const { scopeId } = ctx.state.user;
+    const script = await generalCheck(ctx, scriptId);
     const key = getEnvStorageKey(scopeId, script.name);
     const envObj = await ctx.faas.storage.getObject(key);
     if (!envObj) {
@@ -128,9 +128,9 @@ class ScriptEnvController extends BaseController {
         required: true,
       },
     });
-    const script = await generalCheck(ctx, scriptId);
     const { scriptId, k } = ctx.request.body;
     const { scopeId } = ctx.state.user;
+    const script = await generalCheck(ctx, scriptId);
     const key = getEnvStorageKey(scopeId, script.name);
     const envObj = await ctx.faas.storage.getObject(key);
     if (!envObj) {
