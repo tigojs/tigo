@@ -7,7 +7,7 @@ const generalCheck = async (ctx, scriptId) => {
   if (!script) {
     ctx.throw(400, '无法找到对应的脚本');
   }
-  if (script.uid !== ctx.state.uid) {
+  if (script.uid !== ctx.state.user.id) {
     ctx.throw(401, '无权访问');
   }
   return script;
@@ -73,9 +73,9 @@ class ScriptEnvController extends BaseController {
         required: true,
       },
     });
-    const script = await generalCheck(ctx, scriptId);
     const { scriptId, k, v } = ctx.request.body;
     const { scopeId } = ctx.state.user;
+    const script = await generalCheck(ctx, scriptId);
     const key = getEnvStorageKey(scopeId, script.name);
     const envObj = await ctx.faas.storage.getObject(key);
     if (envObj) {
