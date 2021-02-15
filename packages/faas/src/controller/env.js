@@ -148,22 +148,6 @@ class ScriptEnvController extends BaseController {
     await ctx.faas.storage.setObject(key, envObj);
     ctx.body = successResponse(null, '删除成功');
   }
-  async handleClear(ctx) {
-    ctx.verifyParams({
-      scriptId: {
-        type: 'number',
-        required: true,
-      },
-    });
-    const script = await generalCheck(ctx, scriptId);
-    const { scopeId } = ctx.state.user;
-    const key = getEnvStorageKey(scopeId, script.name);
-    if (!await ctx.faas.storage.hasObject(key)) {
-      ctx.throw(400, '找不到环境配置');
-    }
-    await ctx.faas.storage.del(key);
-    ctx.body = successResponse(null, '清空成功');
-  }
 }
 
 module.exports = ScriptEnvController;
