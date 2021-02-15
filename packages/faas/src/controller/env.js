@@ -44,6 +44,9 @@ class ScriptEnvController extends BaseController {
     };
   }
   async handleGet(ctx) {
+    if (ctx.query.scriptId) {
+      ctx.query.scriptId = parseInt(ctx.query.scriptId, 10);
+    }
     ctx.verifyParams({
       scriptId: {
         type: 'number',
