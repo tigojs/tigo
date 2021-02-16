@@ -51,7 +51,8 @@ class ScriptEnvController extends BaseController {
     const { scriptId } = ctx.query;
     const { scopeId } = ctx.state.user;
     const script = await generalCheck(ctx, scriptId);
-    ctx.body = successResponse(await ctx.faas.storage.getObject(getEnvStorageKey(scopeId, script.name)));
+    const envObj = await ctx.faas.storage.getObject(getEnvStorageKey(scopeId, script.name))
+    ctx.body = successResponse(envObj);
   }
   async handleAdd(ctx) {
     ctx.verifyParams({

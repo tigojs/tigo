@@ -16,12 +16,15 @@ function openDatabase(app, dbPath) {
     return true;
   }
   db.putObject = async (key, value) => {
-    return await db.set(key, JSON.stringify(value));
+    return await db.put(key, JSON.stringify(value));
   }
   db.setObject = db.putObject;
   db.getObject = async (key) => {
     try {
-      return JSON.parse(await db.get(key)) || null;
+      const obj = await db.get(key, {
+        asBuffer: false,
+      });
+      return JSON.parse(obj) || null;
     } catch (err) {
       if (err.notFound) {
         return null;
