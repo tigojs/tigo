@@ -39,20 +39,21 @@ function registerController(instance) {
     const type = info.type;
     if (Array.isArray(type)) {
       type.forEach((t) => {
-        registerRoute({
+        registerRoute.call(this, {
           path: realPath,
           type: t.toLowerCase(),
           info,
         });
+        this.logger.debug(`Registered route [${t.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
       });
     } else if (typeof type === 'string') {
-      registerRoute({
+      registerRoute.call(this, {
         path: realPath,
         type: type.toLowerCase(),
         info,
       });
+      this.logger.debug(`Registered route [${type.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
     }
-    this.logger.debug(`Registered route [${type.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
   });
 }
 
