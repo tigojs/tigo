@@ -1,3 +1,13 @@
+function registerRoute({ path, type, info }) {
+  if (this.tigo.auth && info.auth) {
+    this.router[type](path, this.tigo.auth.verify, info.target);
+  } else if (this.tigo.auth && info.apiAccess) {
+    this.router[type](path, this.tigo.auth.apiVerify, info.target);
+  } else {
+    this.router[type](path, info.target);
+  }
+}
+
 function registerController(instance) {
   if (!instance) {
     this.logger.warn(`Cannot register controller [${instance._tigoName}] because the instance is empty.`);
@@ -26,13 +36,21 @@ function registerController(instance) {
     } else {
       realPath = `${internalConfig.base || '/api'}${path}`;
     }
-    const type = info.type.toLowerCase();
-    if (this.tigo.auth && info.auth) {
-      this.router[type](realPath, this.tigo.auth.verify, info.target);
-    } else if (this.tigo.auth && info.apiAccess) {
-      this.router[type](realPath, this.tigo.auth.apiVerify, info.target);
-    } else {
-      this.router[type](realPath, info.target);
+    const type = info.type;
+    if (Array.isArray(type)) {
+      type.forEach((t) => {
+        registerRoute({
+          path: realPath,
+          type: t.toLowerCase(),
+          info,
+        });
+      });
+    } else if (typeof type === 'string') {
+      registerRoute({
+        path: realPath,
+        type: type.toLowerCase(),
+        info,
+      });
     }
     this.logger.debug(`Registered route [${type.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
   });
