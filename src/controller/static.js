@@ -1,3 +1,4 @@
+const path = require('path');
 const fs = require('fs');
 const mime = require('mime');
 const { BaseController } = require('@tigo/core');
@@ -10,12 +11,12 @@ const getMemoConf = (ctx) => {
 class StaticFileController extends BaseController {
   getRoutes() {
     return {
-      '/view/{scope:string}/{name:any}': {
+      '/view/:scope/:name': {
         type: 'get',
         target: this.handleView,
         external: true,
       },
-      '/static/{scope:string}/{base:any}.{ext:string}': {
+      '/static/:scope/:filename': {
         type: 'get',
         target: this.handleFile,
         external: true,
@@ -23,7 +24,12 @@ class StaticFileController extends BaseController {
     };
   }
   async handleFile(ctx) {
-    const { scope, base, ext } = ctx.params;
+    const { scope, filename } = ctx.params;
+    if (!/.+\..+/.test(filename)) {
+      ctx.throw(400, '文件名不正确');
+    }
+    const ext = path.extname(filename);
+    const base = path.basename(filename, ext);
     const useMemo = getMemoConf(ctx);
     if (
       !ctx.static[scope] ||

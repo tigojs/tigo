@@ -14,7 +14,6 @@
     "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js"
   },
   "dependencies": {
-    "@pwp-app/koa-rapid-router": "^1.1.0",
     "@tigo/auth": "file:packages\\auth",
     "@tigo/config-storage": "file:packages\\config-storage",
     "@tigo/core": "file:packages\\core",
@@ -28,6 +27,7 @@
     "koa-cors": "^0.0.16",
     "koa-logger": "^3.2.1",
     "koa-parameter": "^3.0.1",
+    "koa-tree-router": "^0.7.0",
     "log4js": "^6.3.0",
     "mime": "^2.4.7"
   },

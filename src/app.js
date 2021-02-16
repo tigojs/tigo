@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const zlib = require('zlib');
 const Koa = require('koa');
-const Router = require('@pwp-app/koa-rapid-router');
+const TreeRouter = require('koa-tree-router');
 const koaBody = require('koa-body');
 const cors = require('koa-cors');
 const koaLogger = require('koa-logger');
@@ -70,7 +70,7 @@ function initServer() {
     }
   }
   // use router
-  this.server.use(this.routerContainer.Koa());
+  this.server.use(this.router.routes());
   // register error handler
   registerErrorHandler(this.server);
   // init middlewares
@@ -151,8 +151,7 @@ class App {
     this.logger = createLogger.call(this, this.config.logger);
     // init koa server
     this.server = new Koa();
-    this.routerContainer = new Router();
-    this.router = this.routerContainer.create();
+    this.router = new TreeRouter();
     // init server
     initServer.call(this);
   }

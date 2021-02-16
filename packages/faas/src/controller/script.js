@@ -4,7 +4,12 @@ const { successResponse } = require('@tigo/utils');
 class ScriptController extends BaseController {
   getRoutes() {
     return {
-      '/lambda/{scopeId:string}/{name:any}': {
+      '/lambda/:scopeId/:name': {
+        type: 'get',
+        target: this.handleExec,
+        external: true,
+      },
+      '/lambda/:scopeId/:name/*subPath': {
         type: 'get',
         target: this.handleExec,
         external: true,

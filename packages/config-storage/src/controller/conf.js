@@ -6,7 +6,7 @@ const mime = require('mime');
 class ConfigurationController extends BaseController {
   getRoutes() {
     return {
-      '/config/{scopeId:string}/{name:any}.{type:string}': {
+      '/config/:scopeId/:filename': {
         type: 'get',
         target: this.handleRequest,
         external: true,
@@ -66,7 +66,12 @@ class ConfigurationController extends BaseController {
     });
   }
   async handleRequest(ctx) {
-    const { scopeId, name, type } = ctx.params;
+    const { scopeId, filename } = ctx.params;
+    if (!/.+\..+/.test(filename)) {
+      ctx.throw(400, '文件名不正确');
+    }
+    const type = path.extname(filename);
+    const name = path.basename(filename, ext);
     const formattedType = type.toLowerCase();
     if (!formattedType || !allowedType.includes(formattedType)) {
       ctx.throw(400, '类型错误');
