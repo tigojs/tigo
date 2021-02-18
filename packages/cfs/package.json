@@ -9,8 +9,8 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@tigojs/core": "file:..\\core",
-    "@tigojs/utils": "file:..\\utils",
+    "@tigojs/core": "^0.1.0",
+    "@tigojs/utils": "^0.1.0",
     "lru-cache": "^6.0.0",
     "mime": "^2.5.0"
   }
