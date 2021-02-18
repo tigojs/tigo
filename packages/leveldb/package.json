@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/leveldb",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "LevelDB plugin for tigo.",
   "main": "main.js",
   "author": "BacKRunner",

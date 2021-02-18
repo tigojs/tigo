@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/faas",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "FaaS plugin for tigo",
   "main": "main.js",
   "author": "BackRunner",
