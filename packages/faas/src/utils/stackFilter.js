@@ -1,5 +1,4 @@
 const stackFilter = (stack) => {
-  console.log(stack);
   return stack.split('\n').filter((str) => {
     if (!str.includes('at ') || str.includes('lambda_userscript')) {
       return true;

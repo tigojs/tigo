@@ -111,7 +111,10 @@ function registerErrorHandler(app) {
           err._innerType = 'business';
         }
       }
-      if (err.stack && process.env.NODE_ENV === 'dev') {
+      if (
+        err.stack
+        && (process.env.NODE_ENV === 'dev' || err.fromFaas)
+      ) {
         ctx.body.stack = err.stack;
       }
       ctx.body = JSON.stringify(ctx.body);

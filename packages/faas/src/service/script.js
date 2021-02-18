@@ -69,10 +69,12 @@ class ScriptService extends BaseService {
       );
       this.cache.set(cacheKey, handleRequestFunc);
     }
+    const showStack = ctx.query.__tigoDebug === '1';
     try {
       await handleRequestFunc(createContextProxy(ctx));
     } catch (err) {
-      err.stack = stackFilter(err.stack);
+      err.stack = showStack ? stackFilter(err.stack) : null;
+      err.fromFaas = true;
       throw err;
     }
   }

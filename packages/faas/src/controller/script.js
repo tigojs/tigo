@@ -5,12 +5,12 @@ class ScriptController extends BaseController {
   getRoutes() {
     return {
       '/lambda/:scopeId/:name': {
-        type: 'get',
+        type: ['get', 'post', 'head', 'put', 'delete', 'patch'],
         target: this.handleExec,
         external: true,
       },
       '/lambda/:scopeId/:name/*subPath': {
-        type: 'get',
+        type: ['get', 'post', 'head', 'put', 'delete', 'patch'],
         target: this.handleExec,
         external: true,
       },
