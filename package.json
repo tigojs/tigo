@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@tigojs/auth": "file:packages\\auth",
-    "@tigojs/config-storage": "file:packages\\config-storage",
+    "@tigojs/cfs": "file:packages\\cfs",
     "@tigojs/core": "file:packages\\core",
     "@tigojs/faas": "file:packages\\faas",
     "@tigojs/leveldb": "file:packages\\leveldb",

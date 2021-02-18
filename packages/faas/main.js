@@ -60,12 +60,12 @@ const plugin = {
     let dbPath;
     if (config && config.storage && config.storage.path) {
       if (!fs.existsSync(config.storage.path)) {
-        throw new Error(`Cannot find the specific storage path [${config.storage.path}] for config-storage.`);
+        throw new Error(`Cannot find the specific storage path [${config.storage.path}] for cfs.`);
       }
       dbPath = config.storage.path;
     } else {
       dbPath = path.resolve(app.config.runDirPath, './faas/storage');
-      app.logger.warn('Use default storage path for config-storage.');
+      app.logger.warn('Use default storage path for cfs.');
       if (!fs.existsSync(dbPath)) {
         fs.mkdirSync(dbPath, { recursive: true });
       }

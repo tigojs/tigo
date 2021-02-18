@@ -60,30 +60,30 @@ const plugin = {
     let dbPath;
     if (config && config.storage && config.storage.path) {
       if (!fs.existsSync(config.storage.path)) {
-        throw new Error(`Cannot find the specific storage path [${config.storage.path}] for config-storage.`);
+        throw new Error(`Cannot find the specific storage path [${config.storage.path}] for cfs.`);
       }
       dbPath = config.storage.path;
     } else {
-      app.logger.warn('Use default storage path for config-storage.');
+      app.logger.warn('Use default storage path for cfs.');
       dbPath = path.resolve(app.config.runDirPath, './cfs/storage');
       if (!fs.existsSync(dbPath)) {
         fs.mkdirSync(dbPath, { recursive: true });
       }
     }
     // set object to app
-    const configStorage = {
+    const cfs = {
       storage: kvEngine.open(app, dbPath),
     };
-    app.tigo.configStorage = configStorage;
-    app.server.configStorage = configStorage;
-    app.server.context.configStorage = configStorage;
+    app.tigo.cfs = cfs;
+    app.server.cfs = cfs;
+    app.server.context.cfs = cfs;
     // collect controller, service and model
     const controllers = collectController.call(app, CONTROLLER_DIR);
-    app.controller.configStorage = controllers;
+    app.controller.cfs = controllers;
     const services = collectService.call(app, SERVICE_DIR);
-    app.service.configStorage = services;
+    app.service.cfs = services;
     const models = collectModel.call(app, MODEL_DIR, sqlEngine);
-    app.model.configStorage = models;
+    app.model.cfs = models;
   },
 };
 

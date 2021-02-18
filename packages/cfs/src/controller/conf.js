@@ -11,27 +11,27 @@ class ConfigurationController extends BaseController {
         target: this.handleRequest,
         external: true,
       },
-      '/config-storage/list': {
+      '/cfs/list': {
         type: 'get',
         auth: true,
         target: this.handleList,
       },
-      '/config-storage/getContent': {
+      '/cfs/getContent': {
         type: 'get',
         auth: true,
         target: this.handleGetContent,
       },
-      '/config-storage/save': {
+      '/cfs/save': {
         type: 'post',
         auth: true,
         target: this.handleSave,
       },
-      '/config-storage/rename': {
+      '/cfs/rename': {
         type: 'post',
         auth: true,
         target: this.handleRename,
       },
-      '/config-storage/delete': {
+      '/cfs/delete': {
         type: 'post',
         auth: true,
         target: this.handleDelete,
@@ -39,7 +39,7 @@ class ConfigurationController extends BaseController {
     }
   }
   async handleList(ctx) {
-    const list = await ctx.model.configStorage.conf.findAll({
+    const list = await ctx.model.cfs.conf.findAll({
       where: {
         uid: ctx.state.user.id,
       },
@@ -59,7 +59,7 @@ class ConfigurationController extends BaseController {
       },
     });
     const { id } = ctx.query;
-    const content = await ctx.service.configStorage.conf.getContent(ctx, id);
+    const content = await ctx.service.cfs.conf.getContent(ctx, id);
     ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse({
       content,
@@ -76,7 +76,7 @@ class ConfigurationController extends BaseController {
     if (!formattedType || !allowedType.includes(formattedType)) {
       ctx.throw(400, '类型错误');
     }
-    const content = await ctx.service.configStorage.conf.getContentViaPublic(ctx, scopeId, formattedType, name);
+    const content = await ctx.service.cfs.conf.getContentViaPublic(ctx, scopeId, formattedType, name);
     if (!content) {
       ctx.throw(404, '找不到对应的脚本');
     }
@@ -120,12 +120,12 @@ class ConfigurationController extends BaseController {
     });
     const { action } = ctx.request.body;
     if (action === 'add') {
-      const id = await ctx.service.configStorage.conf.add(ctx);
+      const id = await ctx.service.cfs.conf.add(ctx);
       ctx.body = successResponse({
         id,
       }, '保存成功');
     } else if (action === 'edit') {
-      await ctx.service.configStorage.conf.edit(ctx);
+      await ctx.service.cfs.conf.edit(ctx);
       ctx.body = successResponse(null, '保存成功');
     }
     ctx.set('Cache-Control', 'no-store');
@@ -142,7 +142,7 @@ class ConfigurationController extends BaseController {
         required: true,
       },
     });
-    await ctx.service.configStorage.conf.rename(ctx);
+    await ctx.service.cfs.conf.rename(ctx);
     ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(null, '修改成功');
   }
@@ -155,7 +155,7 @@ class ConfigurationController extends BaseController {
       }
     });
     const { id } = ctx.request.body;
-    await ctx.service.configStorage.conf.delete(ctx, id);
+    await ctx.service.cfs.conf.delete(ctx, id);
     ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(null, '删除成功');
   }
