@@ -1,5 +1,5 @@
-const { successResponse } = require('@tigo/utils');
-const { BaseController } = require('@tigo/core');
+const { successResponse } = require('@tigojs/utils');
+const { BaseController } = require('@tigojs/core');
 const { createToken, verifyToken } = require('../utils/jwt');
 
 const isDev = process.env.NODE_ENV === 'dev';

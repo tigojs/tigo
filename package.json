@@ -1,6 +1,6 @@
 {
   "name": "tigo",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
@@ -14,13 +14,13 @@
     "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js"
   },
   "dependencies": {
-    "@tigo/auth": "file:packages\\auth",
-    "@tigo/config-storage": "file:packages\\config-storage",
-    "@tigo/core": "file:packages\\core",
-    "@tigo/faas": "file:packages\\faas",
-    "@tigo/leveldb": "file:packages\\leveldb",
-    "@tigo/sqlite": "file:packages\\sqlite",
-    "@tigo/utils": "file:packages\\utils",
+    "@tigojs/auth": "file:packages\\auth",
+    "@tigojs/config-storage": "file:packages\\config-storage",
+    "@tigojs/core": "file:packages\\core",
+    "@tigojs/faas": "file:packages\\faas",
+    "@tigojs/leveldb": "file:packages\\leveldb",
+    "@tigojs/sqlite": "file:packages\\sqlite",
+    "@tigojs/utils": "file:packages\\utils",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",

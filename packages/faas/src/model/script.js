@@ -1,4 +1,4 @@
-const { getTablePrefix } = require('@tigo/utils');
+const { getTablePrefix } = require('@tigojs/utils');
 
 const define = function (app, engine) {
   const prefix = getTablePrefix(app);

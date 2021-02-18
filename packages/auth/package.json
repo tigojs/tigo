@@ -1,5 +1,5 @@
 {
-  "name": "@tigo/auth",
+  "name": "@tigojs/auth",
   "version": "1.0.0",
   "description": "Authentication plugin for tigo",
   "main": "main.js",
@@ -9,8 +9,8 @@
     "dev": "cd ../../ && npm run dev"
   },
   "dependencies": {
-    "@tigo/core": "file:..\\core",
-    "@tigo/utils": "file:..\\utils",
+    "@tigojs/core": "file:..\\core",
+    "@tigojs/utils": "file:..\\utils",
     "jsonwebtoken": "^8.5.1",
     "lru-cache": "^6.0.0",
     "uuid": "^8.3.2"

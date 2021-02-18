@@ -1,5 +1,5 @@
 {
-  "name": "@tigo/core",
+  "name": "@tigojs/core",
   "version": "1.0.0",
   "description": "Core parts of tigo.",
   "main": "main.js",

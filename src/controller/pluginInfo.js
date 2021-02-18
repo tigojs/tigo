@@ -1,8 +1,8 @@
-const { BaseController } = require('@tigo/core');
+const { BaseController } = require('@tigojs/core');
 const {
   successResponse,
   getPublicPluginList,
-} = require('@tigo/utils');
+} = require('@tigojs/utils');
 
 class PluginInfoController extends BaseController {
   getRoutes() {

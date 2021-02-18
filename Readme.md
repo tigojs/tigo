@@ -1,6 +1,6 @@
 # tigo
 
-tigo是一个基于koa.js开发的服务器框架。
+tigo is a web server framework based on koa.js.
 
 ## License
 

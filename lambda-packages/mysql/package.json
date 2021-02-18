@@ -1,5 +1,5 @@
 {
-  "name": "@tigo/lambda-mysql",
+  "name": "@tigojs/lambda-mysql",
   "version": "1.0.0",
   "description": "Mysql support for tigo lambda",
   "main": "main.js",

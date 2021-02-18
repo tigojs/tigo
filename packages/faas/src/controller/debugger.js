@@ -1,4 +1,4 @@
-const { BaseController } = require('@tigo/core');
+const { BaseController } = require('@tigojs/core');
 const superagent = require('superagent');
 
 class DebuggerController extends BaseController {

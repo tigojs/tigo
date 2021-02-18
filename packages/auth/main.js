@@ -5,7 +5,7 @@ const {
   collectController,
   collectService,
   collectModel,
-} = require('@tigo/utils');
+} = require('@tigojs/utils');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './controller');
 const SERVICE_DIR = path.resolve(__dirname, './service');

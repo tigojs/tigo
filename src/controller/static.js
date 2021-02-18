@@ -1,8 +1,8 @@
 const path = require('path');
 const fs = require('fs');
 const mime = require('mime');
-const { BaseController } = require('@tigo/core');
-const { MEMO_EXT_PATTERN } = require('@tigo/utils/constants/pattern');
+const { BaseController } = require('@tigojs/core');
+const { MEMO_EXT_PATTERN } = require('@tigojs/utils/constants/pattern');
 
 const getMemoConf = (ctx) => {
   return ctx.tigo.config.static && ctx.tigo.config.static.memo;

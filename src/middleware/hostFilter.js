@@ -1,4 +1,4 @@
-const { createHttpError } = require('@tigo/utils');
+const { createHttpError } = require('@tigojs/utils');
 
 const hostFilter = {
   priority: 100,

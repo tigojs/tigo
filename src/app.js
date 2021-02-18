@@ -16,7 +16,7 @@ const {
   collectStaticFiles,
   collectPlugins,
   collectController,
-} = require('@tigo/utils');
+} = require('@tigojs/utils');
 const packageJson = require('../package.json');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './controller');

@@ -1,5 +1,5 @@
-const { BaseController } = require('@tigo/core');
-const { successResponse } = require('@tigo/utils');
+const { BaseController } = require('@tigojs/core');
+const { successResponse } = require('@tigojs/utils');
 const { getEnvStorageKey } = require('../utils/env');
 
 const generalCheck = async (ctx, scriptId) => {

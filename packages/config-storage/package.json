@@ -1,5 +1,5 @@
 {
-  "name": "@tigo/config-storage",
+  "name": "@tigojs/config-storage",
   "version": "1.0.0",
   "description": "Config storage plugin for tigo",
   "main": "main.js",
@@ -9,8 +9,8 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@tigo/core": "file:..\\core",
-    "@tigo/utils": "file:..\\utils",
+    "@tigojs/core": "file:..\\core",
+    "@tigojs/utils": "file:..\\utils",
     "lru-cache": "^6.0.0",
     "mime": "^2.5.0"
   }

@@ -1,5 +1,5 @@
 {
-  "name": "@tigo/faas",
+  "name": "@tigojs/faas",
   "version": "1.0.0",
   "description": "FaaS plugin for tigo",
   "main": "main.js",
@@ -9,8 +9,8 @@
     "dev": "cd ../../ && npm run dev"
   },
   "dependencies": {
-    "@tigo/core": "file:..\\core",
-    "@tigo/utils": "file:..\\utils",
+    "@tigojs/core": "file:..\\core",
+    "@tigojs/utils": "file:..\\utils",
     "lru-cache": "^6.0.0",
     "superagent": "^6.1.0",
     "uuid": "^8.3.2",

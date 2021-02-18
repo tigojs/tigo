@@ -1,4 +1,4 @@
-const { BaseService } = require('@tigo/core');
+const { BaseService } = require('@tigojs/core');
 const crypto = require('crypto');
 
 const isDev = process.env.NODE_ENV === 'dev';

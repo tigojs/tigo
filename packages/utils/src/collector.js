@@ -275,7 +275,7 @@ function collectPluginDependencies(
       killProcess.call(this, 'pluginCollectError');
     }
     const priority = plugin.priority - dependencies.length + index;
-    const dependencyName = getPluginNameByPackage.call(pluginsConfig, packageName) || packageName.replace('@tigo/', '');
+    const dependencyName = getPluginNameByPackage.call(pluginsConfig, packageName) || packageName.replace('@tigojs/', '');
     // check if imported
     if (pluginPackageExisted.apply(plugins)) {
       plugins[dependencyName].priority = priority;

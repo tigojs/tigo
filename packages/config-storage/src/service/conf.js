@@ -1,4 +1,4 @@
-const { BaseService } = require('@tigo/core');
+const { BaseService } = require('@tigojs/core');
 const LRU = require('lru-cache');
 const { allowedType } = require('../constants/type');
 

@@ -1,5 +1,5 @@
 {
-  "name": "@tigo/utils",
+  "name": "@tigojs/utils",
   "version": "1.0.0",
   "description": "Utils for tigo.",
   "main": "main.js",

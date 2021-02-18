@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const LRU = require('lru-cache');
 const { NodeVM } = require('vm2');
-const { BaseService } = require('@tigo/core');
+const { BaseService } = require('@tigojs/core');
 const { createContextProxy } = require('../utils/context');
 const { stackFilter } = require('../utils/stackFilter');
 const { getEnvStorageKey } = require('../utils/env');
@@ -58,7 +58,7 @@ class ScriptService extends BaseService {
         wasm: false,
         require: {
           external: {
-            modules: ['@tigo/lambda-*'],
+            modules: ['@tigojs/lambda-*'],
           },
         },
       });
