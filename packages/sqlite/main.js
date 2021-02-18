@@ -35,6 +35,10 @@ const plugins = {
       logging: process.env.DB_ENV === 'dev' ? msg => app.logger.debug(msg): false,
     });
 
+    if (conf.wal) {
+      sqlite.query('PRAGMA journal_mode = WAL;');
+    }
+
     // add info to app
     app.sqlDbEngine.push('sqlite');
     app.dbEngine.sqlite = sqlite;
