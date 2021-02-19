@@ -14,7 +14,7 @@
     "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js"
   },
   "dependencies": {
-    "@tigojs/auth": "^0.1.0",
+    "@tigojs/auth": "file:packages\\auth",
     "@tigojs/cfs": "^0.1.0",
     "@tigojs/core": "^0.1.0",
     "@tigojs/faas": "file:packages\\faas",

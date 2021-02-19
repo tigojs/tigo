@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const LRU = require('lru-cache');
 
 const generalCheck = async (ctx, id) => {
-  const dbItem = await ctx.model.auth.accessToken.findByPk(id);
+  const dbItem = await ctx.model.auth.apiKey.findByPk(id);
   if (!dbItem) {
     ctx.throw(400, '找不到对应的Access Token');
   }
@@ -33,7 +33,7 @@ class ApiKeysService extends BaseService {
     const { id: uid } = ctx.state.user;
     const ak = uuidv4().replace(/-/g, '');
     const sk = uuidv4().replace(/-/g, '');
-    await ctx.model.auth.accessToken.add({
+    await ctx.model.auth.apiKey.create({
       uid,
       ak,
       sk,
@@ -43,7 +43,7 @@ class ApiKeysService extends BaseService {
   async delete(ctx) {
     const { id } = ctx.request.body;
     const dbItem = await generalCheck(ctx, id);
-    await ctx.model.auth.accessToken.destroy({
+    await ctx.model.auth.apiKey.destroy({
       where: {
         id,
       },
