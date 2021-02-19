@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const queryMethods = ['GET', 'HEAD'];
+const queryMethods = ['GET', 'POST'];
 
 const middleware = async function (ctx, next) {
   let values;
@@ -51,6 +51,8 @@ const middleware = async function (ctx, next) {
     const { id: uid, username, scopeId } = user;
     userInfo = { sk, uid, username, scopeId };
     ctx.service.auth.apiKey.cache.set(ak, userInfo);
+
+    return next();
   }
   // check sign
   const toSign = `${r}${timestamp}${sk}`;
