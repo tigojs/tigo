@@ -1,4 +1,5 @@
 const { BaseController } = require('@tigojs/core');
+const { successResponse } = require('@tigojs/utils');
 const superagent = require('superagent');
 
 class DebuggerController extends BaseController {
@@ -37,11 +38,28 @@ class DebuggerController extends BaseController {
     const { method, headers, values } = ctx.request.body;
     let res;
     if (method === 'post') {
-      res = await superagent.post(requestPath).send(values).set(headers);
+      res = await superagen
+        .post(requestPath)
+        .send(values)
+        .query({
+          __tigoDebug: 1,
+        })
+        .set(headers);
     } else if (method === 'get') {
-      res = await superagent.get(requestPath).query(values).set(headers);
+      res = await superagent
+        .get(requestPath)
+        .query({
+          ...values,
+          __tigoDebug: 1,
+        })
+        .set(headers);
     }
-    console.log(res)
+    ctx.body = successResponse({
+      status: res.status,
+      text: res.text,
+      body: res.body,
+      headers: res.headers,
+    });
   }
 }
 

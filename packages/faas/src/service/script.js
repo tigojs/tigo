@@ -48,9 +48,15 @@ class ScriptService extends BaseService {
     let handleRequestFunc = this.cache.get(cacheKey);
     if (!handleRequestFunc) {
       // func not in cache
-      const script = await ctx.faas.storage.get(getStorageKey(scopeId, name));
-      if (!script) {
-        ctx.throw(400, '无法找到对应的脚本');
+      let script;
+      try {
+        script = await ctx.faas.storage.get(getStorageKey(scopeId, name));
+      } catch (err) {
+        if (err.notFound) {
+          ctx.throw(400, '无法找到对应的脚本');
+        } else {
+          throw err;
+        }
       }
       const env = await ctx.faas.storage.getObject(getEnvStorageKey(scopeId, name));
       const vm = new NodeVM({
