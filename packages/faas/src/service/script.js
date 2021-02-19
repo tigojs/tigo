@@ -5,14 +5,12 @@ const { NodeVM } = require('vm2');
 const { BaseService } = require('@tigojs/core');
 const { createContextProxy } = require('../utils/context');
 const { stackFilter } = require('../utils/stackFilter');
-const { getEnvStorageKey } = require('../utils/env');
+const { getStorageKey, getEnvStorageKey } = require('../utils/storage');
 
 const USERSCRIPT_TEMPLATE = fs.readFileSync(
   path.resolve(__dirname, '../template/userscript.js'),
   { encoding: 'utf-8' },
 );
-
-const getStorageKey = (scopeId, name) => `faas_script_${scopeId}_${name}`;
 
 const generalCheck = async (ctx, id) => {
   const dbItem = await ctx.model.faas.script.findByPk(id);
@@ -189,6 +187,9 @@ class ScriptService extends BaseService {
     const { scopeId } = ctx.state.user;
     const dbItem = await generalCheck(ctx, id);
     return await ctx.faas.storage.get(getStorageKey(scopeId, dbItem.name));
+  }
+  deleteCache(key) {
+    this.cache.del(key);
   }
 }
 

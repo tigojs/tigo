@@ -1,6 +1,6 @@
 const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
-const { getEnvStorageKey } = require('../utils/env');
+const { getStorageKey, getEnvStorageKey } = require('../utils/storage');
 
 const generalCheck = async (ctx, scriptId) => {
   const script = await ctx.model.faas.script.findByPk(scriptId);
@@ -116,6 +116,7 @@ class ScriptEnvController extends BaseController {
     }
     envObj[k] = v;
     await ctx.faas.storage.setObject(key, envObj);
+    ctx.service.faas.deleteCache(`${scopeId}_${script.name}`);
     ctx.body = successResponse(null, '修改成功');
   }
   async handleDelete(ctx) {
@@ -142,6 +143,7 @@ class ScriptEnvController extends BaseController {
     }
     delete envObj[k];
     await ctx.faas.storage.setObject(key, envObj);
+    ctx.service.faas.deleteCache(`${scopeId}_${script.name}`);
     ctx.body = successResponse(null, '删除成功');
   }
 }
