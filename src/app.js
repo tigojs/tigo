@@ -116,9 +116,13 @@ function initServer() {
       plugins[name].mount.call(this, this, this.config.plugins[name].config);
       this.logger.debug(`Plugin mounted.`);
     } catch (err) {
-      this.logger.error(`Mount pluginfailed.`);
+      this.logger.error(`Mount plugin failed.`);
       this.logger.error(err);
-      killProcess.call(this, 'pluginMountError');
+      return killProcess.call(this, 'pluginMountError');
+    }
+    if (typeof plugins[name].afterMount === 'function') {
+      this.logger.debug(`Hook detected, running aftereMount method.`);
+      plugins[name].afterMount.call(this, this);
     }
   });
   this.logger.setPrefix(null);

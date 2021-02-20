@@ -18,6 +18,7 @@
     "@tigojs/cfs": "^0.1.0",
     "@tigojs/core": "^0.1.0",
     "@tigojs/faas": "file:packages\\faas",
+    "@tigojs/hostbinder": "file:packages\\hostbinder",
     "@tigojs/leveldb": "^0.1.0",
     "@tigojs/sqlite": "^0.1.0",
     "@tigojs/utils": "^0.1.0",
