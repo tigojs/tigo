@@ -19,8 +19,8 @@ const plugin = {
     }
     // check sql engine
     let sqlEngine;
-    if (config && config.engine) {
-      const engine = app.dbEngine[config.storage];
+    if (config && config.dbEngine) {
+      const engine = app.dbEngine[config.dbEngine];
       if (!engine) {
         throw new Error('Cannot find the specific SQL database engine.');
       }
@@ -37,15 +37,16 @@ const plugin = {
     }
     // check kv storage engine
     let kvEngine;
-    if (config && config.storage) {
-      const engine = app.dbEngine[config.storage];
+    if (config && config.storageEngine) {
+      const engine = app.dbEngine[config.storageEngine];
       if (!engine) {
         throw new Error('Cannot find the specific storage engine');
       }
       kvEngine = engine;
-    }
-    if (!app.kvDbEngine.includes('leveldb') && !app.kvDbEngine.includes('rocksdb')) {
-      throw new Error('Cannot find leveldb or rocksdb engine.');
+    } else {
+      if (!app.kvDbEngine.includes('leveldb') && !app.kvDbEngine.includes('rocksdb')) {
+        throw new Error('Cannot find leveldb or rocksdb engine.');
+      }
     }
     if (!kvEngine) {
       if (app.dbEngine.rocksdb) {
