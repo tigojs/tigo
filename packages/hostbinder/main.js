@@ -66,12 +66,13 @@ const plugin = {
         },
       });
     }
+    app.logger.debug('Run redbird proxy server...');
     const proxy = redbird(redbirdOpts);
     // mount to app
     const pluginObj = {
       proxy,
     };
-    app.server.context.hostbinder = app.server.hostbinder = app.tigo.hostbinder = pluginObj;
+    app.tigo.hostbinder = pluginObj;
     // collect module files
     const controllers = collectController.call(app, CONTROLLER_DIR);
     const models = collectModel.call(app, MODEL_DIR, sqlEngine);

@@ -37,7 +37,7 @@ class ConfigStorageService extends BaseService {
     if (stored) {
       return stored;
     }
-    const content = (await ctx.cfs.storage.get(getStorageKey(key))).toString();
+    const content = (await ctx.tigo.cfs.storage.get(getStorageKey(key))).toString();
     if (!content) {
       return null;
     }
@@ -47,7 +47,7 @@ class ConfigStorageService extends BaseService {
   }
   async getContent(ctx, id) {
     const dbItem = await generalCheck(ctx, id);
-    const ret = await ctx.cfs.storage.get(getStorageKey(`${ctx.state.user.scopeId}_${dbItem.type}_${dbItem.name}`));
+    const ret = await ctx.tigo.cfs.storage.get(getStorageKey(`${ctx.state.user.scopeId}_${dbItem.type}_${dbItem.name}`));
     return ret.toString();
   }
   async add(ctx) {
@@ -64,7 +64,7 @@ class ConfigStorageService extends BaseService {
     }
     // write
     const key = getStorageKey(`${scopeId}_${formattedType}_${name}`);
-    await ctx.cfs.storage.put(key, content);
+    await ctx.tigo.cfs.storage.put(key, content);
     const conf = await ctx.model.cfs.conf.create({
       uid: ctx.state.user.id,
       type: formattedType,
@@ -89,7 +89,7 @@ class ConfigStorageService extends BaseService {
         ctx.throw(400, '名称已被占用');
       }
       const oldKey = `${scopeId}_${dbItem.type}_${dbItem.name}`;
-      await ctx.cfs.storage.del(getStorageKey(oldKey));
+      await ctx.tigo.cfs.storage.del(getStorageKey(oldKey));
       await ctx.model.cfs.conf.update({
         name,
         type: formattedType,
@@ -102,7 +102,7 @@ class ConfigStorageService extends BaseService {
     }
     // update config file
     const key = `${scopeId}_${formattedType}_${name}`;
-    await ctx.cfs.storage.put(getStorageKey(key), content);
+    await ctx.tigo.cfs.storage.put(getStorageKey(key), content);
     // flush cache
     this.cache.del(key);
   }
@@ -122,16 +122,16 @@ class ConfigStorageService extends BaseService {
     });
     const key = `${scopeId}_${dbItem.type}_${dbItem.name}`;
     const newKey = `${scopeId}_${dbItem.type}_${newName}`;
-    const content = await ctx.faas.storage.get(key);
-    await ctx.cfs.storage.del(getStorageKey(key));
+    const content = await ctx.tigo.faas.storage.get(key);
+    await ctx.tigo.cfs.storage.del(getStorageKey(key));
     this.cache.del(key);
-    await ctx.cfs.storage.put(getStorageKey(newKey), content);
+    await ctx.tigo.cfs.storage.put(getStorageKey(newKey), content);
   }
   async delete(ctx, id) {
     const { scopeId } = ctx.state.user;
     const dbItem = await generalCheck(ctx, id);
     const key = `${scopeId}_${dbItem.type}_${dbItem.name}`;
-    await ctx.cfs.storage.del(getStorageKey(key));
+    await ctx.tigo.cfs.storage.del(getStorageKey(key));
     this.cache.del(key);
     await ctx.model.cfs.conf.destroy({
       where: {

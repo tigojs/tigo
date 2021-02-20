@@ -76,8 +76,6 @@ const plugin = {
       storage: kvEngine.open(app, dbPath),
     };
     app.tigo.faas = faas;
-    app.server.faas = faas;
-    app.server.context.faas = faas;
     // collect controllers
     const controllers = collectController.call(app, CONTROLLER_DIR);
     app.controller.faas = controllers;

@@ -76,8 +76,6 @@ const plugin = {
       storage: kvEngine.open(app, dbPath),
     };
     app.tigo.cfs = cfs;
-    app.server.cfs = cfs;
-    app.server.context.cfs = cfs;
     // collect controller, service and model
     const controllers = collectController.call(app, CONTROLLER_DIR);
     app.controller.cfs = controllers;

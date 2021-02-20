@@ -48,7 +48,7 @@ class ScriptService extends BaseService {
       // func not in cache
       let script;
       try {
-        script = await ctx.faas.storage.get(getStorageKey(scopeId, name));
+        script = await ctx.tigo.faas.storage.get(getStorageKey(scopeId, name));
       } catch (err) {
         if (err.notFound) {
           ctx.throw(400, '无法找到对应的脚本');
@@ -56,7 +56,7 @@ class ScriptService extends BaseService {
           throw err;
         }
       }
-      const env = await ctx.faas.storage.getObject(getEnvStorageKey(scopeId, name));
+      const env = await ctx.tigo.faas.storage.getObject(getEnvStorageKey(scopeId, name));
       const vm = new NodeVM({
         eval: false,
         wasm: false,
@@ -91,7 +91,7 @@ class ScriptService extends BaseService {
     }
     // write content to kv storage
     const key = getStorageKey(scopeId, name);
-    await ctx.faas.storage.put(
+    await ctx.tigo.faas.storage.put(
       key,
       Buffer.from(content, 'base64').toString('utf-8'),
     );
@@ -102,7 +102,7 @@ class ScriptService extends BaseService {
     });
     // if env exists, add env to kv db
     if (env) {
-      await ctx.faas.storage.putObject(getEnvStorageKey(scopeId, name), env);
+      await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, name), env);
     }
     return script.id;
   }
@@ -116,7 +116,7 @@ class ScriptService extends BaseService {
       if (await ctx.model.faas.script.hasName(uid, name)) {
         ctx.throw(400, '名称已被占用');
       }
-      await ctx.faas.storage.del(getStorageKey(scopeId, dbItem.name));
+      await ctx.tigo.faas.storage.del(getStorageKey(scopeId, dbItem.name));
       await ctx.model.faas.script.update({
         name,
       }, {
@@ -127,16 +127,16 @@ class ScriptService extends BaseService {
       this.cache.del(`${scopeId}_${dbItem.name}`);
       // env
       const envKey = getEnvStorageKey(scopeId, dbItem.name);
-      const env = await ctx.faas.storage.get(envKey);
+      const env = await ctx.tigo.faas.storage.get(envKey);
       if (env) {
-        await ctx.faas.storage.del(envKey);
-        await ctx.faas.storage.putObject(getEnvStorageKey(scopeId, name), env);
+        await ctx.tigo.faas.storage.del(envKey);
+        await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, name), env);
       }
     } else {
       this.cache.del(`${scopeId}_${name}`);
     }
     // update script
-    await ctx.faas.storage.put(
+    await ctx.tigo.faas.storage.put(
       getStorageKey(scopeId, name),
       Buffer.from(content, 'base64').toString('utf-8')
     )
@@ -157,24 +157,24 @@ class ScriptService extends BaseService {
     });
     // script
     const oldKey = getStorageKey(scopeId, dbItem.name);
-    const content = await ctx.faas.storage.get(oldKey);
-    await ctx.faas.storage.del(oldKey);
+    const content = await ctx.tigo.faas.storage.get(oldKey);
+    await ctx.tigo.faas.storage.del(oldKey);
     this.cache.del(`${scopeId}_${dbItem.name}`);
-    await ctx.faas.storage.put(getStorageKey(scopeId, newName), content);
+    await ctx.tigo.faas.storage.put(getStorageKey(scopeId, newName), content);
     // env
     const envKey = getEnvStorageKey(scopeId, dbItem.name);
-    const env = await ctx.faas.storage.get(envKey);
+    const env = await ctx.tigo.faas.storage.get(envKey);
     if (env) {
-      await ctx.faas.storage.del(getStorageKey(envKey));
-      await ctx.faas.storage.putObject(getEnvStorageKey(scopeId, newName), env);
+      await ctx.tigo.faas.storage.del(getStorageKey(envKey));
+      await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, newName), env);
     }
   }
   async delete(ctx) {
     const { id } = ctx.request.body;
     const { scopeId } = ctx.state.user;
     const dbItem = await generalCheck(ctx, id);
-    await ctx.faas.storage.del(getEnvStorageKey(scopeId, dbItem.name));
-    await ctx.faas.storage.del(getStorageKey(scopeId, dbItem.name));
+    await ctx.tigo.faas.storage.del(getEnvStorageKey(scopeId, dbItem.name));
+    await ctx.tigo.faas.storage.del(getStorageKey(scopeId, dbItem.name));
     this.cache.del(`${scopeId}_${dbItem.name}`);
     await ctx.model.faas.script.destroy({
       where: {
@@ -186,7 +186,7 @@ class ScriptService extends BaseService {
     const { id } = ctx.query;
     const { scopeId } = ctx.state.user;
     const dbItem = await generalCheck(ctx, id);
-    return await ctx.faas.storage.get(getStorageKey(scopeId, dbItem.name));
+    return await ctx.tigo.faas.storage.get(getStorageKey(scopeId, dbItem.name));
   }
   deleteCache(key) {
     this.cache.del(key);

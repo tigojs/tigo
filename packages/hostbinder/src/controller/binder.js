@@ -51,7 +51,7 @@ class BinderController extends BaseController {
       ctx.throw(400, '域名已存在');
     }
     const targetPath = `http://127.0.0.1:${ctx.tigo.config.server.port}${target}`;
-    ctx.hostbinder.proxy.register(domain, targetPath);
+    ctx.tigo.hostbinder.proxy.register(domain, targetPath);
     await ctx.model.hostbinder.binding.create({
       uid: ctx.state.user.id,
       domain,
@@ -75,7 +75,7 @@ class BinderController extends BaseController {
     if (item.uid !== ctx.state.user.id) {
       ctx.throw(401, '无权访问');
     }
-    ctx.hostbinder.proxy.unregister(item.domain, item.target);
+    ctx.tigo.hostbinder.proxy.unregister(item.domain, item.target);
     await ctx.model.hostbinder.binding.destroy({
       where: {
         id,
