@@ -84,7 +84,8 @@ const plugin = {
     const bindings = await app.model.hostbinder.binding.findAll();
     if (Array.isArray(bindings) && bindings.length) {
       bindings.forEach((item) => {
-        proxy.register(item.host, item.target);
+        const targetPath = `http://127.0.0.1:${app.tigo.config.server.port}${item.target}`;
+        app.tigo.hostbinder.proxy.register(item.domain, targetPath);
       });
     }
   }

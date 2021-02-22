@@ -1,9 +1,10 @@
 const { BaseController } = require('@tigojs/core');
+const { successResponse } = require('@tigojs/utils');
 
 const domainValidator = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
 
 class BinderController extends BaseController {
-  getRoute() {
+  getRoutes() {
     return {
       '/hostbinder/list': {
         type: 'get',
@@ -28,10 +29,7 @@ class BinderController extends BaseController {
         uid: ctx.state.user.id,
       },
     }));
-    ctx.body = successResponse(list.map((item) => ({
-      ...item,
-      target: item.target.replace(`http://127.0.0.1:${ctx.tigo.config.server.port}`, ''),
-    })));
+    ctx.body = successResponse(list);
   }
   async handleAdd(ctx) {
     ctx.verifyParams({
@@ -55,7 +53,7 @@ class BinderController extends BaseController {
     await ctx.model.hostbinder.binding.create({
       uid: ctx.state.user.id,
       domain,
-      target: targetPath,
+      target,
     });
     ctx.body = successResponse(null, '添加成功');
   }
@@ -68,7 +66,7 @@ class BinderController extends BaseController {
       },
     });
     const { id } = ctx.request.body;
-    const item = ctx.model.hostbinder.binding.findByPk(id);
+    const item = await ctx.model.hostbinder.binding.findByPk(id);
     if (!item) {
       ctx.throw(400, '找不到对应的ID');
     }
