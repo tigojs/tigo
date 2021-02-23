@@ -9,7 +9,15 @@ function openDatabase(app, dbPath) {
   // extend
   db.set = db.put;
   db.hasObject = async (key) => {
-    const obj = await db.getObject(key);
+    let obj;
+    try {
+      obj = await db.getObject(key);
+    } catch (err) {
+      if (err.notFound) {
+        return false;
+      }
+      throw err;
+    }
     if (!obj) {
       return false;
     }
