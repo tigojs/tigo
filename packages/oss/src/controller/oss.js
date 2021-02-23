@@ -51,23 +51,128 @@ class OssController extends BaseController {
     }
     ctx.body = successResponse(list);
   }
-  async makeBucket(ctx) {
+  async handleMakeBucket(ctx) {
     ctx.verifyParams({
       bucketName: {
         type: 'string',
         required: true,
       },
     });
-    ctx.tigo.oss.engine.makeBucket(ctx, {
-      username: ctx.state.user.username,
-      bucketName,
+    const { bucketName } = ctx.request.body;
+    try {
+      await ctx.tigo.oss.engine.makeBucket({
+        username: ctx.state.user.username,
+        bucketName,
+      });
+    } catch (err) {
+      ctx.logger.error('Make bucket failed.', err);
+      ctx.throw(500, '无法创建Bucket');
+    }
+    ctx.body = successResponse(null, '创建成功');
+  }
+  async handleRemoveBucket(ctx) {
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
     });
+    const { bucketName } = ctx.request.body;
+    try {
+      await ctx.tigo.oss.engine.removeBucket({
+        username: ctx.state.user.username,
+        bucketName,
+      });
+    } catch (err) {
+      ctx.logger.error('Remove bucket failed.', err);
+      ctx.throw(500, '无法删除Bucket');
+    }
+    ctx.body = successResponse(null, '删除成功');
   }
-  async removeBucket(ctx) {
-
+  async handleListObjects(ctx) {
+    ctx.query.pageSize = parseInt(ctx.query.pageSize, 10);
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
+      folder: {
+        type: 'string',
+        required: true,
+      },
+      // startAt is a filename
+      startAt: {
+        type: 'string',
+        required: false,
+      },
+      pageSize: {
+        type: 'number',
+        required: true,
+      },
+    });
+    const { bucketName, startAt, pageSize } = ctx.query;
+    let list;
+    try {
+      list = await ctx.tigo.oss.engine.listObjects({
+        username: ctx.state.user.username,
+        bucketName,
+        startAt,
+        pageSize,
+      });
+    } catch (err) {
+      ctx.logger.error('List objects failed.', err);
+      ctx.throw(500, '无法列出文件');
+    }
+    ctx.body = successResponse(list);
   }
-  async putObject(ctx) {
-
+  async handlePutObject(ctx) {
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
+      key: {
+        type: 'string',
+        required: true,
+      },
+    });
+    const { bucketName, key } = ctx.request.body;
+    try {
+      await ctx.tigo.oss.engine.putObject({
+        username: ctx.state.user.username,
+        bucketName,
+        key,
+        file: ctx.request.files.file,
+      });
+    } catch (err) {
+      ctx.logger.error('Put object failed.', err);
+      ctx.throw(500, '出现错误，添加失败');
+    }
+    ctx.body = successResponse(null, '添加成功');
+  }
+  async handleRemoveObject(ctx) {
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
+      key: {
+        type: 'string',
+        required: true,
+      },
+    });
+    const { bucketName, key } = ctx.request.body;
+    try {
+      await ctx.tigo.oss.engine.removeObject({
+        username: ctx.state.user.username,
+        bucketName,
+        key,
+      });
+    } catch (err) {
+      ctx.logger.error('Remove object failed.', err);
+      ctx.throw(500, '出现错误，删除失败');
+    }
+    ctx.body = successResponse(null, '删除成功');
   }
 }
 

@@ -20,60 +20,56 @@ const plugin = {
     // check sql engine
     let sqlEngine;
     if (config && config.dbEngine) {
-      const engine = app.dbEngine[config.dbEngine];
+      const engine = app.dbEngine.sql[config.dbEngine];
       if (!engine) {
         throw new Error('Cannot find the specific SQL database engine.');
       }
       sqlEngine = engine;
-    }
-    if (!sqlEngine) {
-      if (app.sqlDbEngine.length) {
-        const engineName = app.sqlDbEngine[0];
-        app.logger.warn(`Use SQL database engine [${engineName}] by default`);
-        sqlEngine = app.dbEngine[engineName];
-      } else {
+    } else {
+      const keys = Object.keys(app.dbEngine.sql);
+      if (!keys.length) {
         throw new Error('Cannot find avaliable SQL database engine.');
       }
+      sqlEngine = app.dbEngine.sql[keys[0]];
+      app.logger.warn(`Use SQL database engine [${sqlEngine.name}] by default`);
     }
     // check kv storage engine
     let kvEngine;
     if (config && config.storageEngine) {
-      const engine = app.dbEngine[config.storageEngine];
+      const engine = app.dbEngine.kv[config.storageEngine];
       if (!engine) {
         throw new Error('Cannot find the specific storage engine');
       }
       kvEngine = engine;
     } else {
-      if (!app.kvDbEngine.includes('leveldb') && !app.kvDbEngine.includes('rocksdb')) {
-        throw new Error('Cannot find leveldb or rocksdb engine.');
+      const keys = Object.keys(app.dbEngine.kv);
+      if (!keys.length) {
+        throw new Error('Cannot find any KV database engine.');
       }
-    }
-    if (!kvEngine) {
-      if (app.dbEngine.rocksdb) {
-        kvEngine = app.dbEngine.rocksdb;
-        app.logger.warn('Use rocksdb for config storage by default.');
-      } else if (app.dbEngine.leveldb) {
-        kvEngine = app.dbEngine.leveldb;
-        app.logger.warn('Use leveldb for config storage by default.');
-      }
+      kvEngine = app.dbEngine.kv[keys[0]];
+      app.logger.warn(`Use ${kvEngine.name} for config storage by default.`);
     }
     // open database
-    let dbPath;
-    if (config && config.storage && config.storage.path) {
-      if (!fs.existsSync(config.storage.path)) {
-        throw new Error(`Cannot find the specific storage path [${config.storage.path}] for cfs.`);
+    let secondArg;
+    if (kvEngine.storageType === 'local') {
+      if (config && config.storage && config.storage.path) {
+        if (!fs.existsSync(config.storage.path)) {
+          throw new Error(`Cannot find the specific storage path [${config.storage.path}] for cfs.`);
+        }
+        secondArg = config.storage.path;
+      } else {
+        app.logger.warn('Use default storage path for cfs.');
+        secondArg = path.resolve(app.config.runDirPath, './cfs/storage');
+        if (!fs.existsSync(secondArg)) {
+          fs.mkdirSync(secondArg, { recursive: true });
+        }
       }
-      dbPath = config.storage.path;
     } else {
-      app.logger.warn('Use default storage path for cfs.');
-      dbPath = path.resolve(app.config.runDirPath, './cfs/storage');
-      if (!fs.existsSync(dbPath)) {
-        fs.mkdirSync(dbPath, { recursive: true });
-      }
+      secondArg = config.storage.connection;
     }
     // set object to app
     const cfs = {
-      storage: kvEngine.open(app, dbPath),
+      storage: kvEngine.openDatabase(app, secondArg),
     };
     app.tigo.cfs = cfs;
     // collect controller, service and model

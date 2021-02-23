@@ -73,7 +73,7 @@ function collectModel(dirPath, e) {
   const models = {};
 
   // compatible with direct pass
-  const engine = typeof e === 'string' ? this.dbEngine[e] : e;
+  const engine = typeof e === 'string' ? this.dbEngine.sql[e] : e;
   if (!engine || typeof engine !== 'object') {
     this.logger.error(`Database engine is not found.`);
     killProcess.call(this, 'modelCollectError');

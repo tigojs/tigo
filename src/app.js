@@ -40,7 +40,9 @@ function initServer() {
   this.static.main = static;
   // init koa plugins
   this.server.use(cors(this.config.cors || null));
-  this.server.use(koaBody());
+  this.server.use(koaBody({
+    multipart: true,
+  }));
   this.server.use(compress({
     filter(type) {
       return /^text/i.test(type) || type === 'application/json';
@@ -93,8 +95,6 @@ function initServer() {
   this.server.logger = this.logger;
   this.server.context.logger = this.logger;
   this.server.dbEngine = this.dbEngine;
-  this.server.sqlDbEngine = this.sqlDbEngine;
-  this.server.kvDbEngine = this.kvDbEngine;
   // bind controller and service object to koa
   this.server.controller = this.controller;
   this.server.context.controller = this.controller;
@@ -143,9 +143,10 @@ class App {
     this.config = config;
     this.config.runDirPath = path.resolve(__dirname, '../run');
     // init db related
-    this.dbEngine = {};
-    this.sqlDbEngine = [];
-    this.kvDbEngine = [];
+    this.dbEngine = {
+      sql: {},
+      kv: {},
+    };
     // init base
     this.controller = {};
     this.service = {};

@@ -27,16 +27,16 @@ const plugin = {
     };
     let { engine } = app.tigo.auth.config;
     if (engine) {
-      if (!app.sqlDbEngine.includes(engine)) {
+      if (!app.dbEngine.sql[engine]) {
         throw new Error('Cannot find the specific db engine.');
       }
     } else {
-      if (!!!app.sqlDbEngine.length) {
-        throw new Error('No avaliable mounted sql db engine.');
+      const keys = Object.keys(app.dbEngine.sql);
+      if (!keys.length) {
+        throw new Error('No avaliable sql db engine.');
       }
-      app.logger.warn(`Use first db engine [${app.sqlDbEngine[0]}] by default.`);
-      app.tigo.auth.config.engine = app.sqlDbEngine[0];
-      engine = app.sqlDbEngine[0];
+      engine = app.dbEngine.sql[keys[0]];
+      app.logger.warn(`Use first db engine [${engine.name}] by default.`);
     }
     // collect controllers
     const controllers = collectController.call(app, CONTROLLER_DIR);

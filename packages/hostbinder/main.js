@@ -18,21 +18,19 @@ const plugin = {
     opts = opts || {};
     // get sql engine
     let sqlEngine;
-    if (opts.dbEngine) {
-      const engine = app.dbEngine[opts.dbEngine];
+    if (opts.engine) {
+      const engine = app.dbEngine.sql[opts.engine];
       if (!engine) {
         throw new Error('Cannot find the specific SQL database engine.');
       }
       sqlEngine = engine;
-    }
-    if (!sqlEngine) {
-      if (app.sqlDbEngine.length) {
-        const engineName = app.sqlDbEngine[0];
-        app.logger.warn(`Use SQL database engine [${engineName}] by default`);
-        sqlEngine = app.dbEngine[engineName];
-      } else {
+    } else {
+      const keys = Object.keys(app.dbEngine.sql);
+      if (!keys.length) {
         throw new Error('Cannot find avaliable SQL database engine.');
       }
+      sqlEngine = app.dbEngine.sql[keys[0]];
+      app.logger.warn(`Use SQL database engine [${sqlEngine.name}] by default`);
     }
     // init redbird
     let certPath;

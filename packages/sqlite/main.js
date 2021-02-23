@@ -2,6 +2,7 @@ const sequelize = require('sequelize');
 const sqlite3 = require('sqlite3');
 const path = require('path');
 const fs = require('fs');
+const { registerDbEngine } = require('@tigojs/utils');
 
 const { Sequelize } = sequelize;
 
@@ -19,7 +20,7 @@ const plugins = {
     }
 
     if (!conf.storage) {
-      app.logger.warn('Use default storage path.')
+      app.logger.warn('Use default storage path.');
     }
     const storagePath = conf.storage || path.resolve(app.config.runDirPath, './sqlite.db');
 
@@ -32,7 +33,7 @@ const plugins = {
         underscored: conf.underscored || true,
         freezeTableName: conf.freezeTableName || true,
       },
-      logging: process.env.DB_ENV === 'dev' ? msg => app.logger.debug(msg): false,
+      logging: process.env.DB_ENV === 'dev' ? (msg) => app.logger.debug(msg) : false,
     });
 
     if (conf.wal) {
@@ -40,13 +41,13 @@ const plugins = {
     }
 
     // add info to app
-    app.sqlDbEngine.push('sqlite');
-    app.dbEngine.sqlite = sqlite;
-
-    // bind to app
-    app.server.sqlite = sqlite;
-    app.server.context.sqlite = sqlite;
-  }
+    registerDbEngine(app, {
+      engine: sqlite,
+      name: 'sqlite',
+      engineType: 'sql',
+      storageType: 'local',
+    });
+  },
 };
 
 module.exports = plugins;
