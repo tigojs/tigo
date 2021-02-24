@@ -1,6 +1,10 @@
 const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
 
+const checkBucketExists = (ctx, username, bucketName) => {
+  return await ctx.tigo.oss.engine.bucketExists({ username, bucketName });
+}
+
 class OssController extends BaseController {
   getRoutes() {
     return {
@@ -59,11 +63,15 @@ class OssController extends BaseController {
       },
     });
     const { bucketName } = ctx.request.body;
+    const opts = {
+      username: ctx.state.user.username,
+      bucketName,
+    };
     try {
-      await ctx.tigo.oss.engine.makeBucket({
-        username: ctx.state.user.username,
-        bucketName,
-      });
+      if (checkBucketExists(ctx, ...opts)) {
+        ctx.throw(400, 'Bucket已存在');
+      }
+      await ctx.tigo.oss.engine.makeBucket(opts);
     } catch (err) {
       ctx.logger.error('Make bucket failed.', err);
       ctx.throw(500, '无法创建Bucket');
@@ -78,6 +86,9 @@ class OssController extends BaseController {
       },
     });
     const { bucketName } = ctx.request.body;
+    if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
+      ctx.throw(400, 'Bucket不存在');
+    }
     try {
       await ctx.tigo.oss.engine.removeBucket({
         username: ctx.state.user.username,
@@ -96,11 +107,7 @@ class OssController extends BaseController {
         type: 'string',
         required: true,
       },
-      folder: {
-        type: 'string',
-        required: true,
-      },
-      // startAt is a filename
+      // startAt is a file key
       startAt: {
         type: 'string',
         required: false,
@@ -110,6 +117,9 @@ class OssController extends BaseController {
         required: true,
       },
     });
+    if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
+      ctx.throw(400, 'Bucket不存在');
+    }
     const { bucketName, startAt, pageSize } = ctx.query;
     let list;
     try {
@@ -136,6 +146,9 @@ class OssController extends BaseController {
         required: true,
       },
     });
+    if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
+      ctx.throw(400, 'Bucket不存在');
+    }
     const { bucketName, key } = ctx.request.body;
     try {
       await ctx.tigo.oss.engine.putObject({
@@ -161,6 +174,9 @@ class OssController extends BaseController {
         required: true,
       },
     });
+    if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
+      ctx.throw(400, 'Bucket不存在');
+    }
     const { bucketName, key } = ctx.request.body;
     try {
       await ctx.tigo.oss.engine.removeObject({

@@ -15,8 +15,10 @@ const plugin = {
     if (!opts.storage || !opts.storage.engine) {
       throw new Error('You should specific a storage engine.');
     }
-    const Engine = require(opts.storage.engine);
+    const enginePackageName = opts.storage.engine;
+    const Engine = require(enginePackageName);
     const engine = new Engine(app, opts.storage.config);
+    app.logger.debug(`OSS storage engine ${enginePackageName} imported.`);
     // set object to app
     const oss = {
       engine,
