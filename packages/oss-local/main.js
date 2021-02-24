@@ -1,9 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 const fsPromise = require('fs/promises');
-const { safePush, safeRemove, delayExec, lock, unlock } = require('./utils/atomic');
-const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey } = require('./utils/keys');
-const { isBucketEmpty, getDirectoryPath } = require('./utils/bucket');
+const { safePush, safeRemove, safeCreateObject, safePutObject, safeInsertNode } = require('./utils/atomic');
+const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMetaKey } = require('./utils/keys');
+const { isBucketEmpty, getDirectoryPath, recursiveCheckParent } = require('./utils/bucket');
 const { v4: uuidv4 } = require('uuid');
 
 class LocalStorageEngine {
@@ -107,78 +107,74 @@ class LocalStorageEngine {
     
   }
   async putObject(args) {
-    const { username, bucketName, key, file } = args;
+    const { username, bucketName, key, file, force } = args;
     const dirPath = getDirectoryPath(key);
-    const dirHeadKey = getDirectoryHeadKey(username, bucketName, dirPath);
-    if (lock(dirHeadKey)) {
-      return await delayExec(this.putObject, args);
-    }
-    let dirHead;
-    let isNewDir = false;
+
     try {
-      dirHead = await this.kv.getObject(dirHeadKey);
+      await recursiveCheckParent(this.kv, username, bucketName, dirPath);
     } catch (err) {
-      if (err.notFound) {
-        dirHead = null;
-        isNewDir = true;
-      } else {
-        unlock(dirHeadKey);
+      throw err;
+    }
+
+    // write file to storage path
+    if (fs.existsSync(file.path)) {
+      const fileId = uuidv4();
+      const dest = path.resolve(this.fileStoragePath, `./${fileId}`);
+      await fsPromise.copyFile(file.path, dest);
+      await fsPromise.unlink(file.path);
+    }
+
+    // check if key exists
+    const metaKey = getObjectMetaKey(username, bucketName, key);
+    let storedMeta;
+    try {
+      storedMeta = await this.kv.getObject(metaKey);
+    } catch (err) {
+      if (!err.notFound) {
         throw err;
       }
     }
-    if (!dirHead) {
-      dirHead = {};
-      isNewDir = true;
-    }
-    let headNext;
-    if (dirHead.next) {
-      if (lock(dirHead.next)) {
-        return await delayExec(this.putObject, args);
+    if (storedMeta) {
+      if (!force) {
+        const err = new Error('Duplicated key');
+        err.duplicated = true;
+        throw err;
       }
-      try {
-        headNext = await this.kv.getObject(dirHead.next);
-      } catch (err) {
-        unlock(dirHead.next);
-        if (!err.notFound) {
-          throw err;
-        }
+      // put new meta to db
+      await safePutObject(metaKey, {
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModifiedDate,
+        hash: file.hash,
+        file: fileId,
+      });
+    } else {
+      // get last dir node (or last node)
+      const dirHeadKey = getDirectoryHeadKey(username, bucketName, dirPath);
+      if (!await db.hasObject(dirHeadKey)) {
+        await safeCreateObject(this.kv, dirHeadKey, {
+          key: dirPath,
+          isHead: true,
+          next: null,
+        });
       }
+      const lastDirNode = await getLastDirectoryNode(db, dirHeadKey);
+      const lastDirKey = lastDirNode.isHead ? dirHeadKey : getDirectoryMetaKey(username, bucketName, lastDirNode.key);
+      const meta = {
+        key: key,
+        name: key.replace(dirPath, ''),
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModifiedDate,
+        hash: file.hash,
+        file: fileId,
+        isDirectory: false,
+        prev: lastDirKey,
+        next: lastDirNode.next,
+      };
+      // insert meta
+      await safeInsertNode(db, lastDirKey, metaKey, meta);
     }
-    const fileId = uuidv4();
-    const dest = path.resolve(this.fileStoragePath, `./${fileId}`);
-    await fsPromise.copyFile(file.path, dest);
-    await fsPromise.unlink(file.path);
-    const meta = {
-      size: file.size,
-      type: file.type,
-      lastModified: file.lastModifiedDate,
-      hash: file.hash,
-      file: fileId,
-      next: dirHead.next,
-      prev: dirHeadKey,
-    };
-    const metaKey = getObjectMetaKey();
-    // update
-    try {
-      await this.kv.putObject(metaKey, meta);
-      if (headNext) {
-        headNext.prev = metaKey;
-        await this.kv.putObject(dirHead.next, headNext);
-      }
-      dirHead.next = metaKey;
-      await this.kv.putObject(dirHeadKey, meta);
-    } catch (err) {
-      if (headNext) {
-        unlock(dirHead.next);
-      }
-      unlock(dirHeadKey);
-      throw err;
-    }
-    // unlock locks
-    if (headNext) {
-      unlock(dirHead.next);
-    }
-    unlock(dirHeadKey);
   }
   async removeObject({
     username,

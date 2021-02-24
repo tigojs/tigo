@@ -107,6 +107,10 @@ class OssController extends BaseController {
         type: 'string',
         required: true,
       },
+      prefix: {
+        type: 'string',
+        required: false,
+      },
       // startAt is a file key
       startAt: {
         type: 'string',
@@ -116,6 +120,10 @@ class OssController extends BaseController {
         type: 'number',
         required: true,
       },
+      force: {
+        type: 'boolean',
+        required: true,
+      }
     });
     if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
       ctx.throw(400, 'Bucket不存在');
@@ -158,6 +166,9 @@ class OssController extends BaseController {
         file: ctx.request.files.file,
       });
     } catch (err) {
+      if (err.duplicated) {
+        ctx.throw(403, 'Key已存在');
+      }
       ctx.logger.error('Put object failed.', err);
       ctx.throw(500, '出现错误，添加失败');
     }

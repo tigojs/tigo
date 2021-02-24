@@ -1,4 +1,5 @@
-const { getDirectoryHeadKey } = require("./keys");
+const { safeCreateObject, safeInsertNode } = require("./atomic");
+const { getDirectoryHeadKey, getDirectoryMetaKey } = require("./keys");
 
 const isBucketEmpty = async (db, username, bucketName) => {
   let rootHead;
@@ -28,7 +29,61 @@ const getDirectoryPath = (key) => {
   return '/';
 }
 
+const getLastDirectoryNode = (db, node) => {
+  // if type of node is string, node is actually a key.
+  if (typeof node === 'string') {
+    node = await db.getObject(node);
+  }
+  // if node is the last one, return it
+  if (!node.next) {
+    return node;
+  }
+  const next = await db.getObject(node.next);
+  if (!next.isDirectory) {
+    return node;
+  }
+  return await getLastDirectoryNode(db, next);
+}
+
+const recursiveCheckParent = async (db, username, bucketName, dir) => {
+  if (dir === '/') {
+    return;
+  }
+  // try to get dir meta
+  const dirMetaKey = getDirectoryMetaKey(username, bucketName, dir);
+  if (await db.hasObject(dirMetaKey)) {
+    // if meta of current dir exists, meta of parent should exist too.
+    return;
+  }
+  // if not exist, create the meta and add it to parent dir
+  // get head node of parent dir from db;
+  const parentDir = getDirectoryPath(dir);
+  const parentDirHeadKey = getDirectoryHeadKey(username, bucketName, parentDir);
+  // parent dir head node does not exist, create it
+  if (!await db.hasObject(parentDirHeadKey)) {
+    await safeCreateObject(db, parentDirHeadKey, {
+      key: parentDir,
+      isHead: true,
+      next: null,
+    });
+  }
+  // insert directory meta node to parent dir link
+  const meta = {
+    key: dir,
+    name: dir.replace(parentDir, ''),
+    isDirectory: true,
+    prev: parentDirHeadKey,
+  };
+  await safeInsertNode(db, parentDirHeadKey, dirMetaKey, meta);
+  // recursive check
+  return await recursiveCheckParent(db, username, bucketName, parentDir);
+}
+
+
+
 module.exports = {
   isBucketEmpty,
   getDirectoryPath,
+  getLastDirectoryNode,
+  recursiveCheckParent,
 };
