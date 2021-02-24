@@ -42,6 +42,9 @@ function initServer() {
   this.server.use(cors(this.config.cors || null));
   this.server.use(koaBody({
     multipart: true,
+    formidable: {
+      maxFileSize: config.maxFileSize || 100 * 1024 * 1024,
+    },
   }));
   this.server.use(compress({
     filter(type) {
