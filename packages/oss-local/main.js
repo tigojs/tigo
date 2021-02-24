@@ -67,25 +67,13 @@ class LocalStorageEngine {
     app.logger.setPrefix(null);
   }
   async listBuckets({ username }) {
-    try {
-      const list = await this.kv.getObject(getBucketListKey(username));
-      return list;
-    } catch (err) {
-      if (err.notFound) {
-        return null;
-      }
-      throw err;
-    }
+    const list = await this.kv.getObject(getBucketListKey(username));
+    return list;
   }
   async bucketExists({ username, bucketName }) {
-    let list;
-    try {
-      list = await this.kv.getObject(getBucketListKey(username));
-    } catch (err) {
-      if (err.notFound) {
-        return false;
-      }
-      throw err;
+    const list = await this.kv.getObject(getBucketListKey(username));
+    if (!list) {
+      return false;
     }
     return list.includes(bucketName);
   }
@@ -93,21 +81,44 @@ class LocalStorageEngine {
     await safePush(this.kv, getBucketListKey(username), bucketName);
   }
   async removeBucket({ username, bucketName }) {
-    if (!await isBucketEmpty(this.kv, username, bucketName)) {
+    if (!(await isBucketEmpty(this.kv, username, bucketName))) {
       ctx.throw(403, 'Bucket不为空，请先删除所有文件再操作');
     }
     await safeRemove(this.kv, getBucketListKey(username), bucketName);
   }
-  async listObjects({
-    username,
-    bucketName,
-    startAt,
-    pageSize,
-  }) {
-    
+  async listObjects({ username, bucketName, prefix, startAt, startAtType, pageSize }) {
+    let startAtKey;
+    if (startAt) {
+      const objKey = `${prefix}/${startAt}`;
+      if (startAtType === 'file') {
+        startAtKey = getObjectMetaKey(username, bucketName, objKey);
+      } else {
+        startAtKey = getDirectoryMetaKey(username, bucketName, objKey);
+      }
+    } else {
+      startAtKey = getDirectoryHeadKey(username, bucketName, prefix);
+    }
+    let node = await this.kv.getObject(startAtKey);
+    if (!node) {
+      const err = new Error('Start object does not exist.');
+      err.startAtNotFound = true;
+      throw err;
+    }
+    const list = [];
+    while (node.next) {
+      const obj = await this.kv.getObject(node.next);
+      if (!obj) {
+        throw new Error('Get next node error.');
+      }
+      list.push(obj);
+      if (list.length >= pageSize) {
+        return list;
+      }
+      node = obj;
+    }
+    return list;
   }
-  async putObject(args) {
-    const { username, bucketName, key, file, force } = args;
+  async putObject({ username, bucketName, key, file, force }) {
     const dirPath = getDirectoryPath(key);
 
     try {
@@ -126,14 +137,7 @@ class LocalStorageEngine {
 
     // check if key exists
     const metaKey = getObjectMetaKey(username, bucketName, key);
-    let storedMeta;
-    try {
-      storedMeta = await this.kv.getObject(metaKey);
-    } catch (err) {
-      if (!err.notFound) {
-        throw err;
-      }
-    }
+    const storedMeta = await this.kv.getObject(metaKey);
     if (storedMeta) {
       if (!force) {
         const err = new Error('Duplicated key');
@@ -151,7 +155,7 @@ class LocalStorageEngine {
     } else {
       // get last dir node (or last node)
       const dirHeadKey = getDirectoryHeadKey(username, bucketName, dirPath);
-      if (!await db.hasObject(dirHeadKey)) {
+      if (!(await db.hasObject(dirHeadKey))) {
         await safeCreateObject(this.kv, dirHeadKey, {
           key: dirPath,
           isHead: true,
@@ -176,12 +180,20 @@ class LocalStorageEngine {
       await safeInsertNode(db, lastDirKey, metaKey, meta);
     }
   }
-  async removeObject({
-    username,
-    bucketName,
-    key,
-  }) {
-
+  async removeObject({ username, bucketName, key }) {
+    const metaKey = getObjectMetaKey(username, bucketName, key);
+    const meta = await this.kv.getObject(metaKey);
+    if (!meta) {
+      const err = new Error('Could not find the object');
+      err.notFound = true;
+      throw err;
+    }
+    // remove meta node first
+    await safeRemoveNode(this.kv, metaKey);
+    // unlink file
+    await fsPromise.unlink(path.resolve(this.fileStoragePath, `./${meta.file}`));
+    // recursive check directory
+    await recursiveCheckParent(db, username, bucketName, getDirectoryPath(key));
   }
 }
 

@@ -1,4 +1,4 @@
-const { safeCreateObject, safeInsertNode } = require("./atomic");
+const { safeCreateObject, safeInsertNode, safeDel, safeRemoveNode } = require("./atomic");
 const { getDirectoryHeadKey, getDirectoryMetaKey } = require("./keys");
 
 const isBucketEmpty = async (db, username, bucketName) => {
@@ -79,11 +79,35 @@ const recursiveCheckParent = async (db, username, bucketName, dir) => {
   return await recursiveCheckParent(db, username, bucketName, parentDir);
 }
 
-
+const recursiveCheckEmpty = async (db, username, bucketName, dir) => {
+  if (dir === '/') {
+    return;
+  }
+  const dirHeadKey = getDirectoryHeadKey(username, bucketName, dir);
+  const dirMetaKey = getDirectoryMetaKey(username, bucketName, dir);
+  const dirHeadNode = await db.getObject(dirHeadKey);
+  if (dirHeadNode.next) {
+    return;
+  }
+  // directory is empty
+  try {
+    await safeDel(db, dirHeadKey, ((obj) => !obj.next))
+    await safeRemoveNode(db, dirMetaKey);
+  } catch (err) {
+    if (err.objChanged) {
+      // object changed, cannot remove
+      return;
+    }
+    throw err;
+  }
+  const parentDir = getDirectoryPath(dir);
+  return await recursiveCheckEmpty(db, username, bucketName, parentDir);
+}
 
 module.exports = {
   isBucketEmpty,
   getDirectoryPath,
   getLastDirectoryNode,
   recursiveCheckParent,
+  recursiveCheckEmpty,
 };

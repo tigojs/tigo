@@ -87,7 +87,7 @@ class OssController extends BaseController {
     });
     const { bucketName } = ctx.request.body;
     if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
-      ctx.throw(400, 'Bucket不存在');
+      ctx.throw(404, 'Bucket不存在');
     }
     try {
       await ctx.tigo.oss.engine.removeBucket({
@@ -116,6 +116,11 @@ class OssController extends BaseController {
         type: 'string',
         required: false,
       },
+      startAtType: {
+        type: 'enum',
+        values: ['file', 'directory'],
+        required: false,
+      },
       pageSize: {
         type: 'number',
         required: true,
@@ -126,18 +131,27 @@ class OssController extends BaseController {
       }
     });
     if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
-      ctx.throw(400, 'Bucket不存在');
+      ctx.throw(404, 'Bucket不存在');
     }
-    const { bucketName, startAt, pageSize } = ctx.query;
+    // startAtType is required when startAt set
+    if (startAt && !startAtType) {
+      ctx.throw(400, '参数错误');
+    }
+    const { bucketName, prefix, startAt, startAtType, pageSize } = ctx.query;
     let list;
     try {
       list = await ctx.tigo.oss.engine.listObjects({
         username: ctx.state.user.username,
         bucketName,
+        prefix,
         startAt,
+        startAtType,
         pageSize,
       });
     } catch (err) {
+      if (err.startAtNotFound) {
+        ctx.throw(404, '无法找到起始对象数据');
+      }
       ctx.logger.error('List objects failed.', err);
       ctx.throw(500, '无法列出文件');
     }
@@ -155,7 +169,7 @@ class OssController extends BaseController {
       },
     });
     if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
-      ctx.throw(400, 'Bucket不存在');
+      ctx.throw(404, 'Bucket不存在');
     }
     const { bucketName, key } = ctx.request.body;
     try {
@@ -186,7 +200,7 @@ class OssController extends BaseController {
       },
     });
     if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
-      ctx.throw(400, 'Bucket不存在');
+      ctx.throw(404, 'Bucket不存在');
     }
     const { bucketName, key } = ctx.request.body;
     try {
@@ -196,6 +210,9 @@ class OssController extends BaseController {
         key,
       });
     } catch (err) {
+      if (err.notFound) {
+        ctx.throw(404, '对象不存在');
+      }
       ctx.logger.error('Remove object failed.', err);
       ctx.throw(500, '出现错误，删除失败');
     }

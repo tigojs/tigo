@@ -1,14 +1,15 @@
 const locks = {};
 
-const delayExec = (fn, ...args) => new Promise((resolve, reject) => {
-  setImmediate(() => {
-    try {
-      resolve(fn(...args));
-    } catch (err) {
-      reject(err);
-    }
+const delayExec = (fn, ...args) =>
+  new Promise((resolve, reject) => {
+    setImmediate(() => {
+      try {
+        resolve(fn(...args));
+      } catch (err) {
+        reject(err);
+      }
+    });
   });
-});
 
 const lock = (key) => {
   const ret = locks[key];
@@ -23,16 +24,14 @@ const unlock = (key) => {
 // push object to array safely
 const safePush = async (db, key, value) => {
   if (lock(key)) {
-    return await delayExec(safePushArray, db, key, value);
+    return await delayExec(safePush, db, key, value);
   }
   let list;
   try {
     list = await db.getObject(key);
   } catch (err) {
     unlock(key);
-    if (!err.notFound) {
-      throw err;
-    }
+    throw err;
   }
   if (!list || !Array.isArray(list)) {
     list = [];
@@ -47,18 +46,33 @@ const safePush = async (db, key, value) => {
   unlock(key);
 };
 
+const safeDel = async (db, key, cond) => {
+  if (lock(key)) {
+    return await delayExec(safeDel, db, key, cond);
+  }
+  const obj = await db.get(key);
+  if (typeof cond === 'function') {
+    if (!cond(obj)) {
+      unlock(key);
+      const err = new Error('Object changed');
+      err.objChanged = true;
+      throw err;
+    }
+  }
+  await db.del(key);
+  unlock(key);
+}
+
 const safeRemove = async (db, key, value) => {
   if (lock(key)) {
-    return await delayExec(safeDel, db, key, value);
+    return await delayExec(safeRemove, db, key, value);
   }
   let list;
   try {
     list = await db.getObject(key);
   } catch (err) {
     unlock(key);
-    if (!err.notFound) {
-      throw err;
-    }
+    throw err;
   }
   if (!list || !Array.isArray(list)) {
     return;
@@ -79,7 +93,7 @@ const safeCreateObject = async (db, key, value) => {
     return await delayExec(safeInitHeadNode, db, key, value);
   }
   try {
-    if (!await db.hasObject(key)) {
+    if (!(await db.hasObject(key))) {
       await db.putObject(key, value);
     }
   } catch (err) {
@@ -104,8 +118,8 @@ const safePutObject = async (db, key, value) => {
 
 const safeInsertNode = async (db, prevKey, key, value) => {
   const delay = async () => {
-    return await delayExec(safeSetRelatedNodes, db, prevKey, key, value);
-  }
+    return await delayExec(safeInsertNode, db, prevKey, key, value);
+  };
   if (lock(prevKey)) {
     return await delay();
   }
@@ -131,16 +145,80 @@ const safeInsertNode = async (db, prevKey, key, value) => {
   await db.putObject(prevKey, prevNode);
   if (nextNode) {
     nextNode.prev = key;
-    await db.putObject(nextKey, nextNode)
+    await db.putObject(nextKey, nextNode);
     unlock(nextKey);
   }
   unlock(prevKey);
 };
 
+const safeRemoveNode = async (db, key) => {
+  const delay = async () => {
+    return await delayExec(safeRemoveNode, db, key);
+  };
+  const unlockAll = (obj) => {
+    unlock(key);
+    unlock(obj.prev);
+    obj.next && unlock(obj.next);
+  }
+  if (lock(key)) {
+    return await delay();
+  }
+  let obj;
+  try {
+    obj = await db.getObject(key);
+  } catch (err) {
+    unlock(key);
+    throw err;
+  }
+  if (lock(obj.prev)) {
+    unlock(key);
+    return await delay();
+  }
+  if (obj.next) {
+    if (lock(obj.next)) {
+      unlock(key);
+      unlock(obj.prev);
+      return await delay();
+    }
+  }
+  // 3 objs locked
+  let prevNode;
+  try {
+    prevNode = await db.getObject(key);
+  } catch (err) {
+    unlockAll(obj);
+    throw err;
+  }
+  let nextNode;
+  if (obj.next) {
+    try {
+      nextNode = await db.getObject(key);
+    } catch (err) {
+      unlockAll(obj);
+      throw err;
+    }
+    nextNode.prev = obj.prev;
+    prevNode.next = obj.next;
+  } else {
+    prevNode.next = null;
+  }
+  try {
+    await db.putObject(obj.prev, prevNode);
+    nextNode && await db.putObject(obj.next, nextNode);
+    await db.del(key);
+  } catch (err) {
+    unlockAll(obj);
+    throw err;
+  }
+  unlockAll(obj);
+};
+
 module.exports = {
+  safeDel,
   safePush,
   safeRemove,
   safeCreateObject,
   safePutObject,
   safeInsertNode,
+  safeRemoveNode,
 };
