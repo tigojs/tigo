@@ -1,7 +1,7 @@
 const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
 
-const checkBucketExists = (ctx, username, bucketName) => {
+const checkBucketExists = async (ctx, username, bucketName) => {
   return await ctx.tigo.oss.engine.bucketExists({ username, bucketName });
 }
 
@@ -68,7 +68,7 @@ class OssController extends BaseController {
       bucketName,
     };
     try {
-      if (checkBucketExists(ctx, ...opts)) {
+      if (await checkBucketExists(ctx, ...opts)) {
         ctx.throw(400, 'Bucket已存在');
       }
       await ctx.tigo.oss.engine.makeBucket(opts);
@@ -86,7 +86,7 @@ class OssController extends BaseController {
       },
     });
     const { bucketName } = ctx.request.body;
-    if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
+    if (!await checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
       ctx.throw(404, 'Bucket不存在');
     }
     try {
@@ -130,7 +130,7 @@ class OssController extends BaseController {
         required: true,
       }
     });
-    if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
+    if (!await checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
       ctx.throw(404, 'Bucket不存在');
     }
     // startAtType is required when startAt set
@@ -168,7 +168,7 @@ class OssController extends BaseController {
         required: true,
       },
     });
-    if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
+    if (!await checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
       ctx.throw(404, 'Bucket不存在');
     }
     const { bucketName, key } = ctx.request.body;
@@ -199,7 +199,7 @@ class OssController extends BaseController {
         required: true,
       },
     });
-    if (!checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
+    if (!await checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
       ctx.throw(404, 'Bucket不存在');
     }
     const { bucketName, key } = ctx.request.body;

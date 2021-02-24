@@ -29,7 +29,7 @@ const getDirectoryPath = (key) => {
   return '/';
 }
 
-const getLastDirectoryNode = (db, node) => {
+const getLastDirectoryNode = async (db, node) => {
   // if type of node is string, node is actually a key.
   if (typeof node === 'string') {
     node = await db.getObject(node);
