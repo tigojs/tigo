@@ -1,8 +1,8 @@
 function registerRoute({ path, type, info }) {
-  if (this.tigo.auth && info.auth) {
-    this.router[type](path, this.tigo.auth.verify, info.target);
-  } else if (this.tigo.auth && info.apiAccess) {
-    this.router[type](path, this.tigo.auth.apiVerify, info.target);
+  if (this.tigo.auth && info.apiAccess) {
+    this.router[type](path, this.tigo.auth.apiFlag, this.tigo.auth.verifier, info.target);
+  } else if (this.tigo.auth && info.auth) {
+    this.router[type](path, this.tigo.auth.verifier, info.target);
   } else {
     this.router[type](path, info.target);
   }

@@ -1,6 +1,6 @@
 const path = require('path');
-const tokenVerifier = require('./middleware/tokenVerifier');
-const apiRequestVerifier = require('./middleware/apiRequestVerifier');
+const accessVerifier = require('./middleware/accessVerifier');
+const apiRequestFlag = require('./middleware/apiRequestFlag');
 const {
   collectController,
   collectService,
@@ -22,8 +22,8 @@ const plugin = {
     app.tigo.auth = {
       config: config || {},
       secret,
-      verify: tokenVerifier,
-      apiVerify: apiRequestVerifier,
+      verifier: accessVerifier,
+      apiFlag: apiRequestFlag,
     };
     let { engine } = app.tigo.auth.config;
     if (engine) {
