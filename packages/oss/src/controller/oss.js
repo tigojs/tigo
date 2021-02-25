@@ -18,7 +18,7 @@ class OssController extends BaseController {3
     return {
       '/storage/:scopeId/:bucket/*key': {
         type: 'get',
-        target: handlePublicGet,
+        target: this.handlePublicGet,
         external: true,
       },
       '/oss/listBuckets': {
@@ -264,6 +264,35 @@ class OssController extends BaseController {3
       ctx.throw(500, '无法列出文件');
     }
     ctx.body = successResponse(list);
+  }
+  async handleGetObject(ctx) {
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
+      key: {
+        type: 'string',
+        required: true,
+      },
+    });
+    const { bucketName, key } = ctx.query;
+    let file;
+    try {
+      file = await ctx.tigo.oss.engine.getObject({
+        username,
+        bucketName,
+        key,
+      });
+    } catch (err) {
+      if (err.notFound) {
+        ctx.throw(404, '找不到对应的文件');
+      } else {
+        throw err;
+      }
+    }
+    ctx.set('Content-Type', file.type);
+    ctx.body = file.dataStream;
   }
   async handlePutObject(ctx) {
     ctx.verifyParams({
