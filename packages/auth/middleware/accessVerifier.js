@@ -54,6 +54,7 @@ const middleware = async function (ctx, next) {
         ctx.throw(401, '无法解析用户信息');
       }
       const user = await ctx.model.auth.user.findOne({
+        attributes: ['id', 'username', 'scopeId'],
         where: {
           id: dbItem.uid,
         },
