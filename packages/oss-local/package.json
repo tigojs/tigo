@@ -9,6 +9,8 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
+    "deepmerge": "^4.2.2",
+    "lru-cache": "^6.0.0",
     "uuid": "^8.3.2"
   }
 }

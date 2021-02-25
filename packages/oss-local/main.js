@@ -1,10 +1,11 @@
 const path = require('path');
 const fs = require('fs');
 const fsPromise = require('fs/promises');
-const { safePush, safeRemove, safeCreateObject, safePutObject, safeInsertNode } = require('./utils/atomic');
-const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMetaKey } = require('./utils/keys');
+const { safePush, safeRemove, safeCreateObject, safePutObject, safeInsertNode, safeMergeObject } = require('./utils/atomic');
+const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMetaKey, getBucketPolicyKey, getBucketPolicyCacheKey } = require('./utils/keys');
 const { isBucketEmpty, getDirectoryPath, recursiveCheckParent } = require('./utils/bucket');
 const { v4: uuidv4 } = require('uuid');
+const LRUCache = require('lru-cache');
 
 class LocalStorageEngine {
   constructor(app, config) {
@@ -60,10 +61,16 @@ class LocalStorageEngine {
         fs.mkdirSync(fileStoragePath, { recursive: true });
       }
     }
+    // create policyCache
+    this.policyCache = new LRUCache({
+      max: 500,
+      maxAge: 1000 * 60 * 60 * 3, // 3 hrs
+    });
     // put things on this
     this.app = app;
     this.config = config;
     this.kv = kvEngine.openDatabase(app, secondArg);
+    this.fileStoragePath = fileStoragePath;
     app.logger.setPrefix(null);
   }
   async listBuckets({ username }) {
@@ -85,6 +92,20 @@ class LocalStorageEngine {
       ctx.throw(403, 'Bucket不为空，请先删除所有文件再操作');
     }
     await safeRemove(this.kv, getBucketListKey(username), bucketName);
+  }
+  async getBucketPolicy({ username, bucketName }) {
+    const cacheKey = getBucketPolicyCacheKey(username, bucketName);
+    const cached = this.policyCache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    const policy = await this.kv.getObject(getBucketPolicyKey(username, bucketName));
+    this.policyCache.set(cacheKey, policy);
+    return policy;
+  }
+  async setBucketPolicy({ username, bucketName, policy }) {
+    await safeMergeObject(this.kv, getBucketPolicyKey(username, bucketName), policy)
+    this.policyCache.del(getBucketPolicyCacheKey(username, bucketName));
   }
   async listObjects({ username, bucketName, prefix, startAt, startAtType, pageSize }) {
     let startAtKey;
@@ -117,6 +138,23 @@ class LocalStorageEngine {
       node = obj;
     }
     return list;
+  }
+  async getObject({ username, bucketName, key }) {
+    const meta = await this.kv.getObject(getObjectMetaKey(username, bucketName, key));
+    if (!meta) {
+      const err = new Error('Meta not found.');
+      err.notFound = true;
+      throw err;
+    }
+    const filePath = path.resolve(this.fileStoragePath, `./${meta.file}`);
+    if (!fs.existsSync(filePath)) {
+      const err = new Error('File not found.');
+      err.notFound = true;
+      throw err;
+    }
+    Object.assign(meta, {
+      dataStream: fs.createReadStream(filePath),
+    });
   }
   async putObject({ username, bucketName, key, file, force }) {
     const dirPath = getDirectoryPath(key);

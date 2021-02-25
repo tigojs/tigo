@@ -1,3 +1,5 @@
+const merge = require('deepmerge')
+
 const locks = {};
 
 const delayExec = (fn, ...args) =>
@@ -116,6 +118,29 @@ const safePutObject = async (db, key, value) => {
   unlock(key);
 };
 
+const safeMergeObject = async(db, targetKey, ...source) => {
+  if (lock(targetKey)) {
+    return await delayExec(safeMergeObject, targetKey, ...source);
+  }
+  let target;
+  try {
+    target = await db.getObject(targetKey);
+  } catch (err) {
+    unlock(targetKey);
+    throw err;
+  }
+  let merged;
+  source.forEach((obj) => {
+    merged = merge(merged || target, obj);
+  });
+  try {
+    await db.putObject(targetKey, merged);
+  } catch (err) {
+    unlock(targetKey);
+    throw err;
+  }
+}
+
 const safeInsertNode = async (db, prevKey, key, value) => {
   const delay = async () => {
     return await delayExec(safeInsertNode, db, prevKey, key, value);
@@ -219,6 +244,7 @@ module.exports = {
   safeRemove,
   safeCreateObject,
   safePutObject,
+  safeMergeObject,
   safeInsertNode,
   safeRemoveNode,
 };

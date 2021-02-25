@@ -1,13 +1,26 @@
 const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
+const LRUCache = require('lru-cache');
 
 const checkBucketExists = async (ctx, username, bucketName) => {
   return await ctx.tigo.oss.engine.bucketExists({ username, bucketName });
 }
 
-class OssController extends BaseController {
+class OssController extends BaseController {3
+  constructor(app) {
+    super(app);
+    this.scopeIdCache = new LRUCache({
+      max: 100,
+      maxAge: 60 * 60 * 1000 * 3,  // 3 hrs
+    });
+  }
   getRoutes() {
     return {
+      '/storage/:scopeId/:bucket/*key': {
+        type: 'get',
+        target: handlePublicGet,
+        external: true,
+      },
       '/oss/listBuckets': {
         type: 'get',
         auth: true,
@@ -23,10 +36,25 @@ class OssController extends BaseController {
         auth: true,
         target: this.handleRemoveBucket,
       },
+      '/oss/getBucketPolicy': {
+        type: 'get',
+        auth: true,
+        target: this.handleGetBucketPolicy,
+      },
+      '/oss/setBucketPolicy': {
+        type: 'post',
+        auth: true,
+        target: this.handleSetBucketPolicy,
+      },
       '/oss/listObjects': {
         type: 'get',
         auth: true,
         target: this.handleListObjects,
+      },
+      '/oss/getObject': {
+        type: 'get',
+        auth: true,
+        target: this.handleGetObject,
       },
       '/oss/putObject': {
         type: 'post',
@@ -39,6 +67,44 @@ class OssController extends BaseController {
         target: this.handleRemoveObject,
       },
     };
+  }
+  async handlePublicGet(ctx) {
+    const { scopeId, bucket: bucketName, key } = ctx.params;
+    let username = this.scopeIdCache.get(scopeId);
+    if (!username) {
+      const userInfo = await ctx.model.auth.user.findOne({
+        attributes: ['username'],
+        where: {
+          scopeId,
+        },
+      });
+      if (!userInfo) {
+        ctx.throw(400, '无法找到对应的Bucket');
+      }
+      username = userInfo.username;
+      this.scopeIdCache.set(scopeId, username);
+    }
+    // validate policy
+    const policy = await ctx.tigo.oss.engine.getBucketPolicy({ username, bucketName });
+    if (!policy || policy.accessType !== 'public') {
+      ctx.throw(403, '禁止访问')
+    }
+    let file;
+    try {
+      file = await ctx.tigo.oss.engine.getObject({
+        username,
+        bucketName,
+        key,
+      });
+    } catch (err) {
+      if (err.notFound) {
+        ctx.throw(404, '找不到对应的文件');
+      } else {
+        throw err;
+      }
+    }
+    ctx.set('Content-Type', file.type);
+    ctx.body = file.dataStream;
   }
   async handleListBuckets(ctx) {
     let list;
@@ -100,6 +166,48 @@ class OssController extends BaseController {
     }
     ctx.body = successResponse(null, '删除成功');
   }
+  async handleGetBucketPolicy(ctx) {
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
+    });
+    const { bucketName } = ctx.query;
+    let policy;
+    try {
+      policy = await ctx.tigo.oss.engine.getBucketPolicy({
+        username: ctx.state.user.username,
+        bucketName,
+      });
+    } catch (err) {
+      if (err.notFound) {
+        ctx.throw(404, '无法找到对应的策略');
+      } else {
+        throw err;
+      }
+    }
+    ctx.body = successResponse(policy);
+  }
+  async handleSetBucketPolicy(ctx) {
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
+      policy: {
+        type: 'string',
+        required: true,
+      },
+    });
+    const { bucketName, policy } = ctx.request.body;
+    await ctx.tigo.oss.engine.setBucketPolicy({
+      username: ctx.state.user.username,
+      bucketName,
+      policy,
+    })
+    ctx.body = successResponse(null, '设置成功');
+  }
   async handleListObjects(ctx) {
     ctx.query.pageSize = parseInt(ctx.query.pageSize, 10);
     ctx.verifyParams({
@@ -128,7 +236,7 @@ class OssController extends BaseController {
       force: {
         type: 'boolean',
         required: true,
-      }
+      },
     });
     if (!await checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
       ctx.throw(404, 'Bucket不存在');

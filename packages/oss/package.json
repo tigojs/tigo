@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.1.4"
+    "@tigojs/utils": "^0.1.4",
+    "lru-cache": "^6.0.0"
   }
 }

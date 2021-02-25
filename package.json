@@ -14,16 +14,6 @@
     "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js"
   },
   "dependencies": {
-    "@tigojs/auth": "file:packages\\auth",
-    "@tigojs/cfs": "file:packages\\cfs",
-    "@tigojs/core": "^0.1.0",
-    "@tigojs/faas": "file:packages\\faas",
-    "@tigojs/hostbinder": "file:packages\\hostbinder",
-    "@tigojs/leveldb": "^0.2.1",
-    "@tigojs/oss": "file:packages\\oss",
-    "@tigojs/oss-local": "file:packages\\oss-local",
-    "@tigojs/sqlite": "^0.2.2",
-    "@tigojs/utils": "^0.1.4",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",
