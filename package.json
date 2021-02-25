@@ -23,7 +23,7 @@
     "@tigojs/oss": "file:packages\\oss",
     "@tigojs/oss-local": "file:packages\\oss-local",
     "@tigojs/sqlite": "^0.2.2",
-    "@tigojs/utils": "^0.1.3",
+    "@tigojs/utils": "^0.1.4",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",

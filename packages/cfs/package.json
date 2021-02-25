@@ -11,7 +11,7 @@
   "dependencies": {
     "@tigojs/cfs": "^0.1.2",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.1.2",
+    "@tigojs/utils": "^0.1.4",
     "lru-cache": "^6.0.0",
     "mime": "^2.5.0"
   }
