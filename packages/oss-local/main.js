@@ -209,8 +209,6 @@ class LocalStorageEngine {
         hash: file.hash,
         file: fileId,
         isDirectory: false,
-        prev: lastDirKey,
-        next: lastDirNode.next,
       };
       // insert meta
       await safeInsertNode(this.kv, lastDirKey, metaKey, meta);

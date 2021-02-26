@@ -165,6 +165,10 @@ const safeInsertNode = async (db, prevKey, key, value) => {
     nextNode = await db.getObject(nextKey);
   }
   // update data in db
+  Object.assign(value, {
+    prev: prevKey,
+    next: prevNode.next,
+  });
   await db.putObject(key, value);
   prevNode.next = key;
   await db.putObject(prevKey, prevNode);

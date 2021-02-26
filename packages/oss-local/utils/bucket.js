@@ -72,7 +72,6 @@ const recursiveCheckParent = async (db, username, bucketName, dir) => {
     key: dir,
     name: dir.replace(parentDir, ''),
     isDirectory: true,
-    prev: parentDirHeadKey,
   };
   await safeInsertNode(db, parentDirHeadKey, dirMetaKey, meta);
   // recursive check
