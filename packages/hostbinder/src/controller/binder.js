@@ -2,12 +2,12 @@ const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
 
 const domainValidator = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
+let targetCheck;
 
 class BinderController extends BaseController {
   constructor(app) {
     super(app);
-    this.unlocked = app.tigo.hostbinder.unlocked;
-    this.targetCheck = this.unlocked ? /^\/.*/ : new RegExp(`^\/(lambda)|(config)|(oss)\/${ctx.state.user.scopeId}.*$`);
+    targetCheck = app.tigo.hostbinder.unlocked ? /^\/.*/ : new RegExp(`^\/(lambda)|(config)|(oss)\/${ctx.state.user.scopeId}.*$`);
   }
   getRoutes() {
     return {
@@ -35,7 +35,7 @@ class BinderController extends BaseController {
   }
   async handleCheckUnlocked(ctx) {
     ctx.body = successResponse({
-      unlocked: this.unlocked,
+      unlocked: ctx.tigo.hostbinder.unlocked,
     });
   }
   async handleList(ctx) {
@@ -56,7 +56,7 @@ class BinderController extends BaseController {
       target: {
         type: 'string',
         required: true,
-        format: this.targetCheck,
+        format: targetCheck,
       },
     });
     const { domain, target } = ctx.request.body;
@@ -88,7 +88,8 @@ class BinderController extends BaseController {
     if (item.uid !== ctx.state.user.id) {
       ctx.throw(401, '无权访问');
     }
-    ctx.tigo.hostbinder.proxy.unregister(item.domain, item.target);
+    const targetPath = `http://127.0.0.1:${ctx.tigo.config.server.port}${item.target}`;
+    ctx.tigo.hostbinder.proxy.unregister(item.domain, targetPath);
     await ctx.model.hostbinder.binding.destroy({
       where: {
         id,
