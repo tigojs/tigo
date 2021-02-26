@@ -117,7 +117,7 @@ class OssController extends BaseController {3
       ctx.throw(500, '发生错误，无法列出Buckets');
     }
     if (!list || !Array.isArray(list) || !list.length) {
-      ctx.throw(404, '无法列出Buckets');
+      list = [];
     }
     ctx.body = successResponse(list);
   }
