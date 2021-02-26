@@ -40,7 +40,7 @@ const safePush = async (db, key, value) => {
   }
   list.push(value);
   try {
-    await db.putObject(key, value);
+    await db.putObject(key, list);
   } catch (err) {
     unlock(key);
     throw err;
@@ -82,7 +82,7 @@ const safeRemove = async (db, key, value) => {
   const idx = list.findIndex((item) => item === value);
   list.splice(idx, 1);
   try {
-    await db.putObject(key, value);
+    await db.putObject(key, list);
   } catch (err) {
     unlock(key);
     throw err;

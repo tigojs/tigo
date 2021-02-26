@@ -134,7 +134,7 @@ class OssController extends BaseController {3
       bucketName,
     };
     try {
-      if (await checkBucketExists(ctx, ...opts)) {
+      if (await checkBucketExists(ctx, opts.username, opts.bucketName)) {
         ctx.throw(400, 'Bucket已存在');
       }
       await ctx.tigo.oss.engine.makeBucket(opts);
@@ -152,14 +152,15 @@ class OssController extends BaseController {3
       },
     });
     const { bucketName } = ctx.request.body;
-    if (!await checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
+    const opts = {
+      username: ctx.state.user.username,
+      bucketName,
+    };
+    if (!await checkBucketExists(ctx, opts.username, opts.bucketName)) {
       ctx.throw(404, 'Bucket不存在');
     }
     try {
-      await ctx.tigo.oss.engine.removeBucket({
-        username: ctx.state.user.username,
-        bucketName,
-      });
+      await ctx.tigo.oss.engine.removeBucket(opts);
     } catch (err) {
       ctx.logger.error('Remove bucket failed.', err);
       ctx.throw(500, '无法删除Bucket');

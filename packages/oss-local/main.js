@@ -79,7 +79,7 @@ class LocalStorageEngine {
   }
   async bucketExists({ username, bucketName }) {
     const list = await this.kv.getObject(getBucketListKey(username));
-    if (!list) {
+    if (!list || !Array.isArray(list) || !list.length) {
       return false;
     }
     return list.includes(bucketName);
