@@ -4,8 +4,18 @@ const { successResponse } = require('@tigojs/utils');
 const domainValidator = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/;
 
 class BinderController extends BaseController {
+  constructor(app) {
+    super(app);
+    this.unlocked = app.tigo.hostbinder.unlocked;
+    this.targetCheck = this.unlocked ? /^\/.*/ : new RegExp(`^\/(lambda)|(config)|(oss)\/${ctx.state.user.scopeId}.*$`);
+  }
   getRoutes() {
     return {
+      '/hostbinder/checkUnlocked': {
+        type: 'get',
+        auth: true,
+        target: this.handleCheckUnlocked,
+      },
       '/hostbinder/list': {
         type: 'get',
         auth: true,
@@ -22,6 +32,11 @@ class BinderController extends BaseController {
         target: this.handleDelete,
       },
     };
+  }
+  async handleCheckUnlocked(ctx) {
+    ctx.body = successResponse({
+      unlocked: this.unlocked,
+    });
   }
   async handleList(ctx) {
     const list = await ctx.model.hostbinder.binding.findAll(({
@@ -41,7 +56,7 @@ class BinderController extends BaseController {
       target: {
         type: 'string',
         required: true,
-        format: new RegExp(`^\/(lambda)|(config)\/${ctx.state.user.scopeId}.*$`),
+        format: this.targetCheck,
       },
     });
     const { domain, target } = ctx.request.body;

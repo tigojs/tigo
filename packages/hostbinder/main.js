@@ -69,6 +69,7 @@ const plugin = {
     // mount to app
     const pluginObj = {
       proxy,
+      unlocked: !!opts.unlock,
     };
     app.tigo.hostbinder = pluginObj;
     // collect module files
