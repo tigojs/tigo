@@ -3,7 +3,7 @@ const fs = require('fs');
 const fsPromise = require('fs/promises');
 const { safePush, safeRemove, safeCreateObject, safePutObject, safeInsertNode, safeMergeObject } = require('./utils/atomic');
 const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMetaKey, getBucketPolicyKey, getBucketPolicyCacheKey } = require('./utils/keys');
-const { isBucketEmpty, getDirectoryPath, recursiveCheckParent } = require('./utils/bucket');
+const { isBucketEmpty, getDirectoryPath, getLastDirectoryNode, recursiveCheckParent } = require('./utils/bucket');
 const { v4: uuidv4 } = require('uuid');
 const LRUCache = require('lru-cache');
 
@@ -104,7 +104,7 @@ class LocalStorageEngine {
     return policy;
   }
   async setBucketPolicy({ username, bucketName, policy }) {
-    await safeMergeObject(this.kv, getBucketPolicyKey(username, bucketName), policy)
+    await safeMergeObject(this.kv, getBucketPolicyKey(username, bucketName), policy);
     this.policyCache.del(getBucketPolicyCacheKey(username, bucketName));
   }
   async listObjects({ username, bucketName, prefix, startAt, startAtType, pageSize }) {
@@ -166,12 +166,10 @@ class LocalStorageEngine {
     }
 
     // write file to storage path
-    if (fs.existsSync(file.path)) {
-      const fileId = uuidv4();
-      const dest = path.resolve(this.fileStoragePath, `./${fileId}`);
-      await fsPromise.copyFile(file.path, dest);
-      await fsPromise.unlink(file.path);
-    }
+    const fileId = uuidv4();
+    const dest = path.resolve(this.fileStoragePath, `./${fileId}`);
+    await fsPromise.copyFile(file.path, dest);
+    await fsPromise.unlink(file.path);
 
     // check if key exists
     const metaKey = getObjectMetaKey(username, bucketName, key);
@@ -193,14 +191,14 @@ class LocalStorageEngine {
     } else {
       // get last dir node (or last node)
       const dirHeadKey = getDirectoryHeadKey(username, bucketName, dirPath);
-      if (!(await db.hasObject(dirHeadKey))) {
+      if (!(await this.kv.hasObject(dirHeadKey))) {
         await safeCreateObject(this.kv, dirHeadKey, {
           key: dirPath,
           isHead: true,
           next: null,
         });
       }
-      const lastDirNode = await getLastDirectoryNode(db, dirHeadKey);
+      const lastDirNode = await getLastDirectoryNode(this.kv, dirHeadKey);
       const lastDirKey = lastDirNode.isHead ? dirHeadKey : getDirectoryMetaKey(username, bucketName, lastDirNode.key);
       const meta = {
         key: key,
@@ -215,7 +213,7 @@ class LocalStorageEngine {
         next: lastDirNode.next,
       };
       // insert meta
-      await safeInsertNode(db, lastDirKey, metaKey, meta);
+      await safeInsertNode(this.kv, lastDirKey, metaKey, meta);
     }
   }
   async removeObject({ username, bucketName, key }) {
@@ -231,7 +229,7 @@ class LocalStorageEngine {
     // unlink file
     await fsPromise.unlink(path.resolve(this.fileStoragePath, `./${meta.file}`));
     // recursive check directory
-    await recursiveCheckParent(db, username, bucketName, getDirectoryPath(key));
+    await recursiveCheckParent(this.kv, username, bucketName, getDirectoryPath(key));
   }
 }
 

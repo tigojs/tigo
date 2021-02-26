@@ -234,11 +234,8 @@ class OssController extends BaseController {3
         type: 'number',
         required: true,
       },
-      force: {
-        type: 'boolean',
-        required: true,
-      },
     });
+    const { bucketName, prefix, startAt, startAtType, pageSize } = ctx.query;
     if (!await checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
       ctx.throw(404, 'Bucket不存在');
     }
@@ -246,7 +243,6 @@ class OssController extends BaseController {3
     if (startAt && !startAtType) {
       ctx.throw(400, '参数错误');
     }
-    const { bucketName, prefix, startAt, startAtType, pageSize } = ctx.query;
     let list;
     try {
       list = await ctx.tigo.oss.engine.listObjects({
@@ -296,6 +292,7 @@ class OssController extends BaseController {3
     ctx.body = file.dataStream;
   }
   async handlePutObject(ctx) {
+    ctx.request.body.force = ctx.request.body.force === 'true' || ctx.request.body.force === true;
     ctx.verifyParams({
       bucketName: {
         type: 'string',
@@ -305,17 +302,22 @@ class OssController extends BaseController {3
         type: 'string',
         required: true,
       },
+      force: {
+        type: 'boolean',
+        required: true,
+      },
     });
+    const { bucketName, key, force } = ctx.request.body;
     if (!await checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
       ctx.throw(404, 'Bucket不存在');
     }
-    const { bucketName, key } = ctx.request.body;
     try {
       await ctx.tigo.oss.engine.putObject({
         username: ctx.state.user.username,
         bucketName,
         key,
         file: ctx.request.files.file,
+        force,
       });
     } catch (err) {
       if (err.duplicated) {
