@@ -86,7 +86,7 @@ class OssController extends BaseController {3
     }
     // validate policy
     const policy = await ctx.tigo.oss.engine.getBucketPolicy({ username, bucketName });
-    if (!policy || policy.accessType !== 'public') {
+    if (!policy || !policy.public) {
       ctx.throw(403, '禁止访问')
     }
     let file;
