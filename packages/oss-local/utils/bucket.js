@@ -70,7 +70,7 @@ const recursiveCheckParent = async (db, username, bucketName, dir) => {
   // insert directory meta node to parent dir link
   const meta = {
     key: dir,
-    name: dir.replace(parentDir, ''),
+    name: dir.replace(new RegExp(`${parentDir}\/?`), ''),
     isDirectory: true,
   };
   await safeInsertNode(db, parentDirHeadKey, dirMetaKey, meta);

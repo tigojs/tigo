@@ -182,7 +182,7 @@ class LocalStorageEngine {
       }
       // put new meta to db
       await safePutObject(metaKey, {
-        name: key.replace(`${dirPath}/`, ''),
+        name: key.replace(new RegExp(`${dirPath}\/?`), ''),
         size: file.size,
         type: file.type,
         lastModified: file.lastModifiedDate,
@@ -203,7 +203,7 @@ class LocalStorageEngine {
       const lastDirKey = lastDirNode.isHead ? dirHeadKey : getDirectoryMetaKey(username, bucketName, lastDirNode.key);
       const meta = {
         key: key,
-        name: key.replace(`${dirPath}/`, ''),
+        name: key.replace(new RegExp(`${dirPath}\/?`), ''),
         size: file.size,
         type: file.type,
         lastModified: file.lastModifiedDate,
