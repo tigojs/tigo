@@ -28,9 +28,10 @@ class StaticFileController extends BaseController {
     if (!/.+\..+/.test(filename)) {
       ctx.throw(400, '文件名不正确');
     }
-    const ext = path.extname(filename);
-    const base = path.basename(filename, ext);
+    const ext = path.extname(filename).substr(1);
+    const base = path.basename(filename, `.${ext}`);
     const useMemo = getMemoConf(ctx);
+    console.log(ctx.static[scope][ext][base]);
     if (
       !ctx.static[scope] ||
       !ctx.static[scope][ext] ||
