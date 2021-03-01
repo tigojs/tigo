@@ -197,7 +197,7 @@ class OssController extends BaseController {3
         required: true,
       },
       policy: {
-        type: 'string',
+        type: 'object',
         required: true,
       },
     });
