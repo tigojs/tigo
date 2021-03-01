@@ -6,14 +6,12 @@ const checkBucketExists = async (ctx, username, bucketName) => {
   return await ctx.tigo.oss.engine.bucketExists({ username, bucketName });
 }
 
-class OssController extends BaseController {3
-  constructor(app) {
-    super(app);
-    this.scopeIdCache = new LRUCache({
-      max: 100,
-      maxAge: 60 * 60 * 1000 * 3,  // 3 hrs
-    });
-  }
+const scopeIdCache = new LRUCache({
+  max: 100,
+  maxAge: 60 * 60 * 1000 * 3,  // 3 hrs
+});
+
+class OssController extends BaseController {
   getRoutes() {
     return {
       '/storage/:scopeId/:bucket/*key': {
@@ -70,7 +68,7 @@ class OssController extends BaseController {3
   }
   async handlePublicGet(ctx) {
     const { scopeId, bucket: bucketName, key } = ctx.params;
-    let username = this.scopeIdCache.get(scopeId);
+    let username = scopeIdCache.get(scopeId);
     if (!username) {
       const userInfo = await ctx.model.auth.user.findOne({
         attributes: ['username'],
@@ -82,7 +80,7 @@ class OssController extends BaseController {3
         ctx.throw(400, '无法找到对应的Bucket');
       }
       username = userInfo.username;
-      this.scopeIdCache.set(scopeId, username);
+      scopeIdCache.set(scopeId, username);
     }
     // validate policy
     const policy = await ctx.tigo.oss.engine.getBucketPolicy({ username, bucketName });
@@ -94,7 +92,7 @@ class OssController extends BaseController {3
       file = await ctx.tigo.oss.engine.getObject({
         username,
         bucketName,
-        key,
+        key: decodeURIComponent(key.substr(1)),
       });
     } catch (err) {
       if (err.notFound) {
@@ -277,9 +275,9 @@ class OssController extends BaseController {3
     let file;
     try {
       file = await ctx.tigo.oss.engine.getObject({
-        username,
+        username: ctx.state.user.username,
         bucketName,
-        key,
+        key: decodeURIComponent(key),
       });
     } catch (err) {
       if (err.notFound) {
@@ -339,10 +337,10 @@ class OssController extends BaseController {3
         required: true,
       },
     });
+    const { bucketName, key } = ctx.request.body;
     if (!await checkBucketExists(ctx, ctx.state.user.username, bucketName)) {
       ctx.throw(404, 'Bucket不存在');
     }
-    const { bucketName, key } = ctx.request.body;
     try {
       await ctx.tigo.oss.engine.removeObject({
         username: ctx.state.user.username,

@@ -120,7 +120,7 @@ const safePutObject = async (db, key, value) => {
 
 const safeMergeObject = async(db, targetKey, ...source) => {
   if (lock(targetKey)) {
-    return await delayExec(safeMergeObject, targetKey, ...source);
+    return await delayExec(safeMergeObject, db, targetKey, ...source);
   }
   let target;
   try {
@@ -139,6 +139,7 @@ const safeMergeObject = async(db, targetKey, ...source) => {
     unlock(targetKey);
     throw err;
   }
+  unlock(targetKey);
 }
 
 const safeInsertNode = async (db, prevKey, key, value) => {
@@ -213,7 +214,7 @@ const safeRemoveNode = async (db, key) => {
   // 3 objs locked
   let prevNode;
   try {
-    prevNode = await db.getObject(key);
+    prevNode = await db.getObject(obj.prev);
   } catch (err) {
     unlockAll(obj);
     throw err;
@@ -221,7 +222,7 @@ const safeRemoveNode = async (db, key) => {
   let nextNode;
   if (obj.next) {
     try {
-      nextNode = await db.getObject(key);
+      nextNode = await db.getObject(obj.next);
     } catch (err) {
       unlockAll(obj);
       throw err;

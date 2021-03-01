@@ -1,9 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 const fsPromise = require('fs/promises');
-const { safePush, safeRemove, safeCreateObject, safePutObject, safeInsertNode, safeMergeObject } = require('./utils/atomic');
+const { safePush, safeRemove, safeCreateObject, safePutObject, safeInsertNode, safeRemoveNode, safeMergeObject } = require('./utils/atomic');
 const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMetaKey, getBucketPolicyKey, getBucketPolicyCacheKey } = require('./utils/keys');
-const { isBucketEmpty, getDirectoryPath, getLastDirectoryNode, recursiveCheckParent } = require('./utils/bucket');
+const { isBucketEmpty, getDirectoryPath, getLastDirectoryNode, recursiveCheckParent, recursiveCheckEmpty } = require('./utils/bucket');
 const { v4: uuidv4 } = require('uuid');
 const LRUCache = require('lru-cache');
 
@@ -155,6 +155,7 @@ class LocalStorageEngine {
     Object.assign(meta, {
       dataStream: fs.createReadStream(filePath),
     });
+    return meta;
   }
   async putObject({ username, bucketName, key, file, force }) {
     const dirPath = getDirectoryPath(key);
@@ -181,7 +182,7 @@ class LocalStorageEngine {
         throw err;
       }
       // put new meta to db
-      await safePutObject(metaKey, {
+      await safeMergeObject(this.kv, metaKey, {
         name: key.replace(new RegExp(`${dirPath}\/?`), ''),
         size: file.size,
         type: file.type,
@@ -202,7 +203,7 @@ class LocalStorageEngine {
       const lastDirNode = await getLastDirectoryNode(this.kv, dirHeadKey);
       const lastDirKey = lastDirNode.isHead ? dirHeadKey : getDirectoryMetaKey(username, bucketName, lastDirNode.key);
       const meta = {
-        key: key,
+        key,
         name: key.replace(new RegExp(`${dirPath}\/?`), ''),
         size: file.size,
         type: file.type,
@@ -226,9 +227,12 @@ class LocalStorageEngine {
     // remove meta node first
     await safeRemoveNode(this.kv, metaKey);
     // unlink file
-    await fsPromise.unlink(path.resolve(this.fileStoragePath, `./${meta.file}`));
+    const filePath = path.resolve(this.fileStoragePath, `./${meta.file}`);
+    if (fs.existsSync(filePath)) {
+      await fsPromise.unlink(filePath);
+    }
     // recursive check directory
-    await recursiveCheckParent(this.kv, username, bucketName, getDirectoryPath(key));
+    await recursiveCheckEmpty(this.kv, username, bucketName, getDirectoryPath(key));
   }
 }
 
