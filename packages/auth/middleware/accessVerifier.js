@@ -33,6 +33,10 @@ const middleware = async function (ctx, next) {
     if (!ak || !random || !timestamp || !sign) {
       ctx.throw(400, '缺乏必要参数');
     }
+    // validate random
+    if (random.length !== 16) {
+      ctx.throw(400, '参数无效');
+    }
     // validate timestamp
     const timestampValue = parseInt(timestamp, 10);
     const offset = 10 * 1000; // 10s in ms
@@ -66,7 +70,7 @@ const middleware = async function (ctx, next) {
     }
     // validate sign
     const toSign = `${r}${timestamp}${sk}`;
-    const signed = crypto.createHmac('sha1', 'tigo').update(toSign).digest('hex');
+    const signed = crypto.createHmac('md5', 'tigo').update(toSign).digest('hex');
     if (signed !== sign) {
       ctx.throw(401, '签名无效');
     }
