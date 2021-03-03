@@ -1,0 +1,6 @@
+{
+  "nodemonConfig": {
+    "ignore": ["tools/*"],
+    "delay": "2000"
+  }
+}

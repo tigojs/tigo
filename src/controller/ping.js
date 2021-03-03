@@ -16,6 +16,7 @@ class PingController extends BaseController {
         type: 'get',
         auth: true,
         apiAccess: true,
+        target: this.apiAccessCheck,
       },
     };
   }
