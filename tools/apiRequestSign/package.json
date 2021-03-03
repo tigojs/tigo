@@ -1,8 +1,11 @@
 {
   "name": "@tigojs/api-request-sign",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "tigo API Request sign tool",
   "main": "main.js",
   "author": "BackRunner",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "random-string": "^0.2.0"
+  }
 }
