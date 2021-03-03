@@ -62,7 +62,7 @@ class ScriptService extends BaseService {
         wasm: false,
         require: {
           external: {
-            modules: ['@tigojs/lambda-*'],
+            modules: ['@tigojs/lambda-*', '@tigojs/api-*', ...ctx.tigo.faas.allowedRequire],
           },
         },
       });
