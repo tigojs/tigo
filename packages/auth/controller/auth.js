@@ -102,7 +102,7 @@ class AuthController extends BaseController {
     ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse({
       uid: user.id,
-      useranme: user.username,
+      username: user.username,
       scopeId: user.scopeId,
       ...createToken(user, ctx.tigo.auth.secret),
     });
