@@ -14,6 +14,8 @@
     "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js"
   },
   "dependencies": {
+    "@tigojs/core": "^0.1.0",
+    "@tigojs/utils": "^0.1.4",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",
@@ -21,8 +23,7 @@
     "koa-logger": "^3.2.1",
     "koa-parameter": "^3.0.1",
     "koa-tree-router": "^0.7.0",
-    "log4js": "^6.3.0",
-    "mime": "^2.5.2"
+    "log4js": "^6.3.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
