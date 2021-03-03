@@ -11,15 +11,28 @@ class PingController extends BaseController {
       '/common/heartbeat': {
         type: 'get',
         target: this.heartbeat,
-      }
+      },
+      '/common/apiAccessCheck': {
+        type: 'get',
+        auth: true,
+        apiAccess: true,
+      },
     };
   }
   async checkAvailable(ctx) {
-    ctx.body = successResponse({
-      auth: !!ctx.app.tigo.auth,
-    });
+    if (ctx.tigo.config.maintance) {
+      ctx.throw(403, 'Server is under maintenance now.')
+    }
+    ctx.set('Cache-Control', 'no-store');
+    ctx.set('Content-Type', 'text/plain');
+    ctx.body = 1;
   }
   async heartbeat(ctx) {
+    ctx.set('Cache-Control', 'no-store');
+    ctx.set('Content-Type', 'text/plain');
+    ctx.body = 1;
+  }
+  async apiAccessCheck(ctx) {
     ctx.set('Cache-Control', 'no-store');
     ctx.set('Content-Type', 'text/plain');
     ctx.body = 1;
