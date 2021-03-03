@@ -107,9 +107,6 @@ function registerErrorHandler(app) {
         && process.env.NODE_ENV === 'dev'
       ) {
         ctx.body.message = err.message;
-        if (err.status !== 500) {
-          err._innerType = 'business';
-        }
       }
       if (
         err.stack
@@ -130,6 +127,10 @@ function registerErrorHandler(app) {
 
     // end stream
     ctx.res.end(ctx.body);
+
+    if (err.status !== 500) {
+      err._innerType = 'business';
+    }
 
     // output log
     if (err._innerType !== 'business') {
