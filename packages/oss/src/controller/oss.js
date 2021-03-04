@@ -24,6 +24,12 @@ class OssController extends BaseController {
         auth: true,
         target: this.handleListBuckets,
       },
+      '/oss/bucketExists': {
+        type: 'get',
+        auth: true,
+        apiAccess: true,
+        target: this.handleBucketExists,
+      },
       '/oss/makeBucket': {
         type: 'post',
         auth: true,
@@ -52,16 +58,19 @@ class OssController extends BaseController {
       '/oss/getObject': {
         type: 'get',
         auth: true,
+        apiAccess: true,
         target: this.handleGetObject,
       },
       '/oss/putObject': {
         type: 'post',
         auth: true,
+        apiAccess: true,
         target: this.handlePutObject,
       },
       '/oss/removeObject': {
         type: 'post',
         auth: true,
+        apiAccess: true,
         target: this.handleRemoveObject,
       },
     };
@@ -118,6 +127,19 @@ class OssController extends BaseController {
       list = [];
     }
     ctx.body = successResponse(list);
+  }
+  async handleBucketExists(ctx) {
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
+    });
+    const { bucketName } = ctx.request.body;
+    const exists = await ctx.tigo.oss.engine.bucketExists({ username, bucketName });
+    ctx.body = successResponse({
+      exists,
+    });
   }
   async handleMakeBucket(ctx) {
     ctx.verifyParams({
