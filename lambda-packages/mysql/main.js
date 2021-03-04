@@ -3,7 +3,7 @@ const LRU = require('lru-cache');
 
 const cache = new LRU({
   max: 100,
-  maxAge: 1000 * 60 * 30,
+  maxAge: 1000 * 30,
   dispose: function (key, conn) {
     conn.end();
   },
