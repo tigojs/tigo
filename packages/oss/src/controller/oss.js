@@ -135,7 +135,7 @@ class OssController extends BaseController {
         required: true,
       },
     });
-    const { bucketName } = ctx.request.body;
+    const { bucketName } = ctx.query;
     const exists = await ctx.tigo.oss.engine.bucketExists({ username, bucketName });
     ctx.body = successResponse({
       exists,
