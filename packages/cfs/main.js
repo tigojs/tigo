@@ -19,7 +19,7 @@ const plugin = {
     }
     // check sql engine
     let sqlEngine;
-    if (config && config.dbEngine) {
+    if (config?.dbEngine) {
       const engine = app.dbEngine.sql[config.dbEngine];
       if (!engine) {
         throw new Error('Cannot find the specific SQL database engine.');
@@ -35,7 +35,7 @@ const plugin = {
     }
     // check kv storage engine
     let kvEngine;
-    if (config && config.storageEngine) {
+    if (config?.storageEngine) {
       const engine = app.dbEngine.kv[config.storageEngine];
       if (!engine) {
         throw new Error('Cannot find the specific storage engine');
@@ -52,7 +52,7 @@ const plugin = {
     // open database
     let secondArg;
     if (kvEngine.storageType === 'local') {
-      if (config && config.storage && config.storage.path) {
+      if (config?.storage?.path) {
         if (!fs.existsSync(config.storage.path)) {
           throw new Error(`Cannot find the specific storage path [${config.storage.path}] for cfs.`);
         }
