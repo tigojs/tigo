@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/api-request",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "API request tool for tigo",
   "main": "main.js",
   "author": "BackRunner",
