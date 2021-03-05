@@ -7,10 +7,11 @@ const isDev = process.env.NODE_ENV === 'dev';
 class AuthController extends BaseController {
   getRoutes() {
     return {
-      '/auth/checkStatus': {
+      '/auth/getUserInfo': {
         type: 'get',
         auth: true,
-        target: this.handleCheckStatus,
+        apiAccess: true,
+        target: this.handleGetUserInfo,
       },
       '/auth/login': {
         type: 'post',
@@ -26,7 +27,7 @@ class AuthController extends BaseController {
       },
     };
   }
-  async handleCheckStatus(ctx) {
+  async handleGetUserInfo(ctx) {
     ctx.body = successResponse({
       uid: ctx.state.user.id,
       username: ctx.state.user.username,

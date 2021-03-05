@@ -10,7 +10,7 @@ const plugins = {
   type: 'dbEngine',
   mount(app, config) {
     if (!config) {
-      app.logger.warn('Cannot find the configuration of sqlite db, use default settings.');
+      app.logger.warn('Cannot find the configuration for sqlite db engine, use default settings.');
     }
 
     const conf = config || {};

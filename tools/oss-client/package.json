@@ -1,0 +1,12 @@
+{
+  "name": "@tigojs/oss-client",
+  "version": "0.1.0",
+  "description": "Client for oss service in tigo",
+  "main": "main.js",
+  "author": "BackRunner",
+  "license": "MIT",
+  "dependencies": {
+    "@tigojs/api-request": "^1.0.1",
+    "parameter": "^3.6.0"
+  }
+}

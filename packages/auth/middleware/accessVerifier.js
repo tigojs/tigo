@@ -1,4 +1,5 @@
 const { verifyToken } = require("../utils/jwt");
+const crypto = require('crypto');
 
 const middleware = async function (ctx, next) {
   const { secret } = ctx.app.tigo.auth;
@@ -40,6 +41,7 @@ const middleware = async function (ctx, next) {
     // validate timestamp
     const timestampValue = parseInt(timestamp, 10);
     const offset = 10 * 1000; // 10s in ms
+    const now = new Date().valueOf();
     if (
       timestampValue < now - offset
       || timestampValue > now + offset
@@ -69,7 +71,8 @@ const middleware = async function (ctx, next) {
       ctx.service.auth.apiKey.cache.set(ak, userInfo);
     }
     // validate sign
-    const toSign = `${r}${timestamp}${sk}`;
+    const { sk } = userInfo;
+    const toSign = `${random}${timestamp}${sk}`;
     const signed = crypto.createHmac('md5', 'tigo').update(toSign).digest('hex');
     if (signed !== sign) {
       ctx.throw(401, '签名无效');
