@@ -143,7 +143,7 @@ class App {
     // add root path
     this.rootDirPath = path.resolve(__dirname, '../');
     // init config
-    this.config = config;
+    this.config = config || {};
     this.config.runDirPath = path.resolve(__dirname, '../run');
     // init db related
     this.dbEngine = {
