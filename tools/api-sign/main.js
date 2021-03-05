@@ -9,8 +9,8 @@ class Signer {
   getHeaders() {
     const random = randomString({ length: 16 });
     const timestamp = new Date().valueOf();
-    const toSign = `${random}${timestamp}${sk}`;
-    const sign = crypto.createHmac(toSign, 'tigo').update(toSign).digest('hex');
+    const toSign = `${random}${timestamp}${this.sk}`;
+    const sign = crypto.createHmac('md5', 'tigo').update(toSign).digest('hex');
     return {
       Authorization: `tigo_ak ${this.ak}`,
       'x-tigo-random': random,

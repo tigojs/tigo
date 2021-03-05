@@ -12,15 +12,16 @@ const MODEL_DIR = path.resolve(__dirname, './src/model');
 
 const plugin = {
   type: 'module',
-  mount(app, config) {
+  mount(app, opts) {
+    opts = opts || {};
     // check auth plugin
     if (!app.tigo.auth) {
       throw new Error('Cannot find any mounted authorization plugin.');
     }
     // check sql db engine
     let sqlEngine;
-    if (config && config.dbEngine) {
-      const engine = app.dbEngine.sql[config.dbEngine];
+    if (opts.dbEngine) {
+      const engine = app.dbEngine.sql[opts.dbEngine];
       if (!engine) {
         throw new Error('Cannot find the specific SQL database engine.');
       }
@@ -35,8 +36,8 @@ const plugin = {
     }
     // check kv db engine
     let kvEngine;
-    if (config && config.storageEngine) {
-      const engine = app.dbEngine.kv[config.storageEngine];
+    if (opts.storageEngine) {
+      const engine = app.dbEngine.kv[opts.storageEngine];
       if (!engine) {
         throw new Error('Cannot find the specific storage engine');
       }
@@ -52,11 +53,11 @@ const plugin = {
     // open database
     let secondArg;
     if (kvEngine.storageType === 'local') {
-      if (config && config.storage && config.storage.path) {
-        if (!fs.existsSync(config.storage.path)) {
-          throw new Error(`Cannot find the specific storage path [${config.storage.path}] for cfs.`);
+      if (opts.storage && opts.storage.path) {
+        if (!fs.existsSync(opts.storage.path)) {
+          throw new Error(`Cannot find the specific storage path [${opts.storage.path}] for cfs.`);
         }
-        secondArg = config.storage.path;
+        secondArg = opts.storage.path;
       } else {
         secondArg = path.resolve(app.config.runDirPath, './faas/storage');
         app.logger.warn('Use default storage path for cfs.');
@@ -65,11 +66,12 @@ const plugin = {
         }
       }
     } else {
-      secondArg = config.storage.connection;
+      secondArg = opts.storage.connection;
     }
     // set object to app
     const faas = {
       storage: kvEngine.openDatabase(app, secondArg),
+      allowedRequire: opts.allowedRequire || [],
     };
     app.tigo.faas = faas;
     // collect controllers

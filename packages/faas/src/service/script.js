@@ -6,6 +6,7 @@ const { BaseService } = require('@tigojs/core');
 const { createContextProxy } = require('../utils/context');
 const { stackFilter } = require('../utils/stackFilter');
 const { getStorageKey, getEnvStorageKey } = require('../utils/storage');
+const allowList = require('../constants/allowList');
 
 const USERSCRIPT_TEMPLATE = fs.readFileSync(
   path.resolve(__dirname, '../template/userscript.js'),
@@ -62,7 +63,7 @@ class ScriptService extends BaseService {
         wasm: false,
         require: {
           external: {
-            modules: ['@tigojs/lambda-*'],
+            modules: [...allowList, ...ctx.tigo.faas.allowedRequire],
           },
         },
       });

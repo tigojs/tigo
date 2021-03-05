@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/cfs",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Config storage plugin for tigo",
   "main": "main.js",
   "scripts": {
