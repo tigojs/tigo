@@ -11,9 +11,12 @@ const configPath = {
 
 let config;
 // json first
-if (fs.existSync(configPath.json)) {
-  config = JSON.parse(fs.readFileSync(configPath.json, { encoding: 'utf-8' }));
-} else if (fs.existSync(configPath.js)) {
+if (fs.existsSync(configPath.json)) {
+  const json = fs.readFileSync(configPath.json, { encoding: 'utf-8' });
+  if (json) {
+    config = JSON.parse(json);
+  }
+} else if (fs.existsSync(configPath.js)) {
   config = require(configPath.js);
 }
 
