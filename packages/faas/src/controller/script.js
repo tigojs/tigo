@@ -7,6 +7,7 @@ class ScriptController extends BaseController {
       '/lambda/:scopeId/:name': {
         type: ['get', 'post', 'head', 'put', 'delete', 'patch'],
         target: this.handleExec,
+        cors: false,
         external: true,
       },
       '/lambda/:scopeId/:name/*subPath': {
