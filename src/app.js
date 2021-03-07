@@ -39,7 +39,7 @@ function initServer() {
   const static = collectStaticFiles.call(this, STATIC_DIR);
   this.static.main = static;
   // init koa plugins
-  this.server.use(cors(this.config.cors || null));
+  this.framework.cors = cors(this.config.cors || null);
   this.server.use(koaBody({
     multipart: true,
     formidable: {
@@ -155,6 +155,8 @@ class App {
     this.service = {};
     this.model = {};
     this.static = {};
+    // init framework obj
+    this.framework = {};
     // init logger
     this.logger = createLogger.call(this, this.config.logger);
     // init koa server
