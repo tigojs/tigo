@@ -1,11 +1,15 @@
 function registerRoute({ path, type, info }) {
+  const args = [path];
   if (this.tigo.auth && info.apiAccess) {
-    this.router[type](path, this.tigo.auth.apiFlag, this.tigo.auth.verifier, info.target);
+    args.push(this.tigo.auth.apiFlag, this.tigo.auth.verifier);
   } else if (this.tigo.auth && info.auth) {
-    this.router[type](path, this.tigo.auth.verifier, info.target);
-  } else {
-    this.router[type](path, info.target);
+    args.push(this.tigo.auth.verifier);
   }
+  if (info.cors !== 'false') {
+    args.push(this.framework.cors);
+  }
+  args.push(info.target);
+  this.router[type](...args);
 }
 
 function registerController(instance) {
