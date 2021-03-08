@@ -166,7 +166,7 @@ class App {
     initServer.call(this);
   }
   start() {
-    const port = (this.config.server ? this.config.server.port : 8800) || 8800;
+    const port = this.config.server?.port || 8800;
     this.server.listen(port);
     this.logger.info(`Server is listening on port [${port}]...`);
   }
