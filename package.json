@@ -11,12 +11,13 @@
   "scripts": {
     "start": "cross-env NODE_ENV=prod node ./server.js",
     "dev": "cross-env NODE_ENV=dev DB_ENV=prod nodemon ./server.js",
-    "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js"
+    "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js",
+    "upgrade:utils": "node ./scripts/upgradeUtils.js"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.1.4",
+    "@tigojs/utils": "^0.1.5",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "npm-api": "^1.0.1"
   }
 }
