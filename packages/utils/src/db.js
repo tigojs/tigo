@@ -73,7 +73,7 @@ function extendLevelDb(db) {
     return db.setObject(key, {
       expires,
       value: data,
-      createAt: moment().valueOf(),
+      createAt: new Date().valueOf(),
     });
   }
   db.getExpires = async (key) => {
@@ -82,7 +82,7 @@ function extendLevelDb(db) {
       return null;
     }
     const { value, createAt, expires } = stored;
-    if (createAt + expires < moment().valueOf()) {
+    if (createAt + expires < new Date().valueOf()) {
       await db.del(key);
       return null;
     }
