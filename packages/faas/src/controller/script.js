@@ -7,6 +7,7 @@ class ScriptController extends BaseController {
       '/lambda/:scopeId/:name': {
         type: ['get', 'post', 'head', 'put', 'delete', 'patch'],
         target: this.handleExec,
+        cors: false,
         external: true,
       },
       '/lambda/:scopeId/:name/*subPath': {
@@ -34,6 +35,7 @@ class ScriptController extends BaseController {
         type: 'post',
         auth: true,
         target: this.handleSave,
+        apiAccess: true,
       },
       '/faas/delete': {
         type: 'post',
@@ -91,7 +93,7 @@ class ScriptController extends BaseController {
         required: true,
       },
       env: {
-        type: 'string',
+        type: 'object',
         required: false,
       },
     });
