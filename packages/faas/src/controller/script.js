@@ -35,6 +35,7 @@ class ScriptController extends BaseController {
         type: 'post',
         auth: true,
         target: this.handleSave,
+        apiAccess: true,
       },
       '/faas/delete': {
         type: 'post',
@@ -92,7 +93,7 @@ class ScriptController extends BaseController {
         required: true,
       },
       env: {
-        type: 'string',
+        type: 'object',
         required: false,
       },
     });
