@@ -2,20 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const NpmApi = require('npm-api');
 const child_process = require('child_process');
-const log4js = require('log4js');
-
-log4js.configure({
-  appenders: {
-    stdout: {
-      type: 'stdout',
-    },
-  },
-  categories: {
-    default: { appenders: ['stdout'], level: 'debug' },
-  },
-});
-
-const logger = log4js.getLogger();
+const logger = require('./utils/logger');
 
 const PAKCAGES_DIR_PATH = path.resolve(__dirname, '../packages');
 
