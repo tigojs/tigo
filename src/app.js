@@ -107,7 +107,16 @@ function initServer() {
   this.server.context.static = this.static;
   // init plugins
   const plugins = collectPlugins.call(this);
-  Object.keys(plugins).forEach((name) => {
+  const pluginList = Object.keys(plugins);
+  pluginList.sort((a, b) => {
+    if (plugins[a].priority < plugins[b].priority) {
+      return -1;
+    } else if (plugins[a].priority > plugins[b].priority) {
+      return 1;
+    }
+    return 0;
+  });
+  pluginList.forEach((name) => {
     this.logger.setPrefix(name);
     if (typeof plugins[name].mount !== 'function') {
       this.logger.error(`Plugin doesn't have mount function.`);

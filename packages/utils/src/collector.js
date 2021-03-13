@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const { killProcess } = require('./process');
-const { pluginPackageExisted } = require('./plugins');
+const { pluginPackageExisted, getPluginNameByPackage } = require('./plugins');
 const { registerController } = require('./controller');
 const { MEMO_EXT_PATTERN } = require('../constants/pattern');
 
@@ -158,16 +158,22 @@ function getStaticFile(path, useMemo = false) {
 }
 
 function collectStaticFiles(dirPath, first = true) {
+  const staticConfig = {
+    memo: false,
+  };
+
+  if (this.config?.static) {
+    Object.assign(staticConfig, this.config.static);
+  }
+
   const statics = {};
 
   if (!fs.existsSync(dirPath)) {
     this.logger.warn(`Directory [${dirPath}] does not exist.`);
     return statics;
   }
-  const useMemo = this.config.static && this.config.static.memo;
-  if (!this.config.static && first) {
-    this.logger.warn(`Cannot find static files configuration, use stream mode by default.`);
-  }
+  const { memo: useMemo } = staticConfig;
+  first && this.logger.warn(useMemo ? 'Using memory mode for static files.' : 'Using stream mode for static files.');
 
   const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
@@ -238,31 +244,25 @@ function collectPlugins() {
       ...plugins[pluginName].config,
       ...pluginsConfig[pluginName].config,
     };
-    collectPluginDependencies.call(
-      this,
+    collectPluginDependencies.call(this, {
       pluginsConfig,
       plugins,
-      plugins[pluginName],
-      plugins[pluginName].dependencies,
-    );
+      pluginName,
+      plugin: plugins[pluginName],
+      dependencies: plugins[pluginName].dependencies,
+    });
   });
 
   this.logger.setPrefix(null);
   return plugins;
 }
 
-function collectPluginDependencies(
-  pluginsConfig,
-  plugins,
-  plugin,
-  dependencies
-) {
+function collectPluginDependencies({ pluginsConfig, plugins, plugin, pluginName, dependencies }) {
   if (!dependencies || !Array.isArray(dependencies)) {
     return;
   }
   // require existed
   dependencies.forEach((dependency, index) => {
-    this.logger.setPrefix(dependency);
     const isObject = typeof dependency === 'object';
     let packageName;
     if (isObject) {
@@ -275,9 +275,9 @@ function collectPluginDependencies(
       killProcess.call(this, 'pluginCollectError');
     }
     const priority = plugin.priority - dependencies.length + index;
-    const dependencyName = getPluginNameByPackage.call(pluginsConfig, packageName) || packageName.replace('@tigojs/', '');
+    const dependencyName = getPluginNameByPackage(pluginsConfig, packageName) || packageName.replace('@tigojs/', '');
     // check if imported
-    if (pluginPackageExisted.apply(plugins)) {
+    if (pluginPackageExisted(plugins, packageName)) {
       plugins[dependencyName].priority = priority;
       return;
     } else if (isObject && !dependency.allowAutoImport) {
@@ -287,6 +287,7 @@ function collectPluginDependencies(
       this.logger.warn(`Try to import [${packageName}] automatically by default.`);
     }
     // import dependency
+    this.logger.setPrefix(dependencyName);
     try {
       plugins[dependencyName] = require(packageName);
     } catch (err) {
@@ -309,16 +310,10 @@ function collectPluginDependencies(
         ...dependencyConfig,
       };
     }
-    collectPluginDependencies.call(
-      this,
-      pluginsConfig,
-      plugins,
-      plugins[dependencyName],
-      plugins[dependencyName].dependencies,
-    );
+    collectPluginDependencies.call(this, pluginsConfig, plugins, plugins[dependencyName], plugins[dependencyName].dependencies);
+    this.logger.setPrefix(pluginName);
   });
-
-  this.logger.setPrefix(null);
+  this.logger.setPrefix(pluginName);
 }
 
 module.exports = {

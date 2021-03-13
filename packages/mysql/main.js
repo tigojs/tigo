@@ -7,11 +7,10 @@ const needValidate = ['host', 'port', 'user', 'password', 'database'];
 
 const validateConfig = (opts, keys) => {
   for (let i = 0; i < keys.length; i++) {
-    if (!opts[keys[i]]) {
-      return false;
+    if (typeof opts[keys[i]] === 'undefined' || opts[keys[i]] === null) {
+      throw new Error(`${keys[i]} is empty, please check it.`);
     }
   }
-  return true;
 };
 
 const plugin = {
@@ -20,9 +19,7 @@ const plugin = {
     if (!opts) {
       app.logger.warn('Cannot find the configuration for mysql db engine, use default settings.');
     }
-    if (!validateConfig(opts, needValidate)) {
-      throw new Error('Configuration is invalid.');
-    }
+    validateConfig(opts, needValidate)
     opts = opts || {};
     opts.pool = opts.pool || {};
     opts.define = opts.define || {};
