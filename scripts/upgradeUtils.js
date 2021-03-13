@@ -1,22 +1,20 @@
 const path = require('path');
 const fs = require('fs');
-const NpmApi = require('npm-api');
 const child_process = require('child_process');
 const logger = require('./utils/logger');
+const { fetchPackageVersion } = require('./utils/npm');
 
 const PAKCAGES_DIR_PATH = path.resolve(__dirname, '../packages');
 
-const npm = new NpmApi();
-
-const fetchPackageVersion = async () => {
-  const repo = npm.repo('@tigojs/utils');
-  const package = await repo.package();
-  return package.version;
+const bumpMinorVersion = async (pkg) => {
+  const version = pkg.version.split('.');
+  version[2] = parseInt(version[2], 10) + 1;
+  pkg.version = version.join('.');
 };
 
 const upgradeUtils = async () => {
   logger.info('Fetching utils package info from npm...');
-  const version = await fetchPackageVersion();
+  const version = await fetchPackageVersion('@tigojs/utils');
   if (!version) {
     return;
   }
@@ -47,7 +45,13 @@ const upgradeUtils = async () => {
       logger.info(`[${name}] doesn't use utils.`);
       return;
     }
-    const installedVersion = pkg.dependencies['@tigojs/utils'].substr(1);
+    let installedVersion = pkg.dependencies['@tigojs/utils'];
+    if (installedVersion.startsWith('file:')) {
+      logger.info(`Utils in [${name}] is a link, skip.`);
+      return;
+    } else {
+      installedVersion = installedVersion.substr(1);
+    }
     if (installedVersion === version) {
       logger.info(`Skip [${name}], utils is latest version.`);
       return;
@@ -57,18 +61,27 @@ const upgradeUtils = async () => {
       stdio: 'inherit',
       cwd: packageDir,
     });
+    bumpMinorVersion(pkg);
+    fs.writeFileSync(pkg, JSON.stringify(pkg, null, '  '), { encoding: 'utf-8' });
     logger.info(`Utils in package [${name}] has been upgraded.`);
   });
   // framework
   const frameworkDir = path.resolve(__dirname, '../');
+  const frameworkPkgPath = path.resolve(frameworkDir, './package.json');
   let frameworkPkg;
   try {
-    frameworkPkg = JSON.parse(fs.readFileSync(path.resolve(frameworkDir, './package.json'), { encoding: 'utf-8' }));
+    frameworkPkg = JSON.parse(fs.readFileSync(frameworkPkgPath, { encoding: 'utf-8' }));
   } catch {
     logger.error(`Cannot read package.json of framework.`);
     return;
   }
-  const frameworkInstalledVersion = frameworkPkg.dependencies['@tigojs/utils'].substr(1);
+  let frameworkInstalledVersion = frameworkPkg.dependencies['@tigojs/utils'];
+  if (frameworkInstalledVersion.startsWith('file:')) {
+    logger.info('Utils in framework is a link, skip.');
+    return;
+  } else {
+    frameworkInstalledVersion = frameworkInstalledVersion.substr(1);
+  }
   if (frameworkInstalledVersion === version) {
     logger.info(`Skip framework, utils is latest version.`);
     return;
@@ -77,6 +90,8 @@ const upgradeUtils = async () => {
   child_process.execSync(`npm install @tigojs/utils@${version} --save`, {
     stdio: 'inherit',
   });
+  bumpMinorVersion(frameworkPkg);
+  fs.writeFileSync(frameworkPkgPath, JSON.stringify(frameworkPkg, null, '  '), { encoding: 'utf-8' });
   logger.info(`Utils in framework has been upgraded.`);
 };
 
