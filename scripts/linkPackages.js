@@ -27,8 +27,9 @@ const linkPackages = () => {
       return;
     }
     logger.info(`Start link ${pkg}...`);
-    child_process.execSync(`npm link ${pkg}`, '../')
+    child_process.execSync(`npm link ${pkg} --save`, { stdio: 'inherit' });
   });
+  logger.info('All packages were linked to the framework.');
 }
 
 linkPackages();
