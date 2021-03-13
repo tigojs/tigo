@@ -7,9 +7,9 @@ const compareVersion = require('compare-versions');
 
 const PAKCAGES_DIR_PATH = path.resolve(__dirname, '../packages');
 
-async function publishPackages() {
+function publishPackages() {
   const packagesDir = fs.readdirSync(PAKCAGES_DIR_PATH);
-  packagesDir.forEach((name) => {
+  packagesDir.forEach(async (name) => {
     const packageDir = path.resolve(PAKCAGES_DIR_PATH, `./${name}`);
     const stat = fs.statSync(packageDir);
     if (!stat.isDirectory()) {
@@ -29,10 +29,20 @@ async function publishPackages() {
       return;
     }
     logger.info(`Fetching ${pkg.name} version info from npm...`);
-    const npmVersion = await fetchPackageVersion(pkg.name);
-    const { version } = pkg.version;
-    logger.info(`npm version: ${npmVersion}, local version: ${version}`);
-    if (compareVersion(npmVersion, version, '<')) {
+    let npmVersion;
+    try {
+      npmVersion = await fetchPackageVersion(pkg.name);
+    } catch (err) {
+      logger.error(`Fetching version error for [${pkg.name}].`, err.message);
+      return;
+    }
+    if (!npmVersion) {
+      logger.error(`Cannot fetch version info from npm for [${pkg.name}].`);
+      return;
+    }
+    const { version } = pkg;
+    logger.info(`pkg: ${pkg.name}, npm version: ${npmVersion}, local version: ${version}`);
+    if (compareVersion.compare(npmVersion, version, '<')) {
       logger.info('Local version is newer than npm, publishing the package...');
       child_process.execSync('npm publish --access=public', { stdio: 'inherit', cwd: packageDir });
       logger.info('Package published.');
