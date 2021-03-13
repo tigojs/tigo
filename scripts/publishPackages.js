@@ -7,9 +7,9 @@ const compareVersion = require('compare-versions');
 
 const PAKCAGES_DIR_PATH = path.resolve(__dirname, '../packages');
 
-async function publishPackages() {
+function publishPackages() {
   const packagesDir = fs.readdirSync(PAKCAGES_DIR_PATH);
-  packagesDir.forEach((name) => {
+  packagesDir.forEach(async (name) => {
     const packageDir = path.resolve(PAKCAGES_DIR_PATH, `./${name}`);
     const stat = fs.statSync(packageDir);
     if (!stat.isDirectory()) {
