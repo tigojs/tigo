@@ -1,8 +1,13 @@
 const { isDomain } = require('regex-go/dist/regex-go.umd');
+const { collectStaticFiles } = require('@tigojs/utils');
+const fs = require('fs');
 
 const validateRules = {
 	distPath: {
 		required: true,
+		validator: (v) => {
+			return fs.existsSync(v) ? true : 'Dist path does not exist, please check it.';
+		},
 	},
 	domain: {
 		required: true,
@@ -31,12 +36,16 @@ const plugin = {
   dependencies: [
     {
       package: '@tigojs/hostbinder',
-      allowAutoImport: false,
+			allowAutoImport: true,
     },
   ],
 	mount(app, opts) {
 		validate(opts, validateRules);
-		// TODO: mount panel dist files to app and register reverse proxy
+		const staticFiles = collectStaticFiles.call(app, opts.distPath);
+		app.static.fepanel = staticFiles;
+		// register proxy
+		const targetPath = `http://127.0.0.1:${app.tigo.config.server.port}/static/fepanel/`;
+    app.tigo.hostbinder.proxy.register(opts.domain, targetPath);
 	},
 };
 

@@ -6,6 +6,7 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
+    "@tigojs/utils": "^0.1.7",
     "regex-go": "^0.1.1"
   }
 }
