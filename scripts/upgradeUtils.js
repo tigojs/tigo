@@ -62,7 +62,7 @@ const upgradeUtils = async () => {
       cwd: packageDir,
     });
     bumpMinorVersion(pkg);
-    fs.writeFileSync(pkg, JSON.stringify(pkg, null, '  '), { encoding: 'utf-8' });
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, '  '), { encoding: 'utf-8' });
     logger.info(`Utils in package [${name}] has been upgraded.`);
   });
   // framework
