@@ -8,7 +8,7 @@ const createRouter = () => {
   const router = TreeRouter();
   const handler = {
     apply: function (target, thisArg, args) {
-      // equal router.routes()(ctx, null)
+      // equal to "router.routes()(ctx, null)"
       return target()(args[0], null);
     },
   };
