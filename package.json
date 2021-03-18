@@ -1,6 +1,6 @@
 {
   "name": "tigo",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
@@ -27,7 +27,8 @@
     "koa-parameter": "^3.0.1",
     "koa-tree-router": "^0.7.0",
     "log4js": "^6.3.0",
-    "lru-cache": "^6.0.0"
+    "lru-cache": "^6.0.0",
+    "mime": "^2.5.2"
   },
   "devDependencies": {
     "compare-versions": "^3.6.0",

@@ -3,7 +3,7 @@ const fs = require('fs');
 const { killProcess } = require('./process');
 const { pluginPackageExisted, getPluginNameByPackage } = require('./plugins');
 const { registerController } = require('./controller');
-const { MEMO_EXT_PATTERN } = require('../constants/pattern');
+const { MEMO_EXT_PATTERN, MEMO_BUFFER_EXT_PATTERN } = require('../constants/pattern');
 
 function collectController(dirPath) {
   const controller = {};
@@ -150,11 +150,18 @@ function collectMiddleware(dirPath) {
   return middlewares;
 }
 
-function getStaticFile(path, useMemo = false) {
-  if (!useMemo) {
+function getStaticFile({ path, useMemo = false, ext }) {
+  const textMemo = MEMO_EXT_PATTERN.test(ext);
+  const bufferMemo = MEMO_BUFFER_EXT_PATTERN.test(ext);
+  const canMemo = textMemo || bufferMemo;
+  if (!useMemo || !canMemo) {
     return path;
   }
-  return fs.readFileSync(path, { encoding: 'utf-8' });
+  if (textMemo) {
+    return fs.readFileSync(path, { encoding: 'utf-8' });
+  } else {
+    return fs.readFileSync(path);
+  }
 }
 
 function collectStaticFiles(dirPath, first = true) {
@@ -197,8 +204,7 @@ function collectStaticFiles(dirPath, first = true) {
     if (!statics[ext]) {
       statics[ext] = {};
     }
-    const memo = MEMO_EXT_PATTERN.test(ext);
-    statics[ext][base] = getStaticFile(filePath, useMemo && memo);
+    statics[ext][base] = getStaticFile({ filePath, useMemo, ext });
   });
 
   return statics;
