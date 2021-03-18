@@ -1,12 +1,20 @@
 const path = require('path');
 const fs = require('fs');
 const mime = require('mime');
+const LRUCache = require('lru-cache');
 const { BaseController } = require('@tigojs/core');
 const { MEMO_EXT_PATTERN } = require('@tigojs/utils/constants/pattern');
 
 const getMemoConf = (ctx) => {
   return ctx.tigo.config.static && ctx.tigo.config.static.memo;
 }
+
+// you can lower the settings if your server isn't that good.
+const cache = new LRUCache({
+  max: 100, // Allow at most 100 static files in mem
+  maxAge: 30,  // Up to 30s nobody access the file, remove it from mem
+  updateAgeOnGet: true,
+});
 
 class StaticFileController extends BaseController {
   getRoutes() {
@@ -57,7 +65,13 @@ class StaticFileController extends BaseController {
     const view = ctx.static[scope][name];
     ctx.set('Cache-Control', 'max-age=3600');
     ctx.set('Content-Type', 'text/html');
-    ctx.body = useMemo ? view : fs.createReadStream(view);
+    if (useMemo) {
+      ctx.body = view;
+    } else {
+      const cached = cache.get('');
+      const viewContent = fs.createReadStream(view);
+      ctx.body = 
+    }
   }
 }
 
