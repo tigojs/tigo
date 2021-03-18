@@ -1,9 +1,9 @@
-function pluginPackageExisted(packageName) {
-  if (!this) {
+function pluginPackageExisted(plugins, packageName) {
+  if (!plugins) {
     return false;
   }
-  Object.keys(this).forEach((name) => {
-    const { package } = this[name];
+  Object.keys(plugins).forEach((name) => {
+    const { package } = plugins[name];
     if (package && package === packageName) {
       return true;
     }
@@ -24,8 +24,26 @@ function getPublicPluginList(app) {
     .map((k) => app.plugins[k].packageName);
 }
 
+function getPluginNameByPackage(pluginConfig, packageName) {
+  if (!pluginConfig) {
+    return null;
+  }
+  if (typeof pluginConfig !== 'object') {
+    throw new Error('Plugin config should be an object.');
+  }
+  const keys = Object.keys(pluginConfig);
+  for (let key of keys) {
+    const plugin = pluginConfig[key];
+    if (plugin.package === packageName) {
+      return key;
+    }
+  }
+  return null;
+}
+
 module.exports = {
   pluginPackageExisted,
   getPluginConfig,
   getPublicPluginList,
+  getPluginNameByPackage,
 };

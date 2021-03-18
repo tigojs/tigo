@@ -8,15 +8,7 @@ const cors = require('@koa/cors');
 const koaLogger = require('koa-logger');
 const compress = require('koa-compress');
 const parameter = require('koa-parameter');
-const {
-  createLogger,
-  registerErrorHandler,
-  killProcess,
-  collectMiddleware,
-  collectStaticFiles,
-  collectPlugins,
-  collectController,
-} = require('@tigojs/utils');
+const { createLogger, registerErrorHandler, killProcess, collectMiddleware, collectStaticFiles, collectPlugins, collectController } = require('@tigojs/utils');
 const packageJson = require('../package.json');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './controller');
@@ -40,38 +32,44 @@ function initServer() {
   this.static.main = static;
   // init koa plugins
   this.framework.cors = cors(this.config.cors || null);
-  this.server.use(koaBody({
-    multipart: true,
-    formidable: {
-      maxFileSize: this.config.maxFileSize || 100 * 1024 * 1024,
-    },
-  }));
-  this.server.use(compress({
-    filter(type) {
-      return /^text/i.test(type) || type === 'application/json';
-    },
-    threshold: 2048,
-    flush: zlib.constants.Z_SYNC_FLUSH,
-    br: (type) => {
-      // we can be as selective as we can:
-      if (/^image\//i.test(type)) return null;
-      if (/^text\//i.test(type) || type === 'application/json') {
-        return {
-          [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
-          [zlib.constants.BROTLI_PARAM_QUALITY]: 6,
-        };
-      }
-      return { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 }
-    }
-  }));
+  this.server.use(
+    koaBody({
+      multipart: true,
+      formidable: {
+        maxFileSize: this.config.maxFileSize || 100 * 1024 * 1024,
+      },
+    })
+  );
+  this.server.use(
+    compress({
+      filter(type) {
+        return /^text/i.test(type) || type === 'application/json';
+      },
+      threshold: 2048,
+      flush: zlib.constants.Z_SYNC_FLUSH,
+      br: (type) => {
+        // we can be as selective as we can:
+        if (/^image\//i.test(type)) return null;
+        if (/^text\//i.test(type) || type === 'application/json') {
+          return {
+            [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+            [zlib.constants.BROTLI_PARAM_QUALITY]: 6,
+          };
+        }
+        return { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 };
+      },
+    })
+  );
   parameter(this.server);
   // dev koa plugins
   if (process.env.NODE_ENV === 'dev') {
     const accessLogEnabled = this.config.dev && this.config.dev.accessLog;
     if (accessLogEnabled) {
-      this.server.use(koaLogger((str, args) => {
-        this.logger.debug(str);
-      }));
+      this.server.use(
+        koaLogger((str, args) => {
+          this.logger.debug(str);
+        })
+      );
     }
   }
   // use router
@@ -109,7 +107,16 @@ function initServer() {
   this.server.context.static = this.static;
   // init plugins
   const plugins = collectPlugins.call(this);
-  Object.keys(plugins).forEach((name) => {
+  const pluginList = Object.keys(plugins);
+  pluginList.sort((a, b) => {
+    if (plugins[a].priority < plugins[b].priority) {
+      return -1;
+    } else if (plugins[a].priority > plugins[b].priority) {
+      return 1;
+    }
+    return 0;
+  });
+  pluginList.forEach((name) => {
     this.logger.setPrefix(name);
     if (typeof plugins[name].mount !== 'function') {
       this.logger.error(`Plugin doesn't have mount function.`);
@@ -166,7 +173,7 @@ class App {
     initServer.call(this);
   }
   start() {
-    const port = (this.config.server ? this.config.server.port : 8800) || 8800;
+    const port = this.config.server?.port || 8800;
     this.server.listen(port);
     this.logger.info(`Server is listening on port [${port}]...`);
   }
