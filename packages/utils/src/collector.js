@@ -204,7 +204,7 @@ function collectStaticFiles(dirPath, first = true) {
     if (!statics[ext]) {
       statics[ext] = {};
     }
-    statics[ext][base] = getStaticFile({ filePath, useMemo, ext });
+    statics[ext][base] = getStaticFile({ path: filePath, useMemo, ext });
   });
 
   return statics;
