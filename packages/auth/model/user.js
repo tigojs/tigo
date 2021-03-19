@@ -18,8 +18,6 @@ const define = function (app, engine) {
     tableName: `${prefix}_auth_user`,
   });
 
-  User.sync({ alter: true });
-
   return User;
 };
 

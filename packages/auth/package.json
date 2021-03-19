@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/auth",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Authentication plugin for tigo",
   "main": "main.js",
   "author": "BackRunner",

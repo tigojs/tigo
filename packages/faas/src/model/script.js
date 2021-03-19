@@ -15,8 +15,6 @@ const define = function (app, engine) {
     tableName: `${prefix}_faas_script`,
   });
 
-  Script.sync({ alter: true });
-
   Script.hasName = async function (uid, name) {
     const item = await this.findOne({
       where: {
