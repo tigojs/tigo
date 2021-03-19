@@ -14,7 +14,8 @@
     "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js",
     "upgrade:utils": "node ./scripts/upgradeUtils.js",
     "link:packages": "node ./scripts/linkPackages.js",
-    "publish:packages": "node ./scripts/publishPackages.js"
+    "publish:packages": "node ./scripts/publishPackages.js",
+    "migrate": "node ./scripts/migrate.js"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
