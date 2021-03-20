@@ -76,7 +76,7 @@ class ConfigurationController extends BaseController {
     }
     const content = await ctx.service.cfs.conf.getContentViaPublic(ctx, scopeId, formattedType, name);
     if (!content) {
-      ctx.throw(404, '找不到对应的脚本');
+      ctx.throw(404, '找不到对应的函数');
     }
     const cacheAge = ctx.query?.cacheAge;
     if (

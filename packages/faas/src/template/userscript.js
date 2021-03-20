@@ -1,3 +1,0 @@
-{{inject}}
-
-module.exports = handleRequest;
