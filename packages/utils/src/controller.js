@@ -1,24 +1,24 @@
 const noStoreMiddleware = async (ctx, next) => {
-  await next();
   ctx.set('Cache-Control', 'no-store');
+  return await next();
 };
 
 function registerRoute({ path, type, info }) {
   const args = [path];
+  if (info.cors !== false) {
+    args.push(this.framework.cors);
+  }
   if (this.tigo.auth && info.apiAccess) {
     args.push(this.tigo.auth.apiFlag, this.tigo.auth.verifier);
   } else if (this.tigo.auth && info.auth) {
     args.push(this.tigo.auth.verifier);
-  }
-  if (info.cors !== 'false') {
-    args.push(this.framework.cors);
   }
   // add no-store cahce-control header for all internal api
   if (!info.external) {
     args.push(noStoreMiddleware);
   }
   args.push(info.target);
-  this.router[type.toLowerCase().trim()](...args);
+  this.router[type](...args);
 }
 
 function registerController(instance) {
@@ -26,7 +26,7 @@ function registerController(instance) {
     this.logger.warn(`Cannot register controller [${instance._tigoName}] because the instance is empty.`);
     return;
   }
-  if (!instance.getRoutes || typeof instance.getRoutes !== 'function') {
+  if (typeof instance.getRoutes !== 'function') {
     this.logger.warn(`Controller [${instance._tigoName}] doesn't contain the getRoutes function.`)
     return;
   }
@@ -49,23 +49,42 @@ function registerController(instance) {
     } else {
       realPath = `${internalConfig.base || '/api'}${path}`;
     }
-    const type = info.type;
+    let type = info.type;
+    let includeOptions = false;
     if (Array.isArray(type)) {
-      type.forEach((t) => {
+      const types = [...new Set(type)];
+      types.forEach((type) => {
+        type = type.toLowerCase().trim();
+        if (type === 'options') {
+          includeOptions = true;
+        }
         registerRoute.call(this, {
           path: realPath,
-          type: t.toLowerCase(),
+          type,
           info,
         });
-        this.logger.debug(`Registered route [${t.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
+        this.logger.debug(`Registered route [${type.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
       });
     } else if (typeof type === 'string') {
+      type = type.toLowerCase().trim();
+      if (type === 'options') {
+        includeOptions = true;
+      }
       registerRoute.call(this, {
         path: realPath,
-        type: type.toLowerCase(),
+        type,
         info,
       });
       this.logger.debug(`Registered route [${type.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
+    }
+    // register options route if need cors
+    if (info.cors !== false && !includeOptions) {
+      registerRoute.call(this, {
+        path: realPath,
+        type: 'options',
+        info,
+      });
+      this.logger.debug(`Registered cors  [${realPath}] of [${instance._tigoName}] controller.`);
     }
   });
 }
