@@ -1,11 +1,15 @@
 {
   "name": "tigo",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
   "files": [
     "server.js",
+    "nodemon.json",
+    "LICENSE",
+    "tools",
+    "scripts",
     "src"
   ],
   "scripts": {
