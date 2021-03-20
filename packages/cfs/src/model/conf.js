@@ -18,8 +18,6 @@ const define = function (app, engine) {
     tableName: `${prefix}_stored_config`,
   });
 
-  Config.sync({ alter: true });
-
   Config.exists = async function (uid, type, name) {
     const item = await this.findOne({
       where: {

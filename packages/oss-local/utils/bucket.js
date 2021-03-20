@@ -82,12 +82,10 @@ const recursiveCheckEmpty = async (db, username, bucketName, dir) => {
   if (dir === '/') {
     return;
   }
-  console.log(dir);
   const dirHeadKey = getDirectoryHeadKey(username, bucketName, dir);
   const dirMetaKey = getDirectoryMetaKey(username, bucketName, dir);
   const dirHeadNode = await db.getObject(dirHeadKey);
   if (dirHeadNode.next) {
-    console.log(dirHeadNode.next);
     return;
   }
   // directory is empty

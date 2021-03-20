@@ -44,7 +44,6 @@ class ConfigurationController extends BaseController {
         uid: ctx.state.user.id,
       },
     });
-    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(list);
   }
   async handleGetContent(ctx) {
@@ -60,7 +59,6 @@ class ConfigurationController extends BaseController {
     });
     const { id } = ctx.query;
     const content = await ctx.service.cfs.conf.getContent(ctx, id);
-    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse({
       content,
     });
@@ -128,7 +126,6 @@ class ConfigurationController extends BaseController {
       await ctx.service.cfs.conf.edit(ctx);
       ctx.body = successResponse(null, '保存成功');
     }
-    ctx.set('Cache-Control', 'no-store');
   }
   async handleRename(ctx) {
     ctx.verifyParams({
@@ -143,7 +140,6 @@ class ConfigurationController extends BaseController {
       },
     });
     await ctx.service.cfs.conf.rename(ctx);
-    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(null, '修改成功');
   }
   async handleDelete(ctx) {
@@ -156,7 +152,6 @@ class ConfigurationController extends BaseController {
     });
     const { id } = ctx.request.body;
     await ctx.service.cfs.conf.delete(ctx, id);
-    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(null, '删除成功');
   }
 }

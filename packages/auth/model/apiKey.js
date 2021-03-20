@@ -18,8 +18,6 @@ const define = function (app, engine) {
     tableName: `${prefix}_auth_apikeys`,
   });
 
-  ApiKey.sync({ alter: true });
-
   return ApiKey;
 };
 

@@ -1,11 +1,15 @@
 {
   "name": "tigo",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
   "files": [
     "server.js",
+    "nodemon.json",
+    "LICENSE",
+    "tools",
+    "scripts",
     "src"
   ],
   "scripts": {
@@ -14,12 +18,13 @@
     "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js",
     "upgrade:utils": "node ./scripts/upgradeUtils.js",
     "link:packages": "node ./scripts/linkPackages.js",
-    "publish:packages": "node ./scripts/publishPackages.js"
+    "publish:packages": "node ./scripts/publishPackages.js",
+    "migrate": "node ./scripts/migrate.js"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.1.10",
+    "@tigojs/utils": "^0.1.11",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",

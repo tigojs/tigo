@@ -50,7 +50,6 @@ class ScriptController extends BaseController {
         uid: ctx.state.user.id,
       },
     });
-    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(list);
   }
   async handleGetContent(ctx) {
@@ -63,7 +62,6 @@ class ScriptController extends BaseController {
         min: 1,
       },
     });
-    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse({
       content: Buffer.from(await ctx.service.faas.script.getContent(ctx), 'utf-8').toString('base64'),
     });
@@ -109,7 +107,6 @@ class ScriptController extends BaseController {
       await ctx.service.faas.script.edit(ctx);
       ctx.body = successResponse(null, '保存成功');
     }
-    ctx.set('Cache-Control', 'no-store');
   }
   async handleRename(ctx) {
     ctx.verifyParams({
@@ -124,7 +121,6 @@ class ScriptController extends BaseController {
       },
     });
     await ctx.service.faas.script.rename(ctx);
-    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(null, '修改成功');
   }
   async handleDelete(ctx) {
@@ -136,7 +132,6 @@ class ScriptController extends BaseController {
       }
     });
     await ctx.service.faas.script.delete(ctx);
-    ctx.set('Cache-Control', 'no-store');
     ctx.body = successResponse(null, '删除成功');
   }
 }

@@ -1,3 +1,8 @@
+const noStoreMiddleware = async (ctx, next) => {
+  await next();
+  ctx.set('Cache-Control', 'no-store');
+};
+
 function registerRoute({ path, type, info }) {
   const args = [path];
   if (this.tigo.auth && info.apiAccess) {
@@ -7,6 +12,10 @@ function registerRoute({ path, type, info }) {
   }
   if (info.cors !== 'false') {
     args.push(this.framework.cors);
+  }
+  // add no-store cahce-control header for all internal api
+  if (!info.external) {
+    args.push(noStoreMiddleware);
   }
   args.push(info.target);
   this.router[type](...args);
