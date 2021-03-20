@@ -1,5 +1,4 @@
 const path = require('path');
-const fs = require('fs');
 const LRU = require('lru-cache');
 const { NodeVM } = require('vm2');
 const { BaseService } = require('@tigojs/core');
