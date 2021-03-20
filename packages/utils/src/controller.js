@@ -18,7 +18,7 @@ function registerRoute({ path, type, info }) {
     args.push(noStoreMiddleware);
   }
   args.push(info.target);
-  this.router[type](...args);
+  this.router[type.toLowerCase().trim()](...args);
 }
 
 function registerController(instance) {
