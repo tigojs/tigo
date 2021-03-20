@@ -18,8 +18,6 @@ const define = function(app, engine) {
     tableName: `${prefix}_host_binding`,
   });
 
-  Binding.sync({ alter: true });
-
   Binding.domainExists = async function (domain) {
     const item = await this.findOne({
       where: {
