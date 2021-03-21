@@ -3,7 +3,6 @@ const fs = require('fs');
 const fsp = require('fs/promises');
 const mime = require('mime');
 const LRUCache = require('lru-cache');
-const { Readable } = require('stream');
 const { BaseController } = require('@tigojs/core');
 const { MEMO_EXT_PATTERN, MEMO_BUFFER_EXT_PATTERN } = require('@tigojs/utils/constants/pattern');
 
