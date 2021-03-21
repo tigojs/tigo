@@ -1,6 +1,6 @@
 {
   "name": "tigo",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
@@ -24,7 +24,7 @@
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.1.11",
+    "@tigojs/utils": "^0.1.12",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",
