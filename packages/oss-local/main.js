@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const fsPromise = require('fs/promises');
-const { safePush, safeRemove, safeCreateObject, safePutObject, safeInsertNode, safeRemoveNode, safeMergeObject } = require('./utils/atomic');
+const { safePush, safeRemove, safeCreateObject, safeInsertNode, safeRemoveNode, safeMergeObject } = require('./utils/atomic');
 const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMetaKey, getBucketPolicyKey, getBucketPolicyCacheKey } = require('./utils/keys');
 const { isBucketEmpty, getDirectoryPath, getLastDirectoryNode, recursiveCheckParent, recursiveCheckEmpty } = require('./utils/bucket');
 const { v4: uuidv4 } = require('uuid');
