@@ -73,51 +73,51 @@ class LocalStorageEngine {
     this.fileStoragePath = fileStoragePath;
     app.logger.setPrefix(null);
   }
-  async listBuckets({ username }) {
-    const list = await this.kv.getObject(getBucketListKey(username));
+  async listBuckets({ scopeId }) {
+    const list = await this.kv.getObject(getBucketListKey(scopeId));
     return list;
   }
-  async bucketExists({ username, bucketName }) {
-    const list = await this.kv.getObject(getBucketListKey(username));
+  async bucketExists({ scopeId, bucketName }) {
+    const list = await this.kv.getObject(getBucketListKey(scopeId));
     if (!list || !Array.isArray(list) || !list.length) {
       return false;
     }
     return list.includes(bucketName);
   }
-  async makeBucket({ username, bucketName }) {
-    await safePush(this.kv, getBucketListKey(username), bucketName);
+  async makeBucket({ scopeId, bucketName }) {
+    await safePush(this.kv, getBucketListKey(scopeId), bucketName);
   }
-  async removeBucket({ username, bucketName }) {
-    if (!(await isBucketEmpty(this.kv, username, bucketName))) {
+  async removeBucket({ scopeId, bucketName }) {
+    if (!(await isBucketEmpty(this.kv, scopeId, bucketName))) {
       ctx.throw(403, 'Bucket不为空，请先删除所有文件再操作');
     }
-    await safeRemove(this.kv, getBucketListKey(username), bucketName);
+    await safeRemove(this.kv, getBucketListKey(scopeId), bucketName);
   }
-  async getBucketPolicy({ username, bucketName }) {
-    const cacheKey = getBucketPolicyCacheKey(username, bucketName);
+  async getBucketPolicy({ scopeId, bucketName }) {
+    const cacheKey = getBucketPolicyCacheKey(scopeId, bucketName);
     const cached = this.policyCache.get(cacheKey);
     if (cached) {
       return cached;
     }
-    const policy = await this.kv.getObject(getBucketPolicyKey(username, bucketName));
+    const policy = await this.kv.getObject(getBucketPolicyKey(scopeId, bucketName));
     this.policyCache.set(cacheKey, policy);
     return policy;
   }
-  async setBucketPolicy({ username, bucketName, policy }) {
-    await safeMergeObject(this.kv, getBucketPolicyKey(username, bucketName), policy);
-    this.policyCache.del(getBucketPolicyCacheKey(username, bucketName));
+  async setBucketPolicy({ scopeId, bucketName, policy }) {
+    await safeMergeObject(this.kv, getBucketPolicyKey(scopeId, bucketName), policy);
+    this.policyCache.del(getBucketPolicyCacheKey(scopeId, bucketName));
   }
-  async listObjects({ username, bucketName, prefix, startAt, startAtType, pageSize }) {
+  async listObjects({ scopeId, bucketName, prefix, startAt, startAtType, pageSize }) {
     let startAtKey;
     if (startAt) {
       const objKey = `${prefix}/${startAt}`;
       if (startAtType === 'file') {
-        startAtKey = getObjectMetaKey(username, bucketName, objKey);
+        startAtKey = getObjectMetaKey(scopeId, bucketName, objKey);
       } else {
-        startAtKey = getDirectoryMetaKey(username, bucketName, objKey);
+        startAtKey = getDirectoryMetaKey(scopeId, bucketName, objKey);
       }
     } else {
-      startAtKey = getDirectoryHeadKey(username, bucketName, prefix);
+      startAtKey = getDirectoryHeadKey(scopeId, bucketName, prefix);
     }
     let node = await this.kv.getObject(startAtKey);
     if (!node) {
@@ -139,8 +139,8 @@ class LocalStorageEngine {
     }
     return list;
   }
-  async getObject({ username, bucketName, key }) {
-    const meta = await this.kv.getObject(getObjectMetaKey(username, bucketName, key));
+  async getObject({ scopeId, bucketName, key }) {
+    const meta = await this.kv.getObject(getObjectMetaKey(scopeId, bucketName, key));
     if (!meta) {
       const err = new Error('Meta not found.');
       err.notFound = true;
@@ -157,11 +157,11 @@ class LocalStorageEngine {
     });
     return meta;
   }
-  async putObject({ username, bucketName, key, file, force }) {
+  async putObject({ scopeId, bucketName, key, file, force }) {
     const dirPath = getDirectoryPath(key);
 
     try {
-      await recursiveCheckParent(this.kv, username, bucketName, dirPath);
+      await recursiveCheckParent(this.kv, scopeId, bucketName, dirPath);
     } catch (err) {
       throw err;
     }
@@ -173,7 +173,7 @@ class LocalStorageEngine {
     await fsPromise.unlink(file.path);
 
     // check if key exists
-    const metaKey = getObjectMetaKey(username, bucketName, key);
+    const metaKey = getObjectMetaKey(scopeId, bucketName, key);
     const storedMeta = await this.kv.getObject(metaKey);
     if (storedMeta) {
       if (!force) {
@@ -192,7 +192,7 @@ class LocalStorageEngine {
       });
     } else {
       // get last dir node (or last node)
-      const dirHeadKey = getDirectoryHeadKey(username, bucketName, dirPath);
+      const dirHeadKey = getDirectoryHeadKey(scopeId, bucketName, dirPath);
       if (!(await this.kv.hasObject(dirHeadKey))) {
         await safeCreateObject(this.kv, dirHeadKey, {
           key: dirPath,
@@ -201,7 +201,7 @@ class LocalStorageEngine {
         });
       }
       const lastDirNode = await getLastDirectoryNode(this.kv, dirHeadKey);
-      const lastDirKey = lastDirNode.isHead ? dirHeadKey : getDirectoryMetaKey(username, bucketName, lastDirNode.key);
+      const lastDirKey = lastDirNode.isHead ? dirHeadKey : getDirectoryMetaKey(scopeId, bucketName, lastDirNode.key);
       const meta = {
         key,
         name: key.replace(new RegExp(`${dirPath}\/?`), ''),
@@ -216,8 +216,8 @@ class LocalStorageEngine {
       await safeInsertNode(this.kv, lastDirKey, metaKey, meta);
     }
   }
-  async removeObject({ username, bucketName, key }) {
-    const metaKey = getObjectMetaKey(username, bucketName, key);
+  async removeObject({ scopeId, bucketName, key }) {
+    const metaKey = getObjectMetaKey(scopeId, bucketName, key);
     const meta = await this.kv.getObject(metaKey);
     if (!meta) {
       const err = new Error('Could not find the object');
@@ -232,7 +232,7 @@ class LocalStorageEngine {
       await fsPromise.unlink(filePath);
     }
     // recursive check directory
-    await recursiveCheckEmpty(this.kv, username, bucketName, getDirectoryPath(key));
+    await recursiveCheckEmpty(this.kv, scopeId, bucketName, getDirectoryPath(key));
   }
 }
 

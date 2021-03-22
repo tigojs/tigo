@@ -1,10 +1,10 @@
 const { safeCreateObject, safeInsertNode, safeDel, safeRemoveNode } = require("./atomic");
 const { getDirectoryHeadKey, getDirectoryMetaKey } = require("./keys");
 
-const isBucketEmpty = async (db, username, bucketName) => {
+const isBucketEmpty = async (db, scopeId, bucketName) => {
   let rootHead;
   try {
-    rootHead = await db.getObject(getDirectoryHeadKey(username, bucketName, '/'));
+    rootHead = await db.getObject(getDirectoryHeadKey(scopeId, bucketName, '/'));
   } catch (err) {
     if (err.notFound) {
       return true;
@@ -45,12 +45,12 @@ const getLastDirectoryNode = async (db, node) => {
   return await getLastDirectoryNode(db, next);
 }
 
-const recursiveCheckParent = async (db, username, bucketName, dir) => {
+const recursiveCheckParent = async (db, scopeId, bucketName, dir) => {
   if (dir === '/') {
     return;
   }
   // try to get dir meta
-  const dirMetaKey = getDirectoryMetaKey(username, bucketName, dir);
+  const dirMetaKey = getDirectoryMetaKey(scopeId, bucketName, dir);
   if (await db.hasObject(dirMetaKey)) {
     // if meta of current dir exists, meta of parent should exist too.
     return;
@@ -58,7 +58,7 @@ const recursiveCheckParent = async (db, username, bucketName, dir) => {
   // if not exist, create the meta and add it to parent dir
   // get head node of parent dir from db;
   const parentDir = getDirectoryPath(dir);
-  const parentDirHeadKey = getDirectoryHeadKey(username, bucketName, parentDir);
+  const parentDirHeadKey = getDirectoryHeadKey(scopeId, bucketName, parentDir);
   // parent dir head node does not exist, create it
   if (!await db.hasObject(parentDirHeadKey)) {
     await safeCreateObject(db, parentDirHeadKey, {
@@ -75,15 +75,15 @@ const recursiveCheckParent = async (db, username, bucketName, dir) => {
   };
   await safeInsertNode(db, parentDirHeadKey, dirMetaKey, meta);
   // recursive check
-  return await recursiveCheckParent(db, username, bucketName, parentDir);
+  return await recursiveCheckParent(db, scopeId, bucketName, parentDir);
 }
 
-const recursiveCheckEmpty = async (db, username, bucketName, dir) => {
+const recursiveCheckEmpty = async (db, scopeId, bucketName, dir) => {
   if (dir === '/') {
     return;
   }
-  const dirHeadKey = getDirectoryHeadKey(username, bucketName, dir);
-  const dirMetaKey = getDirectoryMetaKey(username, bucketName, dir);
+  const dirHeadKey = getDirectoryHeadKey(scopeId, bucketName, dir);
+  const dirMetaKey = getDirectoryMetaKey(scopeId, bucketName, dir);
   const dirHeadNode = await db.getObject(dirHeadKey);
   if (dirHeadNode.next) {
     return;
@@ -100,7 +100,7 @@ const recursiveCheckEmpty = async (db, username, bucketName, dir) => {
     throw err;
   }
   const parentDir = getDirectoryPath(dir);
-  return await recursiveCheckEmpty(db, username, bucketName, parentDir);
+  return await recursiveCheckEmpty(db, scopeId, bucketName, parentDir);
 }
 
 module.exports = {
