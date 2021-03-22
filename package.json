@@ -12,6 +12,9 @@
     "scripts",
     "src"
   ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "start": "cross-env NODE_ENV=prod node ./server.js",
     "dev": "cross-env NODE_ENV=dev DB_ENV=prod nodemon ./server.js",
