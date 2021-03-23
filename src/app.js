@@ -37,6 +37,7 @@ function initServer() {
       multipart: true,
       formidable: {
         maxFileSize: this.config.maxFileSize || 100 * 1024 * 1024,
+        hash: 'md5',
       },
     })
   );
