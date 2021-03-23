@@ -221,7 +221,12 @@ function collectPlugins() {
 
   Object.keys(pluginsConfig).forEach((pluginName, index) => {
     this.logger.setPrefix(pluginName);
-    const { package: packageName } = pluginsConfig[pluginName];
+    const { package: packageName, enable } = pluginsConfig[pluginName];
+    if (enable === false) {
+      // only when enable is false, skip it
+      this.logger.warn(`${pluginName} has been disabled in your configuration, skipped.`);
+      return;
+    }
     if (!packageName) {
       this.logger.warn(`Package name of plugin was not set.`);
       return;
