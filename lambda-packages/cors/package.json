@@ -1,0 +1,11 @@
+{
+  "name": "@tigojs/lambda-cors",
+  "version": "0.1.0",
+  "description": "CORS helper for tigo lambda",
+  "main": "main.js",
+  "author": "BackRunner",
+  "license": "MIT",
+  "dependencies": {
+    "@koa/cors": "^3.1.0"
+  }
+}
