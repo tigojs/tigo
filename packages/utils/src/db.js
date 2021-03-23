@@ -88,6 +88,7 @@ function extendLevelDb(db) {
     }
     return value;
   }
+  return db;
 }
 
 function getTablePrefix(app) {
