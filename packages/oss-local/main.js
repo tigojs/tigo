@@ -261,6 +261,7 @@ class LocalStorageEngine {
     // remove meta node first
     await safeRemoveNode(this.kv, metaKey);
     // unlink file
+    // TODO: allow to save all the files and its hash
     const filePath = path.resolve(this.fileStoragePath, `./${meta.file}`);
     if (fs.existsSync(filePath)) {
       await fsPromise.unlink(filePath);

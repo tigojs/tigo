@@ -67,11 +67,11 @@ class OssController extends BaseController {
         apiAccess: true,
         target: this.handleRemoveObject,
       },
-      '/oss/checkHash': {
+      '/oss/instantlyPutObject': {
         type: 'post',
         auth: true,
         apiAccess: true,
-        target: this.handleCheckHash,
+        target: this.handleInstantlyPutObject,
       },
     };
   }
@@ -364,7 +364,7 @@ class OssController extends BaseController {
     }
     ctx.body = successResponse(null, '删除成功');
   }
-  async handleCheckHash(ctx) {
+  async handleInstantlyPutObject(ctx) {
     ctx.verifyParams({
       bucketName: {
         type: 'string',
