@@ -254,17 +254,18 @@ class LocalStorageEngine {
       err.notFound = true;
       throw err;
     }
-    if (meta.hash) {
+    if (meta.hash && !this.config.keepFile) {
       // remove hash related pairs
       await this.kv.del(getHash2FileIdKey(meta.hash));
     }
     // remove meta node first
     await safeRemoveNode(this.kv, metaKey);
     // unlink file
-    // TODO: allow to save all the files and its hash
-    const filePath = path.resolve(this.fileStoragePath, `./${meta.file}`);
-    if (fs.existsSync(filePath)) {
-      await fsPromise.unlink(filePath);
+    if (!this.config.keepFile) {
+      const filePath = path.resolve(this.fileStoragePath, `./${meta.file}`);
+      if (fs.existsSync(filePath)) {
+        await fsPromise.unlink(filePath);
+      }
     }
     // recursive check directory
     await recursiveCheckEmpty(this.kv, scopeId, bucketName, getDirectoryPath(key));
