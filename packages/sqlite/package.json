@@ -9,5 +9,10 @@
     "@tigojs/utils": "^0.1.13",
     "sequelize": "^6.5.0",
     "sqlite3": "^5.0.2"
+  },
+  "tigo": {
+    "scripts": {
+      "postInstall": "scripts/postInstall.js"
+    }
   }
 }
