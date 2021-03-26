@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/oss",
-  "version": "0.1.6",
+  "version": "0.1.12",
   "description": "OSS plugin for tigo",
   "main": "main.js",
   "scripts": {
@@ -12,5 +12,10 @@
     "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.1.13",
     "lru-cache": "^6.0.0"
+  },
+  "tigo": {
+    "scripts": {
+      "postInstall": "scripts/postInstall.js"
+    }
   }
 }
