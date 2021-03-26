@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/utils",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Utils for tigo.",
   "main": "main.js",
   "author": "BackRunner",
