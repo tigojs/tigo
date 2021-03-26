@@ -5,6 +5,8 @@ const { pluginPackageExisted, getPluginNameByPackage } = require('./plugins');
 const { registerController } = require('./controller');
 const { MEMO_EXT_PATTERN, MEMO_BUFFER_EXT_PATTERN } = require('../constants/pattern');
 
+const PRIORITY_OFFSET = 10000;
+
 function collectController(dirPath) {
   const controller = {};
   if (!dirPath) {
@@ -22,8 +24,7 @@ function collectController(dirPath) {
       const Controller = require(filePath);
       if (!Controller) {
         this.logger.warn(`Reading controller script [${filename}] error, object is empty.`);
-        killProcess.call(this, 'controllerCollectError');
-        return;
+        return killProcess.call(this, 'controllerCollectError');
       }
       const instance = new Controller(this);
       instance._tigoName = path.basename(filePath, path.extname(filePath));
@@ -32,7 +33,7 @@ function collectController(dirPath) {
     } catch (err) {
       this.logger.error(`Reading controller script [${filename}] error.`);
       this.logger.error(err);
-      killProcess.call(this, 'controllerCollectError');
+      return killProcess.call(this, 'controllerCollectError');
     }
   });
   if (Object.keys(controller).length > 0 && this.controller) {
@@ -55,15 +56,14 @@ function collectService(dirPath) {
       const instance = new Service(this);
       if (!instance) {
         this.logger.error(`Reading service script [${filename}] error, object is empty.`);
-        killProcess.call(this, 'serviceCollectError');
-        return;
+        return killProcess.call(this, 'serviceCollectError');
       }
       instance._tigoName = path.basename(filePath, path.extname(filePath));
       services[instance._tigoName] = instance;
     } catch (err) {
       this.logger.error(`Reading service script [${filename}] error.`);
       this.logger.error(err);
-      killProcess.call(this, 'serviceCollectError');
+      return killProcess.call(this, 'serviceCollectError');
     }
   });
   return services;
@@ -76,14 +76,12 @@ function collectModel(dirPath, e) {
   const engine = typeof e === 'string' ? this.dbEngine.sql[e] : e;
   if (!engine || typeof engine !== 'object') {
     this.logger.error(`Database engine is not found.`);
-    killProcess.call(this, 'modelCollectError');
-    return;
+    return killProcess.call(this, 'modelCollectError');
   }
 
   if (!fs.existsSync(dirPath)) {
     this.logger.error(`Model directory [${dirPath}] does not exist.`);
-    killProcess.call(this, 'modelCollectError');
-    return;
+    return killProcess.call(this, 'modelCollectError');
   }
 
   const files = fs.readdirSync(dirPath);
@@ -93,21 +91,19 @@ function collectModel(dirPath, e) {
       const defineFunc = require(filePath);
       if (!defineFunc) {
         this.logger.error(`Reading model script [${filename}] error, function is empty.`);
-        killProcess.call(this, 'modelCollectError');
-        return;
+        return killProcess.call(this, 'modelCollectError');
       }
       const instance = defineFunc.call(null, this, engine);
       if (!instance) {
         this.logger.error(`Create model instance [${filename}] failed.`);
-        killProcess.call(this, 'modelCollectError');
-        return;
+        return killProcess.call(this, 'modelCollectError');
       }
       instance._tigoName = path.basename(filePath, path.extname(filePath));
       models[instance._tigoName] = instance;
     } catch (err) {
       this.logger.error('Collecting model failed.');
       this.logger.error(err);
-      killProcess.call(this, 'modelCollectError');
+      return killProcess.call(this, 'modelCollectError');
     }
   });
 
@@ -127,14 +123,13 @@ function collectMiddleware(dirPath) {
       const middleware = require(filePath);
       if (!middleware) {
         this.logger.error(`Reading middleware script [${filename}] error, object is empty.`);
-        killProcess.call(this, 'middlewareCollectError');
-        return;
+        return killProcess.call(this, 'middlewareCollectError');
       }
       middlewares.push(middleware);
     } catch (err) {
       this.logger.error(`Something was wrong when collecting middleware [${filename}]`);
       this.logger.error(err);
-      killProcess.call(this, 'middlewareCollectError');
+      return killProcess.call(this, 'middlewareCollectError');
     }
   });
   // middleware priority: higher first
@@ -241,7 +236,7 @@ function collectPlugins() {
     } catch (err) {
       this.logger.error(`Import plugin failed.`);
       this.logger.error(err);
-      killProcess.call(this, 'pluginCollectError');
+      return killProcess.call(this, 'pluginCollectError');
     }
     if (!plugins[pluginName].name) {
       plugins[pluginName].name = pluginName;
@@ -250,7 +245,11 @@ function collectPlugins() {
       plugins[pluginName].packageName = packageName;
     }
     // plugins priority: lower first
-    plugins[pluginName].priority = (index + 1) * 100;
+    if (plugins[pluginName].type === 'dbEngine') {
+      plugins[pluginName].priority = (index + 1) * 100;
+    } else {
+      plugins[pluginName].priority = PRIORITY_OFFSET + (index + 1) * 100;
+    }
     plugins[pluginName].config = {
       ...plugins[pluginName].config,
       ...pluginsConfig[pluginName].config,
@@ -283,7 +282,7 @@ function collectPluginDependencies({ pluginsConfig, plugins, plugin, pluginName,
     } else {
       this.logger.error(`Plugin contains contains an unrecognized dependency.`);
       this.logger.error(err);
-      killProcess.call(this, 'pluginCollectError');
+      return killProcess.call(this, 'pluginCollectError');
     }
     const priority = plugin.priority - dependencies.length + index;
     const dependencyName = getPluginNameByPackage(pluginsConfig, packageName) || packageName.replace('@tigojs/', '');
@@ -305,7 +304,7 @@ function collectPluginDependencies({ pluginsConfig, plugins, plugin, pluginName,
       // load plugin dependency err
       this.logger.error(`Load dependency [${packageName}] failed.`);
       this.logger.error(err);
-      killProcess.call(this, 'pluginCollectError');
+      return killProcess.call(this, 'pluginCollectError');
     }
     if (!plugins[dependencyName].name) {
       plugins[dependencyName].name = dependencyName;
