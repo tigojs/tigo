@@ -67,6 +67,12 @@ class OssController extends BaseController {
         apiAccess: true,
         target: this.handleRemoveObject,
       },
+      '/oss/instantlyPutObject': {
+        type: 'post',
+        auth: true,
+        apiAccess: true,
+        target: this.handleInstantlyPutObject,
+      },
     };
   }
   async handlePublicGet(ctx) {
@@ -357,6 +363,54 @@ class OssController extends BaseController {
       ctx.throw(500, '出现错误，删除失败');
     }
     ctx.body = successResponse(null, '删除成功');
+  }
+  async handleInstantlyPutObject(ctx) {
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
+      key: {
+        type: 'string',
+        required: true,
+      },
+      force: {
+        type: 'boolean',
+        required: true,
+      },
+      hash: {
+        type: 'string',
+        required: true,
+      },
+      meta: {
+        type: 'object',
+        required: true,
+      },
+    });
+    const { bucketName, key, force, hash, meta } = ctx.request.body;
+    if (!await checkBucketExists(ctx, ctx.state.user.scopeId, bucketName)) {
+      ctx.throw(404, 'Bucket不存在');
+    }
+    try {
+      await ctx.tigo.oss.engine.putObject({
+        scopeId: ctx.state.user.scopeId,
+        bucketName,
+        key,
+        force,
+        hash,
+        meta,
+      });
+    } catch (err) {
+      if (err.duplicated) {
+        ctx.throw(403, 'Key已存在');
+      }
+      if (err.hashNotFound) {
+        ctx.throw(403, '找不到该Hash');
+      }
+      ctx.logger.error('Put object failed.', err);
+      ctx.throw(500, '出现错误，添加失败');
+    }
+    ctx.body = successResponse(null, '添加成功');
   }
 }
 

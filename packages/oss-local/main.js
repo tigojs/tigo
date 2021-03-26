@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const fsPromise = require('fs/promises');
 const { safePush, safeRemove, safeCreateObject, safeInsertNode, safeRemoveNode, safeMergeObject } = require('./utils/atomic');
-const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMetaKey, getBucketPolicyKey, getBucketPolicyCacheKey } = require('./utils/keys');
+const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMetaKey, getBucketPolicyKey, getBucketPolicyCacheKey, getHash2FileIdKey, getFileId2HashKey } = require('./utils/keys');
 const { isBucketEmpty, getDirectoryPath, getLastDirectoryNode, recursiveCheckParent, recursiveCheckEmpty } = require('./utils/bucket');
 const { v4: uuidv4 } = require('uuid');
 const LRUCache = require('lru-cache');
@@ -157,7 +157,7 @@ class LocalStorageEngine {
     });
     return meta;
   }
-  async putObject({ scopeId, bucketName, key, file, force }) {
+  async putObject({ scopeId, bucketName, key, file, force, hash, meta }) {
     const dirPath = getDirectoryPath(key);
 
     try {
@@ -166,14 +166,61 @@ class LocalStorageEngine {
       throw err;
     }
 
-    // write file to storage path
-    const fileId = uuidv4();
-    const dest = path.resolve(this.fileStoragePath, `./${fileId}`);
-    await fsPromise.copyFile(file.path, dest);
-    await fsPromise.unlink(file.path);
+    let fileId;
+    let hashExisted = false;
+
+    if (hash) {
+      // check hash
+      try {
+        fileId = await this.kv.get(getHash2FileIdKey(hash));
+      } catch (err) {
+        if (err.notFound) {
+          const err = new Error('Hash is not in the database.');
+          err.hashNotFound = true;
+          throw err;
+        } else {
+          throw err;
+        }
+      }
+      hashExisted = true;
+    } else {
+      // write file to storage path
+      fileId = uuidv4();
+      const dest = path.resolve(this.fileStoragePath, `./${fileId}`);
+      await fsPromise.copyFile(file.path, dest);
+      await fsPromise.unlink(file.path);
+      // record hash to the file
+      if (file.hash) {
+        await this.kv.put(getHash2FileIdKey(file.hash), fileId);
+      }
+    }
 
     // check if key exists
     const metaKey = getObjectMetaKey(scopeId, bucketName, key);
+    let fileMeta = {
+      key,
+      name: key.replace(new RegExp(`${dirPath}\/?`), ''),
+      file: fileId,
+      isDirectory: false,
+    }
+    if (hashExisted) {
+      if (!meta) {
+        throw new Error('Meta is not found.');
+      }
+      fileMeta = {
+        ...fileMeta,
+        ...meta,
+        hash,
+      };
+    } else {
+      fileMeta = {
+        ...fileMeta,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModifiedDate,
+        hash: file.hash,
+      }
+    }
     const storedMeta = await this.kv.getObject(metaKey);
     if (storedMeta) {
       if (!force) {
@@ -182,14 +229,7 @@ class LocalStorageEngine {
         throw err;
       }
       // put new meta to db
-      await safeMergeObject(this.kv, metaKey, {
-        name: key.replace(new RegExp(`${dirPath}\/?`), ''),
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModifiedDate,
-        hash: file.hash,
-        file: fileId,
-      });
+      await safeMergeObject(this.kv, metaKey, fileMeta);
     } else {
       // get last dir node (or last node)
       const dirHeadKey = getDirectoryHeadKey(scopeId, bucketName, dirPath);
@@ -202,18 +242,8 @@ class LocalStorageEngine {
       }
       const lastDirNode = await getLastDirectoryNode(this.kv, dirHeadKey);
       const lastDirKey = lastDirNode.isHead ? dirHeadKey : getDirectoryMetaKey(scopeId, bucketName, lastDirNode.key);
-      const meta = {
-        key,
-        name: key.replace(new RegExp(`${dirPath}\/?`), ''),
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModifiedDate,
-        hash: file.hash,
-        file: fileId,
-        isDirectory: false,
-      };
       // insert meta
-      await safeInsertNode(this.kv, lastDirKey, metaKey, meta);
+      await safeInsertNode(this.kv, lastDirKey, metaKey, fileMeta);
     }
   }
   async removeObject({ scopeId, bucketName, key }) {
@@ -224,12 +254,18 @@ class LocalStorageEngine {
       err.notFound = true;
       throw err;
     }
+    if (meta.hash && !this.config.keepFile) {
+      // remove hash related pairs
+      await this.kv.del(getHash2FileIdKey(meta.hash));
+    }
     // remove meta node first
     await safeRemoveNode(this.kv, metaKey);
     // unlink file
-    const filePath = path.resolve(this.fileStoragePath, `./${meta.file}`);
-    if (fs.existsSync(filePath)) {
-      await fsPromise.unlink(filePath);
+    if (!this.config.keepFile) {
+      const filePath = path.resolve(this.fileStoragePath, `./${meta.file}`);
+      if (fs.existsSync(filePath)) {
+        await fsPromise.unlink(filePath);
+      }
     }
     // recursive check directory
     await recursiveCheckEmpty(this.kv, scopeId, bucketName, getDirectoryPath(key));
