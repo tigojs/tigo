@@ -82,7 +82,7 @@ function initServer() {
   middlewares.forEach((middleware) => {
     if (!middleware) {
       this.logger.error(`Cannot accept an empty middleware.`);
-      killProcess.call(this, 'middlewareCollectError');
+      return killProcess.call(this, 'middlewareCollectError');
     }
     const func = middleware.install(this);
     if (!func || typeof func !== 'function') {
