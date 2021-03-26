@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/fepanel",
-  "version": "0.1.5",
+  "version": "0.1.9",
   "description": "Front-end panel intergration for tigo.",
   "main": "main.js",
   "author": "BackRunner",
@@ -8,5 +8,10 @@
   "dependencies": {
     "@tigojs/utils": "^0.1.13",
     "regex-go": "^0.1.1"
+  },
+  "tigo": {
+    "scripts": {
+      "postInstall": "scripts/postInstall.js"
+    }
   }
 }

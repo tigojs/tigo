@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/auth",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Authentication plugin for tigo",
   "main": "main.js",
   "author": "BackRunner",
@@ -14,5 +14,10 @@
     "jsonwebtoken": "^8.5.1",
     "lru-cache": "^6.0.0",
     "uuid": "^8.3.2"
+  },
+  "tigo": {
+    "scripts": {
+      "postInstall": "scripts/postInstall.js"
+    }
   }
 }

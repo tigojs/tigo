@@ -55,7 +55,6 @@ const postInstall = async function () {
   installedPlugins.forEach((pluginName) => {
     const plugin = this.rc.content.plugins[pluginName];
     if (plugin.package === '@tigojs/oss') {
-      // set engine
       if (!plugin.config) {
         plugin.config = {};
       }
@@ -64,11 +63,11 @@ const postInstall = async function () {
           engine: enginePkgName,
         },
       });
+      this.rc.write(this.rc.status, this.rc.content);
       this.logger.info('Runtime config has been updated.');
       return;
     }
   });
-  this.rc.write(this.rc.status, this.rc.content);
   this.logger.info('Engine installed.');
 };
 
