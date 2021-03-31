@@ -79,7 +79,12 @@ function registerErrorHandler(app) {
     ctx.status = err.status || 500;
     ctx.set(err.headers);
 
-    if (ctx.headers['origin'] || ctx.headers['x-requested-with']) {
+    const types = ['html', 'json', 'text'];
+    let type = ctx.accpets(types);
+    if (!types.includes(type)) {
+      type = 'json';
+    }
+    if (type === 'json' || type === 'text') {
       ctx.set('Content-Type', 'application/json');
       switch (ctx.status) {
         default:
