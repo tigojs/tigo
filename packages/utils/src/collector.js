@@ -267,6 +267,23 @@ function collectPlugins() {
   return plugins;
 }
 
+function reorderPluginDependenciesPriority({ pluginsConfig, plugins, plugin }) {
+  if (
+    !plugin.dependencies ||
+    !plugin.dependencies.length ||
+    !Array.isArray(plugins.dependencies)
+  ) {
+    return;
+  }
+  plugin.dependencies.forEach((packageName, index) => {
+    const dependencyName = getPluginNameByPackage(pluginsConfig, packageName);
+    if (plugins[dependencyName].priority < plugin.priority) {
+      return;
+    }
+    plugins[dependencyName].priority = plugin.priorityBase - plugin.dependencies.length + index;
+  });
+}
+
 function collectPluginDependencies({ pluginsConfig, plugins, plugin, pluginName, dependencies }) {
   if (!dependencies || !Array.isArray(dependencies)) {
     return;
@@ -284,11 +301,15 @@ function collectPluginDependencies({ pluginsConfig, plugins, plugin, pluginName,
       this.logger.error(err);
       return killProcess.call(this, 'pluginCollectError');
     }
-    const priority = plugin.priority - dependencies.length + index;
+    const priority = (plugin.priorityBase || plugin.priority) - dependencies.length + index;
     const dependencyName = getPluginNameByPackage(pluginsConfig, packageName) || packageName.replace('@tigojs/', '');
     // check if imported
     if (pluginPackageExisted(plugins, packageName)) {
-      plugins[dependencyName].priority = priority;
+      if (plugins[dependencyName].priority && plugins[dependencyName].priority >= plugin.priority) {
+        plugins[dependencyName].priority = priority;
+        plugins[dependencyName].priorityBase = plugin.priority - dependencies.length;
+      }
+      reorderPluginDependenciesPriority({ pluginsConfig, plugins, plugin: plugins[dependencyName] });
       return;
     } else if (isObject && !dependency.allowAutoImport) {
       // if the dependency is only allowed to be imported manually, exit

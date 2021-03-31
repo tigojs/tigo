@@ -51,7 +51,7 @@ class StaticFileController extends BaseController {
   async handleFile(ctx) {
     const { scope, filename } = ctx.params;
     if (!/.+\..+/.test(filename)) {
-      ctx.throw(400, '文件名不正确');
+      ctx.throw(404, '文件名不正确');
     }
     const ext = path.extname(filename).substr(1);
     const base = path.basename(filename, `.${ext}`);
