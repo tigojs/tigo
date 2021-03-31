@@ -18,7 +18,6 @@ function createHttpError(arg, message) {
 function renderErrorPage(
   ctx,
   code = 500,
-  text = 'Unknown Error',
   stack = '',
 ) {
   let template = ctx.static.main.html.errorPage;
@@ -37,9 +36,9 @@ function renderErrorPage(
     }
   }
   const rendered = template.replace(/{{statusCode}}/g, code)
-    .replace(/{{statusText}}/g, text)
-    .replace(/{{stack}}/g, stack)
-    .replace('{{ver}}', ctx.tigo.version);
+    .replace(/{{statusText}}/g, getStatusText(code))
+    .replace(/{{stack}}/g, stack ? escapeHtml(err.stack) : '')
+    .replace(/{{ver}}/g, ctx.tigo.version);
   return rendered;
 }
 
@@ -79,8 +78,13 @@ function registerErrorHandler(app) {
     ctx.status = err.status || 500;
     ctx.set(err.headers);
 
+    // purge stack if status is 404
+    if (err.status === 404) {
+      err.stack = null;
+    }
+
     const types = ['html', 'json', 'text'];
-    let type = ctx.accpets(types);
+    let type = ctx.accepts(types);
     if (!types.includes(type)) {
       type = 'json';
     }
@@ -125,8 +129,7 @@ function registerErrorHandler(app) {
       ctx.body = renderErrorPage(
         ctx,
         err.status,
-        getStatusText(err.status),
-        escapeHtml(err.stack),
+        err.stack,
       );
     }
 
@@ -148,18 +151,7 @@ function registerErrorHandler(app) {
   app.use(async function (ctx, next) {
     await next();
     if (ctx.status === 404) {
-      if (ctx.headers['origin'] || ctx.headers['x-requested-with']) {
-        ctx.set('Content-Type', 'application/json');
-        ctx.body = createHttpError('notFound');
-      } else {
-        ctx.set('Content-Type', 'text/html');
-        ctx.body = renderErrorPage(
-          ctx,
-          404,
-          getStatusText(404)
-        );
-      }
-      ctx.status = 404;
+      ctx.throw(404, 'Page not found');
     }
   });
 }
