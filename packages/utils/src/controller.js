@@ -84,7 +84,7 @@ function registerController(instance) {
         type: 'options',
         info,
       });
-      this.logger.debug(`Registered cors  [${realPath}] of [${instance._tigoName}] controller.`);
+      this.logger.debug(`Registered cors [${realPath}] of [${instance._tigoName}] controller.`);
     }
   });
 }
