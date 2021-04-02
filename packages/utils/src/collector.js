@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const { convertFileSize } = require('size-converter');
 const { killProcess } = require('./process');
 const { pluginPackageExisted, getPluginNameByPackage } = require('./plugins');
 const { registerController } = require('./controller');
@@ -148,13 +149,19 @@ function collectMiddleware(dirPath) {
 function getStaticFile({ path, useMemo = false, ext }) {
   const textMemo = MEMO_EXT_PATTERN.test(ext);
   const bufferMemo = MEMO_BUFFER_EXT_PATTERN.test(ext);
-  const canMemo = textMemo || bufferMemo;
+  const { number: sizeLimit } = convertFileSize(this.config.static.memoMaxSize, 'bytes');
+  const stat = fs.statSync(filePath);
+  const oversized = stat.size > sizeLimit;
+  // extname in the list and not oversized
+  const canMemo = (textMemo || bufferMemo) || !oversized;
+  // not full memory mode and can't be memorized due to size or extname is not listed.
   if (!useMemo || !canMemo) {
     return path;
   }
   if (textMemo) {
     return fs.readFileSync(path, { encoding: 'utf-8' });
   } else {
+    // all things can't be read as text, read it as buffer
     return fs.readFileSync(path);
   }
 }
@@ -162,6 +169,7 @@ function getStaticFile({ path, useMemo = false, ext }) {
 function collectStaticFiles(dirPath, first = true) {
   const staticConfig = {
     memo: false,
+    memoMaxSize: '10MB',
   };
 
   if (this.config?.static) {
@@ -175,7 +183,7 @@ function collectStaticFiles(dirPath, first = true) {
     return statics;
   }
   const { memo: useMemo } = staticConfig;
-  first && this.logger.warn(useMemo ? 'Using memory mode for static files.' : 'Using stream mode for static files.');
+  first && this.logger.warn(useMemo ? 'Using full memorizing mode for static files.' : 'Using paritial memorizing mode for static files.');
 
   const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
@@ -199,7 +207,7 @@ function collectStaticFiles(dirPath, first = true) {
     if (!statics[ext]) {
       statics[ext] = {};
     }
-    statics[ext][base] = getStaticFile({ path: filePath, useMemo, ext });
+    statics[ext][base] = getStaticFile.call(this, { path: filePath, useMemo, ext });
   });
 
   return statics;
