@@ -34,7 +34,6 @@
     "koa-parameter": "^3.0.1",
     "koa-tree-router": "^0.7.0",
     "log4js": "^6.3.0",
-    "lru-cache": "^6.0.0",
     "mime": "^2.5.2"
   },
   "devDependencies": {

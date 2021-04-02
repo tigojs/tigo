@@ -4,7 +4,6 @@ const { convertFileSize } = require('size-converter');
 const { killProcess } = require('./process');
 const { pluginPackageExisted, getPluginNameByPackage } = require('./plugins');
 const { registerController } = require('./controller');
-const { MEMO_EXT_PATTERN, MEMO_BUFFER_EXT_PATTERN } = require('../constants/pattern');
 
 const PRIORITY_OFFSET = 10000;
 
@@ -146,29 +145,25 @@ function collectMiddleware(dirPath) {
   return middlewares;
 }
 
-function getStaticFile({ path, useMemo = false, ext }) {
-  const textMemo = MEMO_EXT_PATTERN.test(ext);
-  const bufferMemo = MEMO_BUFFER_EXT_PATTERN.test(ext);
-  const { number: sizeLimit } = convertFileSize(this.config.static.memoMaxSize, 'bytes');
+function getStaticFile({ filePath, config, fullMemo = false, partialMemo = true }) {
+  const { number: sizeLimit } = convertFileSize(config.memoMaxSize, 'bytes');
+  const ext = path.extname(filePath).toLowerCase().substr(1);
   const stat = fs.statSync(filePath);
   const oversized = stat.size > sizeLimit;
-  // extname in the list and not oversized
-  const canMemo = (textMemo || bufferMemo) || !oversized;
-  // not full memory mode and can't be memorized due to size or extname is not listed.
-  if (!useMemo || !canMemo) {
+  if (
+    (partialMemo || (!fullMemo && !partialMemo)) &&
+    (oversized || (config.whitelist && !config.whitelist.includes(ext)))
+  ) {
     return path;
   }
-  if (textMemo) {
-    return fs.readFileSync(path, { encoding: 'utf-8' });
-  } else {
-    // all things can't be read as text, read it as buffer
-    return fs.readFileSync(path);
-  }
+  // read file as a buffer and cache it.
+  return fs.readFileSync(path);
 }
 
 function collectStaticFiles(dirPath, first = true) {
   const staticConfig = {
-    memo: false,
+    fullMemo: false,
+    partialMemo: true,
     memoMaxSize: '10MB',
   };
 
@@ -182,8 +177,8 @@ function collectStaticFiles(dirPath, first = true) {
     this.logger.warn(`Directory [${dirPath}] does not exist.`);
     return statics;
   }
-  const { memo: useMemo } = staticConfig;
-  first && this.logger.warn(useMemo ? 'Using full memorizing mode for static files.' : 'Using paritial memorizing mode for static files.');
+  const { fullMemo } = staticConfig;
+  first && this.logger.warn(fullMemo ? 'Using full memorizing mode for static files.' : 'Using partial memorizing mode for static files.');
 
   const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
@@ -207,7 +202,7 @@ function collectStaticFiles(dirPath, first = true) {
     if (!statics[ext]) {
       statics[ext] = {};
     }
-    statics[ext][base] = getStaticFile.call(this, { path: filePath, useMemo, ext });
+    statics[ext][base] = getStaticFile.call(this, { filePath, config: staticConfig, fullMemo, partialMemo });
   });
 
   return statics;

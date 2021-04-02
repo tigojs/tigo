@@ -15,7 +15,6 @@ class PluginInfoController extends BaseController {
     };
   }
   async getPluginInfo(ctx) {
-    ctx.set('Cache-Control', 'max-age=3600');
     const plugins = getPublicPluginList(ctx.app);
     ctx.body = successResponse({
       packages: plugins,
