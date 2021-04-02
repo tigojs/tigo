@@ -22,11 +22,11 @@ function renderErrorPage(
 ) {
   let template = ctx.static.main.html.errorPage;
   if (!template) {
-    return;
+    throw new Error('Error page template is missing.');
   }
-  // if not use memo, read error page into memory
-  const useMemo = ctx.tigo.config.static && ctx.tigo.config.static.memo;
-  if (!useMemo) {
+  if (typeof template === 'object') {
+    template = template.content.toString({ encoding: 'utf-8' });
+  } else {
     if (templateCache[template]) {
       template = templateCache[template];
     } else {

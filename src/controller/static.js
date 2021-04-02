@@ -29,9 +29,9 @@ class StaticFileController extends BaseController {
     const file = ctx.static[scope][ext][base];
     ctx.set('Cache-Control', `max-age=${ctx.tigo.config.static?.cacheTtl || 3600}`);
     ctx.set('Content-Type', mime.getType(ext));
-    if (file instanceof Buffer) {
+    if (typeof file === 'object') {
       // file is already in memory
-      ctx.body = file;
+      ctx.body = file.content;
     } else {
       ctx.body = fs.createReadStream(file);
     }

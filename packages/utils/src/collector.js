@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const fsp = require('fs/promises');
 const { convertFileSize } = require('size-converter');
 const { killProcess } = require('./process');
 const { pluginPackageExisted, getPluginNameByPackage } = require('./plugins');
@@ -145,6 +146,15 @@ function collectMiddleware(dirPath) {
   return middlewares;
 }
 
+const createWatch = (filePath, file) => {
+  const watcher = fs.watch(filePath, null, async () => {
+    file.content = await fsp.readFile(filePath);
+  });
+  watcher.on('error', (err) => {
+    this.logger.error(`Failed to watch file ${filePath}`, err);
+  });
+};
+
 function getStaticFile({ filePath, config, fullMemo = false, partialMemo = true }) {
   const { number: sizeLimit } = convertFileSize(config.memoMaxSize, 'bytes');
   const ext = path.extname(filePath).toLowerCase().substr(1);
@@ -154,10 +164,23 @@ function getStaticFile({ filePath, config, fullMemo = false, partialMemo = true 
     (partialMemo || (!fullMemo && !partialMemo)) &&
     (oversized || (config.whitelist && !config.whitelist.includes(ext)))
   ) {
-    return path;
+    return filePath;
   }
+
   // read file as a buffer and cache it.
-  return fs.readFileSync(path);
+  let file;
+  try {
+    file = {
+      content: fs.readFileSync(filePath),
+    };
+  } catch (err) {
+    this.logger.error(`Failed to collect file ${filePath}`, err);
+    return killProcess.call(this, 'staticFilesCollectError');
+  }
+
+  createWatch(filePath, file);
+
+  return file;
 }
 
 function collectStaticFiles(dirPath, first = true) {
@@ -177,7 +200,7 @@ function collectStaticFiles(dirPath, first = true) {
     this.logger.warn(`Directory [${dirPath}] does not exist.`);
     return statics;
   }
-  const { fullMemo } = staticConfig;
+  const { fullMemo, partialMemo } = staticConfig;
   first && this.logger.warn(fullMemo ? 'Using full memorizing mode for static files.' : 'Using partial memorizing mode for static files.');
 
   const files = fs.readdirSync(dirPath);
@@ -202,7 +225,7 @@ function collectStaticFiles(dirPath, first = true) {
     if (!statics[ext]) {
       statics[ext] = {};
     }
-    statics[ext][base] = getStaticFile.call(this, { filePath, config: staticConfig, fullMemo, partialMemo });
+    statics[ext][base] = getStaticFile.call(this, { filePath, config: staticConfig, fullMemo, partialMemo });;
   });
 
   return statics;
