@@ -25,7 +25,7 @@ function renderErrorPage(
     throw new Error('Error page template is missing.');
   }
   if (typeof template === 'object') {
-    template = template.content.toString({ encoding: 'utf-8' });
+    template = template.content.toString();
   } else {
     if (templateCache[template]) {
       template = templateCache[template];
@@ -37,7 +37,7 @@ function renderErrorPage(
   }
   const rendered = template.replace(/{{statusCode}}/g, code)
     .replace(/{{statusText}}/g, getStatusText(code))
-    .replace(/{{stack}}/g, stack ? escapeHtml(err.stack) : '')
+    .replace(/{{stack}}/g, stack ? escapeHtml(stack) : '')
     .replace(/{{ver}}/g, ctx.tigo.version);
   return rendered;
 }
