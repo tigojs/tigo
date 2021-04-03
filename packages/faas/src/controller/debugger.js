@@ -38,7 +38,7 @@ class DebuggerController extends BaseController {
     const { method, headers, values } = ctx.request.body;
     let res;
     if (method === 'post') {
-      res = await superagen
+      res = await superagent
         .post(requestPath)
         .send(values)
         .query({
