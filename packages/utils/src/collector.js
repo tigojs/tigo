@@ -160,8 +160,11 @@ function getStaticFile({ filePath, config, fullMemo = false, partialMemo = true 
   const ext = path.extname(filePath).toLowerCase().substr(1);
   const stat = fs.statSync(filePath);
   const oversized = stat.size > sizeLimit;
+  if (!fullMemo && !partialMemo) {
+    return filePath;
+  }
   if (
-    (partialMemo || (!fullMemo && !partialMemo)) &&
+    partialMemo &&
     (oversized || (config.whitelist && !config.whitelist.includes(ext)))
   ) {
     return filePath;
