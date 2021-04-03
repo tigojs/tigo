@@ -108,7 +108,7 @@ class ScriptService extends BaseService {
     });
     // if env exists, add env to kv db
     if (env) {
-      await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, name), env);
+      await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, name), env || {});
     }
     return script.id;
   }
@@ -172,7 +172,7 @@ class ScriptService extends BaseService {
     const env = await ctx.tigo.faas.storage.get(envKey);
     if (env) {
       await ctx.tigo.faas.storage.del(getStorageKey(envKey));
-      await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, newName), env);
+      await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, newName), env || {});
     }
   }
   async delete(ctx) {
