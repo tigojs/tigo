@@ -21,6 +21,9 @@
     "upgrade:utils": "node ./scripts/upgradeUtils.js",
     "link:packages": "node ./scripts/linkPackages.js",
     "publish:packages": "node ./scripts/publishPackages.js",
+    "publish:lambda-packages": "cross-env PACKAGES_DIR_PATH=\"./lambda-packages\" node ./scripts/publishPackages.js",
+    "publish:packages:force": "cross-env IGNORE_NOTFOUND=true node ./scripts/publishPackages.js",
+    "publish:lambda-packages:force": "cross-env INGORE_NOTFOUND=true PACKAGES_DIR_PATH=\"./lambda-packages\" node ./scripts/publishPackages.js",
     "migrate": "node ./scripts/migrate.js"
   },
   "dependencies": {
