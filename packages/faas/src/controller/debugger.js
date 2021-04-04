@@ -37,22 +37,27 @@ class DebuggerController extends BaseController {
     const requestPath = `http://127.0.0.1:${ctx.tigo.config.server.port}${path}`;
     const { method, headers, values } = ctx.request.body;
     let res;
-    if (method === 'post') {
-      res = await superagent
-        .post(requestPath)
-        .send(values)
-        .query({
-          __tigoDebug: 1,
-        })
-        .set(headers);
-    } else if (method === 'get') {
-      res = await superagent
-        .get(requestPath)
-        .query({
-          ...values,
-          __tigoDebug: 1,
-        })
-        .set(headers);
+    try {
+      if (method === 'post') {
+        res = await superagent
+          .post(requestPath)
+          .send(values)
+          .query({
+            __tigoDebug: 1,
+          })
+          .set(headers);
+      } else if (method === 'get') {
+        res = await superagent
+          .get(requestPath)
+          .query({
+            ...values,
+            __tigoDebug: 1,
+          })
+          .set(headers);
+      }
+    } catch (err) {
+      ctx.throw(500, 'Cannot run the lambda.');
+      ctx.logger.error('Run lambda error.', err);
     }
     ctx.body = successResponse({
       status: res.status,

@@ -35,21 +35,7 @@ const allowContextProps = [
   'acceptsCharsets',
   'acceptsLanguages',
   'get',
-  // response aliases
-  'body',
-  'status',
-  'message',
-  'length',
-  'type',
-  'headerSent',
-  'redirect',
-  'attachment',
-  'set',
-  'append',
-  'remove',
-  'lastModified',
-  'etag',
-]
+];
 
 function createContextProxy(ctx) {
   // proxy
@@ -70,7 +56,7 @@ function createContextProxy(ctx) {
       }
       target[key] = value;
       return true;
-    }
+    },
   };
 
   const proxy = new Proxy(ctx, handler);
