@@ -66,6 +66,12 @@ function registerErrorHandler(app) {
       return;
     }
 
+    if (typeof err === 'string') {
+      err = {
+        message: err,
+      };
+    }
+
     if (this.req) sendToWormhole(this.req);
 
     const ctx = this;
@@ -129,7 +135,6 @@ function registerErrorHandler(app) {
       ctx.body = renderErrorPage(
         ctx,
         err.status,
-        err.stack,
       );
     }
 
