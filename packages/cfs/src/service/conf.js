@@ -9,7 +9,7 @@ const generalCheck = async (ctx, id) => {
   if (!dbItem) {
     ctx.throw(400, '找不到该配置文件');
   }
-  if (dbItem.uid !== uid) {
+  if (dbItem.uid !== ctx.state.user.id) {
     ctx.throw(401, '无权访问');
   }
   return dbItem;
