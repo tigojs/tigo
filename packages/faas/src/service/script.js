@@ -38,8 +38,8 @@ class ScriptService extends BaseService {
     cacheConfig = cacheConfig || {};
     // set cache
     this.cache = new LRU({
-      max: cacheConfig.max || 500,
-      maxAge: cacheConfig.maxAge || 60 * 60 * 1000, // default max age is 1h,
+      max: cacheConfig.max || 100,
+      maxAge: cacheConfig.maxAge || 60 * 1000, // default max age is 1min,
       updateAgeOnGet: true,
       dispose: (_, cached) => {
         cached.eventEmitter = null;
@@ -151,6 +151,9 @@ class ScriptService extends BaseService {
     }
     if (ctx.tigo.oss) {
       vm.freeze(OSS(ctx, this.config.oss), 'OSS');
+    }
+    if (this.kvConfig.enable) {
+      vm.freeze(KV(ctx, this.config.kv), 'KV');
     }
     vm.run(script, `${this.scriptPathPrefix}_${new Date().valueOf()}.js`);
     return { vm, eventEmitter };
