@@ -1,4 +1,6 @@
 const LRUCache = require('lru-cache');
+const wrapper = require('../utils/classWrapper');
+
 const ctx = Symbol('ctx');
 const scopeId = Symbol('scopeId');
 
@@ -12,7 +14,7 @@ class OSS {
     const cacheConfig = config?.cache || {};
     this.cache = new LRUCache({
       max: cacheConfig.max || 100,
-      maxAge: cacheConfig.maxAge || 10,
+      maxAge: cacheConfig.maxAge || 10 * 1000,
       updateAgeOnGet: true,
     });
     context.tigo.oss.events.on('policy-updated', ({ scopeId, policyName }) => {
@@ -87,16 +89,4 @@ class OSS {
   }
 }
 
-const handler = {
-  ownKeys: function (target) {
-    return Reflect.ownKeys(target);
-  },
-};
-
-const createNew = (ctx, config) => {
-  const instance = new OSS(ctx, config);
-  const proxy = new Proxy(instance, handler);
-  return proxy;
-};
-
-module.exports = createNew;
+module.exports = wrapper(OSS);
