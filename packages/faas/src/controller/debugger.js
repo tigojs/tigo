@@ -35,7 +35,11 @@ class DebuggerController extends BaseController {
     const { scopeId } = ctx.state.user;
     const path = `/lambda/${scopeId}/${ctx.request.body.path}`;
     const requestPath = `http://127.0.0.1:${ctx.tigo.config.server.port}${path}`;
-    const { method, headers, values } = ctx.request.body;
+    const { method, headers: userHeaders, values } = ctx.request.body;
+    const headers = {
+      'Accept': 'application/json',
+    };
+    Object.assign(headers, userHeaders);
     let res;
     try {
       if (method === 'post') {
@@ -55,16 +59,20 @@ class DebuggerController extends BaseController {
           })
           .set(headers);
       }
+      ctx.body = successResponse({
+        status: res.status,
+        text: res.text,
+        body: res.body,
+        headers: res.headers,
+      });
     } catch (err) {
-      ctx.throw(500, 'Cannot run the lambda.');
-      ctx.logger.error('Run lambda error.', err);
+      ctx.body = successResponse({
+        status: err.response.status,
+        text: err.response.text,
+        body: err.response.body,
+        headers: err.response.headers,
+      });
     }
-    ctx.body = successResponse({
-      status: res.status,
-      text: res.text,
-      body: res.body,
-      headers: res.headers,
-    });
   }
 }
 
