@@ -1,7 +1,7 @@
 const processError = {
   middlewareCollectError: 100,
   pluginCollectError: 101,
-  singlePageCollectError: 102,
+  staticFilesCollectError: 102,
   controllerCollectError: 103,
   serviceCollectError: 104,
   modelCollectError: 105,

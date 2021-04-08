@@ -22,11 +22,11 @@ function renderErrorPage(
 ) {
   let template = ctx.static.main.html.errorPage;
   if (!template) {
-    return;
+    throw new Error('Error page template is missing.');
   }
-  // if not use memo, read error page into memory
-  const useMemo = ctx.tigo.config.static && ctx.tigo.config.static.memo;
-  if (!useMemo) {
+  if (typeof template === 'object') {
+    template = template.content.toString();
+  } else {
     if (templateCache[template]) {
       template = templateCache[template];
     } else {
@@ -37,7 +37,7 @@ function renderErrorPage(
   }
   const rendered = template.replace(/{{statusCode}}/g, code)
     .replace(/{{statusText}}/g, getStatusText(code))
-    .replace(/{{stack}}/g, stack ? escapeHtml(err.stack) : '')
+    .replace(/{{stack}}/g, stack ? escapeHtml(stack) : '')
     .replace(/{{ver}}/g, ctx.tigo.version);
   return rendered;
 }
@@ -64,6 +64,12 @@ function registerErrorHandler(app) {
     // don't do anything if no error.
     if (err === null) {
       return;
+    }
+
+    if (typeof err === 'string') {
+      err = {
+        message: err,
+      };
     }
 
     if (this.req) sendToWormhole(this.req);
@@ -129,7 +135,6 @@ function registerErrorHandler(app) {
       ctx.body = renderErrorPage(
         ctx,
         err.status,
-        err.stack,
       );
     }
 

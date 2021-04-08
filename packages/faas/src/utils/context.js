@@ -35,38 +35,20 @@ const allowContextProps = [
   'acceptsCharsets',
   'acceptsLanguages',
   'get',
-  // response aliases
-  'body',
-  'status',
-  'message',
-  'length',
-  'type',
-  'headerSent',
-  'redirect',
-  'attachment',
-  'set',
-  'append',
-  'remove',
-  'lastModified',
-  'etag',
-]
+];
 
 function createContextProxy(ctx) {
-  // patch
-  // ctx.path = ctx.path.replace(/\/lambda\/[a-z0-9]+\//, '');
-  // if (ctx.path.includes('/')) {
-  //   ctx.path = ctx.path.substring(ctx.path.indexOf('/'));
-  // } else {
-  //   ctx.path = '/';
-  // }
-  ctx.path = ctx.params.subPath || '/';
   // proxy
   const handler = {
     get: function (target, prop, recevier) {
       if (!allowContextProps.includes(prop)) {
         throw new TypeError('非法访问上下文');
       }
-      return Reflect.get(...arguments);
+      if (prop === 'path') {
+        return ctx.params.subPath || '/';
+      } else {
+        return Reflect.get(...arguments);
+      }
     },
     set: function (target, key, value, receiver) {
       if (!allowContextProps.includes(key)) {
@@ -74,7 +56,7 @@ function createContextProxy(ctx) {
       }
       target[key] = value;
       return true;
-    }
+    },
   };
 
   const proxy = new Proxy(ctx, handler);

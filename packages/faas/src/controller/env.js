@@ -1,6 +1,6 @@
 const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
-const { getStorageKey, getEnvStorageKey } = require('../utils/storage');
+const { getEnvStorageKey } = require('../utils/storage');
 
 const generalCheck = async (ctx, scriptId) => {
   const script = await ctx.model.faas.script.findByPk(scriptId);

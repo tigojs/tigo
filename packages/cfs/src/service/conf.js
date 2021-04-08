@@ -9,7 +9,7 @@ const generalCheck = async (ctx, id) => {
   if (!dbItem) {
     ctx.throw(400, '找不到该配置文件');
   }
-  if (dbItem.uid !== uid) {
+  if (dbItem.uid !== ctx.state.user.id) {
     ctx.throw(401, '无权访问');
   }
   return dbItem;
@@ -103,6 +103,8 @@ class ConfigStorageService extends BaseService {
     // update config file
     const key = `${scopeId}_${formattedType}_${name}`;
     await ctx.tigo.cfs.storage.put(getStorageKey(key), content);
+    // broadcast events
+    ctx.tigo.cfs.events.emit('content-updated', key);
     // flush cache
     this.cache.del(key);
   }
@@ -125,6 +127,8 @@ class ConfigStorageService extends BaseService {
     const content = await ctx.tigo.faas.storage.get(key);
     await ctx.tigo.cfs.storage.del(getStorageKey(key));
     this.cache.del(key);
+    // broadcast events
+    ctx.tigo.cfs.events.emit('content-updated', key);
     await ctx.tigo.cfs.storage.put(getStorageKey(newKey), content);
   }
   async delete(ctx, id) {
@@ -132,6 +136,8 @@ class ConfigStorageService extends BaseService {
     const dbItem = await generalCheck(ctx, id);
     const key = `${scopeId}_${dbItem.type}_${dbItem.name}`;
     await ctx.tigo.cfs.storage.del(getStorageKey(key));
+    // broadcast events
+    ctx.tigo.cfs.events.emit('content-updated', key);
     this.cache.del(key);
     await ctx.model.cfs.conf.destroy({
       where: {

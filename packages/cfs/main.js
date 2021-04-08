@@ -5,6 +5,7 @@ const {
   collectService,
   collectModel,
 } = require('@tigojs/utils');
+const EventEmitter = require('events');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const SERVICE_DIR = path.resolve(__dirname, './src/service');
@@ -70,6 +71,7 @@ const plugin = {
     // set object to app
     const cfs = {
       storage: kvEngine.openDatabase(app, secondArg),
+      events: new EventEmitter(),
     };
     app.tigo.cfs = cfs;
     // collect controller, service and model
