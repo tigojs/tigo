@@ -9,6 +9,8 @@ const { stackFilter } = require('../utils/stackFilter');
 const { getStorageKey, getEnvStorageKey } = require('../utils/storage');
 const allowList = require('../constants/allowList');
 const Response = require('../classes/Response');
+const CFS = require('../classes/CFS');
+const OSS = require('../classes/OSS');
 
 const getScriptContent = (content) => Buffer.from(content, 'base64').toString('utf-8');
 
@@ -25,14 +27,15 @@ const generalCheck = async (ctx, id) => {
 
 class ScriptService extends BaseService {
   constructor(app) {
+    super(app);
     let { config } = app.config.plugins.faas;
     if (!config) {
       app.logger.warn('Cannot find configuration for FaaS plugin, use default options.');
       config = {};
     }
+    this.config = config;
     let { cache: cacheConfig } = config;
     cacheConfig = cacheConfig || {};
-    super(app);
     // set cache
     this.cache = new LRU({
       max: cacheConfig.max || 500,
@@ -49,6 +52,7 @@ class ScriptService extends BaseService {
   async exec(ctx, scopeId, name) {
     const cacheKey = `${scopeId}_${name}`;
     const cached = this.cache.get(cacheKey);
+    const showStack = ctx.query.__tigoDebug === '1';
     let eventEmitter;
     if (cached) {
       eventEmitter = cached.eventEmitter;
@@ -62,21 +66,22 @@ class ScriptService extends BaseService {
         if (err.notFound) {
           ctx.throw(400, '无法找到对应的函数');
         } else {
+          err.stack = showStack ? stackFilter(err.stack) : null;
+          err.fromFaas = true;
           throw err;
         }
       }
     }
-    const showStack = ctx.query.__tigoDebug === '1';
     try {
       await new Promise((resolve, reject) => {
         const wait = setTimeout(() => {
-          reject('The function execution time is above the limit.');
+          reject(new Error('The function execution time is above the limit.'));
         }, this.maxWaitTime * 1000);
         eventEmitter.emit('request', {
           context: createContextProxy(ctx),
           respondWith: (response) => {
             if (!response || !response instanceof Response) {
-              reject('Response is invalid, please check your code.');
+              reject(new Error('Response is invalid, please check your code.'));
             }
             ctx.status = response.status || 200;
             if (response.headers) {
@@ -85,6 +90,10 @@ class ScriptService extends BaseService {
               });
             }
             ctx.body = response.body || '';
+            // set content type when body is a string
+            if (typeof response.body === 'string' && !ctx.headers['content-type']) {
+              ctx.set('Content-Type', 'application/json');
+            }
             clearTimeout(wait);
             resolve();
           },
@@ -137,6 +146,12 @@ class ScriptService extends BaseService {
     vm.freeze(env, 'SCRIPT_ENV');
     vm.freeze(Response, 'Response');
     vm.freeze(fetch, 'fetch');
+    if (ctx.tigo.cfs) {
+      vm.freeze(CFS(ctx, this.config.cfs), 'CFS');
+    }
+    if (ctx.tigo.oss) {
+      vm.freeze(OSS(ctx, this.config.oss), 'OSS');
+    }
     vm.run(script, `${this.scriptPathPrefix}_${new Date().valueOf()}.js`);
     return { vm, eventEmitter };
   }

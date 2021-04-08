@@ -2,6 +2,7 @@ const path = require('path');
 const {
   collectController,
 } = require('@tigojs/utils');
+const EventEmitter = require('events');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 
@@ -22,6 +23,7 @@ const plugin = {
     // set object to app
     const oss = {
       engine,
+      events: new EventEmitter(),
     };
     app.tigo.oss = oss;
     // collect controllers

@@ -187,8 +187,15 @@ class LocalStorageEngine {
       // write file to storage path
       fileId = uuidv4();
       const dest = path.resolve(this.fileStoragePath, `./${fileId}`);
-      await fsPromise.copyFile(file.path, dest);
-      await fsPromise.unlink(file.path);
+      if (Buffer.isBuffer(file)) {
+        await fsPromise.writeFile(dest, file);
+      } else if (typeof file === 'object') {
+        if (!file.path) {
+          throw new Error('Cannot get cached file content from disk.');
+        }
+        await fsPromise.copyFile(file.path, dest);
+        await fsPromise.unlink(file.path);
+      }
       // record hash to the file
       if (file.hash) {
         await this.kv.put(getHash2FileIdKey(file.hash), fileId);
