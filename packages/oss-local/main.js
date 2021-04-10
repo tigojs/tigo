@@ -224,7 +224,7 @@ class LocalStorageEngine {
         ...fileMeta,
         size: file.size,
         type: file.type,
-        lastModified: file.lastModifiedDate,
+        lastModified: file.lastModifiedDate.valueOf(),
         hash: file.hash,
       }
     }
