@@ -38,7 +38,11 @@ class OSS {
       throw new Error('Failed to get the object from OSS.');
     }
   }
+  // file should be a buffer
   async putObject(bucket, key, file, force = false) {
+    if (!Buffer.isBuffer(file)) {
+      throw new Error('File should be a buffer.');
+    }
     let formattedKey = key.startsWith('/') ? key.substr(1) : key;
     try {
       await this[ctx].tigo.oss.engine.putObject({
