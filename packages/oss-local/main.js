@@ -197,7 +197,7 @@ class LocalStorageEngine {
           type = mime.getType(key.substr(dotIdx + 1));
         }
         file = {
-          size: file.length,
+          size: file.byteLength,
           type,
           lastModifiedDate: new Date(),
           hash: null,
