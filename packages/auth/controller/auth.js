@@ -5,8 +5,17 @@ const { createToken, verifyToken } = require('../utils/jwt');
 const isDev = process.env.NODE_ENV === 'dev';
 
 class AuthController extends BaseController {
+  constructor(app) {
+    super(app);
+    this.disableRegister = app.tigo.auth.config.disableRegister;
+  }
   getRoutes() {
     return {
+      '/auth/getConf': {
+        type: 'get',
+        auth: false,
+        target: this.handleGetConf,
+      },
       '/auth/getUserInfo': {
         type: 'get',
         auth: true,
@@ -20,12 +29,18 @@ class AuthController extends BaseController {
       '/auth/register': {
         type: 'post',
         target: this.handleRegister,
+        cond: () => !!this.disableRegister,
       },
       '/auth/refresh': {
         type: 'get',
         target: this.handleRefresh,
       },
     };
+  }
+  async handleGetConf(ctx) {
+    ctx.body = successResponse({
+      disableRegister: this.disableRegister,
+    });
   }
   async handleGetUserInfo(ctx) {
     ctx.body = successResponse({
