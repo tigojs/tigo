@@ -39,7 +39,7 @@ class AuthController extends BaseController {
   }
   async handleGetConf(ctx) {
     ctx.body = successResponse({
-      disableRegister: this.disableRegister,
+      disableRegister: ctx.tigo.auth.config?.disableRegister || false,
     });
   }
   async handleGetUserInfo(ctx) {
