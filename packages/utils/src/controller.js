@@ -3,7 +3,7 @@ const noStoreMiddleware = async (ctx, next) => {
   return await next();
 };
 
-function registerRoute({ path, type, info }) {
+function registerRoute({ path, type, info, instance }) {
   const args = [path];
   if (info.cors !== false) {
     args.push(this.framework.cors);
@@ -17,7 +17,7 @@ function registerRoute({ path, type, info }) {
   if (!info.external) {
     args.push(noStoreMiddleware);
   }
-  args.push(info.target);
+  args.push(info.target.bind(instance));
   this.router[type](...args);
 }
 
@@ -62,6 +62,7 @@ function registerController(instance) {
           path: realPath,
           type,
           info,
+          instance,
         });
         this.logger.debug(`Registered route [${type.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
       });
@@ -74,6 +75,7 @@ function registerController(instance) {
         path: realPath,
         type,
         info,
+        instance,
       });
       this.logger.debug(`Registered route [${type.toUpperCase()}: ${realPath}] of [${instance._tigoName}] controller.`);
     }
@@ -83,6 +85,7 @@ function registerController(instance) {
         path: realPath,
         type: 'options',
         info,
+        instance,
       });
       this.logger.debug(`Registered cors [${realPath}] of [${instance._tigoName}] controller.`);
     }
