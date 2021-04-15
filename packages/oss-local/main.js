@@ -6,6 +6,7 @@ const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMet
 const { isBucketEmpty, getDirectoryPath, getLastDirectoryNode, recursiveCheckParent, recursiveCheckEmpty } = require('./utils/bucket');
 const { v4: uuidv4 } = require('uuid');
 const LRUCache = require('lru-cache');
+const mime = require('mime');
 
 class LocalStorageEngine {
   constructor(app, config) {
@@ -189,6 +190,18 @@ class LocalStorageEngine {
       const dest = path.resolve(this.fileStoragePath, `./${fileId}`);
       if (Buffer.isBuffer(file)) {
         await fsPromise.writeFile(dest, file);
+        // generate meta, reassign file
+        let type;
+        const dotIdx = key.lastIndexOf('.');
+        if (dotIdx >= 0) {
+          type = mime.getType(key.substr(dotIdx + 1));
+        }
+        file = {
+          size: file.byteLength,
+          type,
+          lastModifiedDate: new Date(),
+          hash: null,
+        };
       } else if (typeof file === 'object') {
         if (!file.path) {
           throw new Error('Cannot get cached file content from disk.');
@@ -211,6 +224,7 @@ class LocalStorageEngine {
       isDirectory: false,
     }
     if (hashExisted) {
+      // hash of file already in the db.
       if (!meta) {
         throw new Error('Meta is not found.');
       }
@@ -223,8 +237,8 @@ class LocalStorageEngine {
       fileMeta = {
         ...fileMeta,
         size: file.size,
-        type: file.type,
-        lastModified: file.lastModifiedDate,
+        type: file.type || 'unknown',
+        lastModified: file.lastModifiedDate.valueOf(),
         hash: file.hash,
       }
     }

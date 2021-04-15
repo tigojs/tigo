@@ -1,14 +1,35 @@
 const path = require('path');
 const fs = require('fs');
-const {
-  collectController,
-  collectService,
-  collectModel,
-} = require('@tigojs/utils');
+const { collectController, collectService, collectModel } = require('@tigojs/utils');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const SERVICE_DIR = path.resolve(__dirname, './src/service');
 const MODEL_DIR = path.resolve(__dirname, './src/model');
+
+const getKvOptions = function ({ kvEngine, kvConfig, defaultLocalPath }) {
+  let dbOpts;
+  if (kvEngine.storageType === 'local') {
+    if (kvConfig.storage && kvConfig.storage.path) {
+      if (!fs.existsSync(kvConfig.storage.path)) {
+        throw new Error(`Cannot find the specific storage path [${opts.storage.path}].`);
+      }
+      dbOpts = kvConfig.storage.path;
+    } else {
+      dbOpts = defaultLocalPath;
+      this.logger.warn('Use default storage path.');
+      if (!fs.existsSync(dbOpts)) {
+        fs.mkdirSync(dbOpts, { recursive: true });
+      }
+    }
+  } else {
+    dbOpts = kvConfig.storage;
+  }
+  return dbOpts;
+};
+
+const runDirPath = function (p) {
+  return path.resolve(this.config.runDirPath, p);
+};
 
 const plugin = {
   type: 'module',
@@ -51,28 +72,32 @@ const plugin = {
       app.logger.warn(`Use ${kvEngine.name} for config storage by default.`);
     }
     // open database
-    let secondArg;
-    if (kvEngine.storageType === 'local') {
-      if (opts.storage && opts.storage.path) {
-        if (!fs.existsSync(opts.storage.path)) {
-          throw new Error(`Cannot find the specific storage path [${opts.storage.path}] for cfs.`);
-        }
-        secondArg = opts.storage.path;
-      } else {
-        secondArg = path.resolve(app.config.runDirPath, './faas/storage');
-        app.logger.warn('Use default storage path for cfs.');
-        if (!fs.existsSync(secondArg)) {
-          fs.mkdirSync(secondArg, { recursive: true });
-        }
-      }
-    } else {
-      secondArg = opts.storage.connection;
-    }
-    // set object to app
     const faas = {
-      storage: kvEngine.openDatabase(app, secondArg),
+      storage: kvEngine.openDatabase(
+        app,
+        getKvOptions.call(app, {
+          kvEngine,
+          kvConfig: opts.storage || {},
+          defaultLocalPath: runDirPath.call(app, './faas/storage'),
+        })
+      ),
       allowedRequire: opts.allowedRequire || [],
     };
+    // init lambda kv if enabled
+    const lambdaKvConfig = opts.kv || {};
+    if (lambdaKvConfig.enable) {
+      app.logger.info('Lambda KV is enabled, starting to init lambda KV.');
+      Object.assign(faas, {
+        kvStorage: kvEngine.openDatabase(
+          app,
+          getKvOptions.call(app, {
+            kvEngine,
+            kvConfig: lambdaKvConfig.storage || {},
+            defaultLocalPath: runDirPath.call(app, './faas/kv'),
+          })
+        ),
+      });
+    }
     app.tigo.faas = faas;
     // collect controllers
     const controllers = collectController.call(app, CONTROLLER_DIR);

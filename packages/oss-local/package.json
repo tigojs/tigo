@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/oss-local",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Local storage engine for @tigojs/oss",
   "main": "main.js",
   "scripts": {

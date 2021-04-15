@@ -1,4 +1,5 @@
 const LRUCache = require('lru-cache');
+const wrapper = require('../utils/classWrapper');
 const ctx = Symbol('ctx');
 const scopeId = Symbol('scopeId');
 
@@ -15,7 +16,7 @@ class CFS {
     const cacheConfig = config?.cache || {};
     this.cache = new LRUCache({
       max: cacheConfig.max || 100,
-      maxAge: cacheConfig.maxAge || 10,
+      maxAge: cacheConfig.maxAge || 10 * 1000,
       updateAgeOnGet: true,
     });
     // register event
@@ -58,16 +59,4 @@ class CFS {
   }
 }
 
-const handler = {
-  ownKeys: function (target) {
-    return Reflect.ownKeys(target);
-  },
-};
-
-const createNew = (ctx, config) => {
-  const instance = new CFS(ctx, config);
-  const proxy = new Proxy(instance, handler);
-  return proxy;
-};
-
-module.exports = createNew;
+module.exports = wrapper(CFS);
