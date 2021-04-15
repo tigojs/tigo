@@ -2,6 +2,7 @@ const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
 const { allowedType } = require('../constants/type');
 const mime = require('mime');
+const path = require('path');
 
 class ConfigurationController extends BaseController {
   getRoutes() {
@@ -69,8 +70,8 @@ class ConfigurationController extends BaseController {
       ctx.throw(400, '文件名不正确');
     }
     const type = path.extname(filename);
-    const name = path.basename(filename, ext);
-    const formattedType = type.toLowerCase();
+    const name = path.basename(filename, type);
+    const formattedType = type.toLowerCase().substr(1);
     if (!formattedType || !allowedType.includes(formattedType)) {
       ctx.throw(400, '类型错误');
     }

@@ -1,6 +1,6 @@
 {
   "name": "tigo",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
@@ -8,7 +8,6 @@
     "server.js",
     "nodemon.json",
     "LICENSE",
-    "tools",
     "scripts",
     "src"
   ],
@@ -22,12 +21,15 @@
     "upgrade:utils": "node ./scripts/upgradeUtils.js",
     "link:packages": "node ./scripts/linkPackages.js",
     "publish:packages": "node ./scripts/publishPackages.js",
+    "publish:lambda-packages": "cross-env PACKAGES_DIR_PATH=\"./lambda-packages\" node ./scripts/publishPackages.js",
+    "publish:packages:force": "cross-env IGNORE_NOTFOUND=true node ./scripts/publishPackages.js",
+    "publish:lambda-packages:force": "cross-env INGORE_NOTFOUND=true PACKAGES_DIR_PATH=\"./lambda-packages\" node ./scripts/publishPackages.js",
     "migrate": "node ./scripts/migrate.js"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.1.12",
+    "@tigojs/utils": "^0.2.0",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",
@@ -35,7 +37,6 @@
     "koa-parameter": "^3.0.1",
     "koa-tree-router": "^0.7.0",
     "log4js": "^6.3.0",
-    "lru-cache": "^6.0.0",
     "mime": "^2.5.2"
   },
   "devDependencies": {

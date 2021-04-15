@@ -1,9 +1,12 @@
 const path = require('path');
 const fs = require('fs');
+const fsp = require('fs/promises');
+const { convertFileSize } = require('size-converter');
 const { killProcess } = require('./process');
 const { pluginPackageExisted, getPluginNameByPackage } = require('./plugins');
 const { registerController } = require('./controller');
-const { MEMO_EXT_PATTERN, MEMO_BUFFER_EXT_PATTERN } = require('../constants/pattern');
+
+const PRIORITY_OFFSET = 10000;
 
 function collectController(dirPath) {
   const controller = {};
@@ -22,8 +25,7 @@ function collectController(dirPath) {
       const Controller = require(filePath);
       if (!Controller) {
         this.logger.warn(`Reading controller script [${filename}] error, object is empty.`);
-        killProcess.call(this, 'controllerCollectError');
-        return;
+        return killProcess.call(this, 'controllerCollectError');
       }
       const instance = new Controller(this);
       instance._tigoName = path.basename(filePath, path.extname(filePath));
@@ -32,7 +34,7 @@ function collectController(dirPath) {
     } catch (err) {
       this.logger.error(`Reading controller script [${filename}] error.`);
       this.logger.error(err);
-      killProcess.call(this, 'controllerCollectError');
+      return killProcess.call(this, 'controllerCollectError');
     }
   });
   if (Object.keys(controller).length > 0 && this.controller) {
@@ -55,15 +57,14 @@ function collectService(dirPath) {
       const instance = new Service(this);
       if (!instance) {
         this.logger.error(`Reading service script [${filename}] error, object is empty.`);
-        killProcess.call(this, 'serviceCollectError');
-        return;
+        return killProcess.call(this, 'serviceCollectError');
       }
       instance._tigoName = path.basename(filePath, path.extname(filePath));
       services[instance._tigoName] = instance;
     } catch (err) {
       this.logger.error(`Reading service script [${filename}] error.`);
       this.logger.error(err);
-      killProcess.call(this, 'serviceCollectError');
+      return killProcess.call(this, 'serviceCollectError');
     }
   });
   return services;
@@ -76,14 +77,12 @@ function collectModel(dirPath, e) {
   const engine = typeof e === 'string' ? this.dbEngine.sql[e] : e;
   if (!engine || typeof engine !== 'object') {
     this.logger.error(`Database engine is not found.`);
-    killProcess.call(this, 'modelCollectError');
-    return;
+    return killProcess.call(this, 'modelCollectError');
   }
 
   if (!fs.existsSync(dirPath)) {
     this.logger.error(`Model directory [${dirPath}] does not exist.`);
-    killProcess.call(this, 'modelCollectError');
-    return;
+    return killProcess.call(this, 'modelCollectError');
   }
 
   const files = fs.readdirSync(dirPath);
@@ -93,21 +92,19 @@ function collectModel(dirPath, e) {
       const defineFunc = require(filePath);
       if (!defineFunc) {
         this.logger.error(`Reading model script [${filename}] error, function is empty.`);
-        killProcess.call(this, 'modelCollectError');
-        return;
+        return killProcess.call(this, 'modelCollectError');
       }
       const instance = defineFunc.call(null, this, engine);
       if (!instance) {
         this.logger.error(`Create model instance [${filename}] failed.`);
-        killProcess.call(this, 'modelCollectError');
-        return;
+        return killProcess.call(this, 'modelCollectError');
       }
       instance._tigoName = path.basename(filePath, path.extname(filePath));
       models[instance._tigoName] = instance;
     } catch (err) {
       this.logger.error('Collecting model failed.');
       this.logger.error(err);
-      killProcess.call(this, 'modelCollectError');
+      return killProcess.call(this, 'modelCollectError');
     }
   });
 
@@ -127,14 +124,13 @@ function collectMiddleware(dirPath) {
       const middleware = require(filePath);
       if (!middleware) {
         this.logger.error(`Reading middleware script [${filename}] error, object is empty.`);
-        killProcess.call(this, 'middlewareCollectError');
-        return;
+        return killProcess.call(this, 'middlewareCollectError');
       }
       middlewares.push(middleware);
     } catch (err) {
       this.logger.error(`Something was wrong when collecting middleware [${filename}]`);
       this.logger.error(err);
-      killProcess.call(this, 'middlewareCollectError');
+      return killProcess.call(this, 'middlewareCollectError');
     }
   });
   // middleware priority: higher first
@@ -150,23 +146,51 @@ function collectMiddleware(dirPath) {
   return middlewares;
 }
 
-function getStaticFile({ path, useMemo = false, ext }) {
-  const textMemo = MEMO_EXT_PATTERN.test(ext);
-  const bufferMemo = MEMO_BUFFER_EXT_PATTERN.test(ext);
-  const canMemo = textMemo || bufferMemo;
-  if (!useMemo || !canMemo) {
-    return path;
+const createWatch = (filePath, file) => {
+  const watcher = fs.watch(filePath, null, async () => {
+    file.content = await fsp.readFile(filePath);
+  });
+  watcher.on('error', (err) => {
+    this.logger.error(`Failed to watch file ${filePath}`, err);
+  });
+};
+
+function getStaticFile({ filePath, config, fullMemo = false, partialMemo = true }) {
+  const { number: sizeLimit } = convertFileSize(config.memoMaxSize, 'bytes');
+  const ext = path.extname(filePath).toLowerCase().substr(1);
+  const stat = fs.statSync(filePath);
+  const oversized = stat.size > sizeLimit;
+  if (!fullMemo && !partialMemo) {
+    return filePath;
   }
-  if (textMemo) {
-    return fs.readFileSync(path, { encoding: 'utf-8' });
-  } else {
-    return fs.readFileSync(path);
+  if (
+    partialMemo &&
+    (oversized || (config.whitelist && !config.whitelist.includes(ext)))
+  ) {
+    return filePath;
   }
+
+  // read file as a buffer and cache it.
+  let file;
+  try {
+    file = {
+      content: fs.readFileSync(filePath),
+    };
+  } catch (err) {
+    this.logger.error(`Failed to collect file ${filePath}`, err);
+    return killProcess.call(this, 'staticFilesCollectError');
+  }
+
+  createWatch(filePath, file);
+
+  return file;
 }
 
 function collectStaticFiles(dirPath, first = true) {
   const staticConfig = {
-    memo: false,
+    fullMemo: false,
+    partialMemo: true,
+    memoMaxSize: '10MB',
   };
 
   if (this.config?.static) {
@@ -179,8 +203,8 @@ function collectStaticFiles(dirPath, first = true) {
     this.logger.warn(`Directory [${dirPath}] does not exist.`);
     return statics;
   }
-  const { memo: useMemo } = staticConfig;
-  first && this.logger.warn(useMemo ? 'Using memory mode for static files.' : 'Using stream mode for static files.');
+  const { fullMemo, partialMemo } = staticConfig;
+  first && this.logger.warn(fullMemo ? 'Using full memorizing mode for static files.' : 'Using partial memorizing mode for static files.');
 
   const files = fs.readdirSync(dirPath);
   files.forEach((filename) => {
@@ -204,7 +228,7 @@ function collectStaticFiles(dirPath, first = true) {
     if (!statics[ext]) {
       statics[ext] = {};
     }
-    statics[ext][base] = getStaticFile({ path: filePath, useMemo, ext });
+    statics[ext][base] = getStaticFile.call(this, { filePath, config: staticConfig, fullMemo, partialMemo });;
   });
 
   return statics;
@@ -241,7 +265,7 @@ function collectPlugins() {
     } catch (err) {
       this.logger.error(`Import plugin failed.`);
       this.logger.error(err);
-      killProcess.call(this, 'pluginCollectError');
+      return killProcess.call(this, 'pluginCollectError');
     }
     if (!plugins[pluginName].name) {
       plugins[pluginName].name = pluginName;
@@ -250,7 +274,11 @@ function collectPlugins() {
       plugins[pluginName].packageName = packageName;
     }
     // plugins priority: lower first
-    plugins[pluginName].priority = (index + 1) * 100;
+    if (plugins[pluginName].type === 'dbEngine') {
+      plugins[pluginName].priority = (index + 1) * 100;
+    } else {
+      plugins[pluginName].priority = PRIORITY_OFFSET + (index + 1) * 100;
+    }
     plugins[pluginName].config = {
       ...plugins[pluginName].config,
       ...pluginsConfig[pluginName].config,
@@ -268,6 +296,23 @@ function collectPlugins() {
   return plugins;
 }
 
+function reorderPluginDependenciesPriority({ pluginsConfig, plugins, plugin }) {
+  if (
+    !plugin.dependencies ||
+    !plugin.dependencies.length ||
+    !Array.isArray(plugins.dependencies)
+  ) {
+    return;
+  }
+  plugin.dependencies.forEach((packageName, index) => {
+    const dependencyName = getPluginNameByPackage(pluginsConfig, packageName);
+    if (plugins[dependencyName].priority < plugin.priority) {
+      return;
+    }
+    plugins[dependencyName].priority = plugin.priorityBase - plugin.dependencies.length + index;
+  });
+}
+
 function collectPluginDependencies({ pluginsConfig, plugins, plugin, pluginName, dependencies }) {
   if (!dependencies || !Array.isArray(dependencies)) {
     return;
@@ -283,13 +328,17 @@ function collectPluginDependencies({ pluginsConfig, plugins, plugin, pluginName,
     } else {
       this.logger.error(`Plugin contains contains an unrecognized dependency.`);
       this.logger.error(err);
-      killProcess.call(this, 'pluginCollectError');
+      return killProcess.call(this, 'pluginCollectError');
     }
-    const priority = plugin.priority - dependencies.length + index;
+    const priority = (plugin.priorityBase || plugin.priority) - dependencies.length + index;
     const dependencyName = getPluginNameByPackage(pluginsConfig, packageName) || packageName.replace('@tigojs/', '');
     // check if imported
     if (pluginPackageExisted(plugins, packageName)) {
-      plugins[dependencyName].priority = priority;
+      if (plugins[dependencyName].priority && plugins[dependencyName].priority >= plugin.priority) {
+        plugins[dependencyName].priority = priority;
+        plugins[dependencyName].priorityBase = plugin.priority - dependencies.length;
+      }
+      reorderPluginDependenciesPriority({ pluginsConfig, plugins, plugin: plugins[dependencyName] });
       return;
     } else if (isObject && !dependency.allowAutoImport) {
       // if the dependency is only allowed to be imported manually, exit
@@ -305,7 +354,7 @@ function collectPluginDependencies({ pluginsConfig, plugins, plugin, pluginName,
       // load plugin dependency err
       this.logger.error(`Load dependency [${packageName}] failed.`);
       this.logger.error(err);
-      killProcess.call(this, 'pluginCollectError');
+      return killProcess.call(this, 'pluginCollectError');
     }
     if (!plugins[dependencyName].name) {
       plugins[dependencyName].name = dependencyName;

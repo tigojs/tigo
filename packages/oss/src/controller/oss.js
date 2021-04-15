@@ -3,7 +3,7 @@ const { successResponse } = require('@tigojs/utils');
 
 const checkBucketExists = async (ctx, scopeId, bucketName) => {
   return await ctx.tigo.oss.engine.bucketExists({ scopeId, bucketName });
-}
+};
 
 class OssController extends BaseController {
   getRoutes() {
@@ -29,7 +29,7 @@ class OssController extends BaseController {
         auth: true,
         target: this.handleMakeBucket,
       },
-      '/oss/removeBucket' :{
+      '/oss/removeBucket': {
         type: 'post',
         auth: true,
         target: this.handleRemoveBucket,
@@ -67,6 +67,12 @@ class OssController extends BaseController {
         apiAccess: true,
         target: this.handleRemoveObject,
       },
+      '/oss/instantlyPutObject': {
+        type: 'post',
+        auth: true,
+        apiAccess: true,
+        target: this.handleInstantlyPutObject,
+      },
     };
   }
   async handlePublicGet(ctx) {
@@ -74,7 +80,7 @@ class OssController extends BaseController {
     // validate policy
     const policy = await ctx.tigo.oss.engine.getBucketPolicy({ scopeId, bucketName });
     if (!policy || !policy.public) {
-      ctx.throw(403, '禁止访问')
+      ctx.throw(403, '禁止访问');
     }
     let file;
     try {
@@ -156,7 +162,7 @@ class OssController extends BaseController {
       scopeId: ctx.state.user.scopeId,
       bucketName,
     };
-    if (!await checkBucketExists(ctx, opts.scopeId, opts.bucketName)) {
+    if (!(await checkBucketExists(ctx, opts.scopeId, opts.bucketName))) {
       ctx.throw(404, 'Bucket不存在');
     }
     try {
@@ -202,11 +208,13 @@ class OssController extends BaseController {
       },
     });
     const { bucketName, policy } = ctx.request.body;
+    const { scopeId } = ctx.state.user;
     await ctx.tigo.oss.engine.setBucketPolicy({
-      scopeId: ctx.state.user.scopeId,
+      scopeId,
       bucketName,
       policy,
-    })
+    });
+    ctx.tigo.oss.events.emit('policy-updated', { scopeId, policy });
     ctx.body = successResponse(null, '设置成功');
   }
   async handleListObjects(ctx) {
@@ -236,7 +244,7 @@ class OssController extends BaseController {
       },
     });
     const { bucketName, prefix, startAt, startAtType, pageSize } = ctx.query;
-    if (!await checkBucketExists(ctx, ctx.state.user.scopeId, bucketName)) {
+    if (!(await checkBucketExists(ctx, ctx.state.user.scopeId, bucketName))) {
       ctx.throw(404, 'Bucket不存在');
     }
     // startAtType is required when startAt set
@@ -308,7 +316,7 @@ class OssController extends BaseController {
       },
     });
     const { bucketName, key, force } = ctx.request.body;
-    if (!await checkBucketExists(ctx, ctx.state.user.scopeId, bucketName)) {
+    if (!(await checkBucketExists(ctx, ctx.state.user.scopeId, bucketName))) {
       ctx.throw(404, 'Bucket不存在');
     }
     try {
@@ -340,7 +348,7 @@ class OssController extends BaseController {
       },
     });
     const { bucketName, key } = ctx.request.body;
-    if (!await checkBucketExists(ctx, ctx.state.user.scopeId, bucketName)) {
+    if (!(await checkBucketExists(ctx, ctx.state.user.scopeId, bucketName))) {
       ctx.throw(404, 'Bucket不存在');
     }
     try {
@@ -357,6 +365,54 @@ class OssController extends BaseController {
       ctx.throw(500, '出现错误，删除失败');
     }
     ctx.body = successResponse(null, '删除成功');
+  }
+  async handleInstantlyPutObject(ctx) {
+    ctx.verifyParams({
+      bucketName: {
+        type: 'string',
+        required: true,
+      },
+      key: {
+        type: 'string',
+        required: true,
+      },
+      force: {
+        type: 'boolean',
+        required: true,
+      },
+      hash: {
+        type: 'string',
+        required: true,
+      },
+      meta: {
+        type: 'object',
+        required: true,
+      },
+    });
+    const { bucketName, key, force, hash, meta } = ctx.request.body;
+    if (!(await checkBucketExists(ctx, ctx.state.user.scopeId, bucketName))) {
+      ctx.throw(404, 'Bucket不存在');
+    }
+    try {
+      await ctx.tigo.oss.engine.putObject({
+        scopeId: ctx.state.user.scopeId,
+        bucketName,
+        key,
+        force,
+        hash,
+        meta,
+      });
+    } catch (err) {
+      if (err.duplicated) {
+        ctx.throw(403, 'Key已存在');
+      }
+      if (err.hashNotFound) {
+        ctx.throw(403, '找不到该Hash');
+      }
+      ctx.logger.error('Put object failed.', err);
+      ctx.throw(500, '出现错误，添加失败');
+    }
+    ctx.body = successResponse(null, '添加成功');
   }
 }
 

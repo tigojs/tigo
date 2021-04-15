@@ -5,8 +5,9 @@ const stackFilter = (stack) => {
     }
     return false;
   }).map((str) => {
-    if (str.includes('lambda_userscript')) {
-      return str.replace(/\(.*lambda_userscript_\d+/, '(userscript');
+    const nameMatch = str.match(/lambda_userscript_\d+\.js:(\d)/);
+    if (nameMatch?.length) {
+      return `userscript.js:${nameMatch[1]}`;
     }
     return str;
   }).join('\n');

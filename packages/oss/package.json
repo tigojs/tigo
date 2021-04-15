@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/oss",
-  "version": "0.1.5",
+  "version": "0.1.16",
   "description": "OSS plugin for tigo",
   "main": "main.js",
   "scripts": {
@@ -10,7 +10,12 @@
   "license": "MIT",
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.1.12",
+    "@tigojs/utils": "^0.2.1",
     "lru-cache": "^6.0.0"
+  },
+  "tigo": {
+    "scripts": {
+      "postInstall": "scripts/postInstall.js"
+    }
   }
 }

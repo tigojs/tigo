@@ -29,8 +29,8 @@ const plugin = {
       port: opts.port,
       dialect: 'mysql',
       pool: {
-        max: opts.pool.max || 10,
-        min: opts.pool.min || 10,
+        max: opts.pool.max || 30,
+        min: opts.pool.min || 5,
         acquire: opts.pool.acquire || 30 * 1000,
         idle: opts.pool.idle || 10 * 1000,
       },

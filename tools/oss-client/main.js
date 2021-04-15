@@ -83,12 +83,25 @@ class OSSClient {
       throw new Error(buildInvalidMessage(errs));
     }
     const { bucketName, key, file, force } = args;
-    await this.request
-      .post('/oss/putObject')
-      .field('bucketName', bucketName)
-      .field('key', key)
-      .field('force', force ?? false)
-      .attach('file', file);
+    if (Buffer.isBuffer(file)) {
+      const idx = key.lastIndexOf('/');
+      const name = key.substr(idx + 1);
+      await this.request
+        .post('/oss/putObject')
+        .field('bucketName', bucketName)
+        .field('key', key)
+        .field('force', force ?? false)
+        .attach('file', file, name);
+    } else if (typeof file === 'string') {
+      await this.request
+        .post('/oss/putObject')
+        .field('bucketName', bucketName)
+        .field('key', key)
+        .field('force', force ?? false)
+        .attach('file', file);
+    } else {
+      throw new Error('Type of file is unrecognized.');
+    }
   }
   /**
    * @param {Object} args

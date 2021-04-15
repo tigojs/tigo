@@ -2,7 +2,7 @@ const { verifyToken } = require("../utils/jwt");
 const crypto = require('crypto');
 
 const middleware = async function (ctx, next) {
-  const { secret } = ctx.app.tigo.auth;
+  const { secret, maxTimeDelta } = ctx.tigo.auth;
   if (!ctx.header) {
     ctx.throw(400, '无法读取请求头');
   }
@@ -40,7 +40,7 @@ const middleware = async function (ctx, next) {
     }
     // validate timestamp
     const timestampValue = parseInt(timestamp, 10);
-    const offset = 10 * 1000; // 10s in ms
+    const offset = maxTimeDelta || 10 * 1000; // 10s in ms
     const now = new Date().valueOf();
     if (
       timestampValue < now - offset
