@@ -7,7 +7,7 @@ const isDev = process.env.NODE_ENV === 'dev';
 class AuthController extends BaseController {
   constructor(app) {
     super(app);
-    this.disableRegister = app.tigo.auth.config.disableRegister;
+    this.disableRegister = app.tigo.auth.config?.disableRegister || false;
   }
   getRoutes() {
     return {
@@ -39,7 +39,7 @@ class AuthController extends BaseController {
   }
   async handleGetConf(ctx) {
     ctx.body = successResponse({
-      disableRegister: ctx.tigo.auth.config?.disableRegister || false,
+      disableRegister: this.disableRegister,
     });
   }
   async handleGetUserInfo(ctx) {
