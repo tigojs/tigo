@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/mysql",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "MySQL engine for tigo",
   "main": "main.js",
   "author": "BackRunner",
