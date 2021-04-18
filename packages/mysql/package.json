@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/mysql",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "MySQL engine for tigo",
   "main": "main.js",
   "author": "BackRunner",
@@ -9,5 +9,10 @@
     "@tigojs/utils": "^0.2.1",
     "mysql2": "^2.2.5",
     "sequelize": "^6.5.0"
+  },
+  "tigo": {
+    "scripts": {
+      "postInstall": "scripts/postInstall.js"
+    }
   }
 }
