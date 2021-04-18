@@ -50,25 +50,15 @@ const postInstall = async function () {
   }
   this.logger.info(`Starting to install the engine [${enginePkgName}]...`);
   child_process.execSync(`npm install ${enginePkgName} --save`, { stdio: 'inherit' });
-  // write config to rc
-  const installedPlugins = Object.keys(this.rc.content.plugins);
-  installedPlugins.forEach((pluginName) => {
-    const plugin = this.rc.content.plugins[pluginName];
-    if (plugin.package === '@tigojs/oss') {
-      if (!plugin.config) {
-        plugin.config = {};
-      }
-      Object.assign(plugin.config, {
-        storage: {
-          engine: enginePkgName,
-        },
-      });
-      this.rc.write(this.rc.status, this.rc.content);
-      this.logger.info('Runtime config has been updated.');
-      return;
-    }
-  });
   this.logger.info('Engine installed.');
+  // write config to rc
+  this.updatePluginConfig('@tigojs/oss', (pluginConfig) => {
+    Object.assign(pluginConfig, {
+      storage: {
+        engine: enginePkgName,
+      },
+    });
+  });
 };
 
 module.exports = postInstall;

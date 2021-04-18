@@ -28,21 +28,11 @@ const postInstall = async function () {
       },
     },
   ]);
-  const installedPlugins = Object.keys(this.rc.content.plugins);
-  installedPlugins.forEach((pluginName) => {
-    const plugin = this.rc.content.plugins[pluginName];
-    if (plugin.package === '@tigojs/fepanel') {
-      if (!plugin.config) {
-        plugin.config = {};
-      }
-      Object.assign(plugin.config, {
-        domain: answers.domain,
-        distPath: answers.dist,
-      });
-      this.rc.write(this.rc.status, this.rc.content);
-      this.logger.info('Runtime config has been updated.');
-      return;
-    }
+  this.updatePluginConfig('@tigojs/fepanel', (pluginConfig) => {
+    Object.assign(pluginConfig, {
+      domain: answers.domain,
+      distPath: answers.dist,
+    });
   });
 };
 

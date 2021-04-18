@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/oss",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "OSS plugin for tigo",
   "main": "main.js",
   "scripts": {

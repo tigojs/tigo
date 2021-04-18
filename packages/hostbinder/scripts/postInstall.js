@@ -19,21 +19,11 @@ const postInstall = async function () {
       default: false,
     },
   ]);
-  const installedPlugins = Object.keys(this.rc.content.plugins);
-  installedPlugins.forEach((pluginName) => {
-    const plugin = this.rc.content.plugins[pluginName];
-    if (plugin.package === '@tigojs/hostbinder') {
-      if (!plugin.config) {
-        plugin.config = {};
-      }
-      Object.assign(plugin.config, {
-        leMinimalPort: answers.lePort,
-        unlock: answers.unlock,
-      });
-      this.rc.write(this.rc.status, this.rc.content);
-      this.logger.info('Runtime config has been updated.');
-      return;
-    }
+  this.updatePluginConfig('@tigojs/hostbinder', (pluginConfig) => {
+    Object.assign(pluginConfig, {
+      leMinimalPort: answers.lePort,
+      unlock: answers.unlock,
+    });
   });
 };
 
