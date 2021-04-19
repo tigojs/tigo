@@ -40,8 +40,7 @@ const plugin = {
         freezeTableName: opts.define.freezeTableName || true,
       },
       dialectOptions: {
-        charset: opts.dialect.charset || 'utf8mb4',
-        collate: opts.dialect.collate || 'utf8mb4_unicode_ci',
+        charset: opts.dialect.charset || 'utf8mb4_unicode_ci',
       },
       logging: process.env.DB_ENV === 'dev' ? (msg) => app.logger.debug(msg) : false,
     });
