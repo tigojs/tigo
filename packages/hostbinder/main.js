@@ -4,7 +4,8 @@ const {
   collectController,
   collectModel,
 } = require('@tigojs/utils');
-const redbird = require('@artcodestudio/redbird');
+const redbird = require('@backrunner/redbird');
+const createProxyLogger = require('./src/utils/logger');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const MODEL_DIR = path.resolve(__dirname, './src/model');
@@ -36,8 +37,9 @@ const plugin = {
     const redbirdOpts = {
       port: opts.port || 80,
       xfwd: true,
+      logger: createProxyLogger.call(app),
     };
-    if (opts.ssl !== false) {
+    if (opts.https !== false) {
       let certPath;
       if (opts.certPath) {
         if (fs.existsSync(opts.certPath)) {
@@ -72,7 +74,7 @@ const plugin = {
     const pluginObj = {
       proxy,
       unlocked: !!opts.unlock,
-      useHttps: opts.ssl !== false ? {
+      useHttps: opts.https !== false ? {
         letsencrypt: {
           email: opts.leEmail,
           production: process.env.NODE_ENV !== 'dev',
