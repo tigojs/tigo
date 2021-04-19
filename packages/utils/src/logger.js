@@ -42,7 +42,7 @@ function createLogger() {
       },
     },
     categories: {
-      default: { appenders: ['all', 'errorOnly'], level: 'info' },
+      default: { appenders: ['stdout', 'all', 'errorOnly'], level: 'info' },
       dev: { appenders: ['stdout', 'all', 'errorOnly'], level: 'debug' },
     },
     pm2: loggerConfig.pm2 || false,
