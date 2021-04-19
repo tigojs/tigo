@@ -20,7 +20,7 @@ function renderErrorPage(
   code = 500,
   stack = '',
 ) {
-  let template = ctx.static.main.html.errorPage;
+  let template = ctx.static.main['errorPage.html'];
   if (!template) {
     throw new Error('Error page template is missing.');
   }
