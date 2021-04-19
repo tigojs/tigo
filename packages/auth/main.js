@@ -1,15 +1,15 @@
 const path = require('path');
-const accessVerifier = require('./middleware/accessVerifier');
-const apiRequestFlag = require('./middleware/apiRequestFlag');
+const accessVerifier = require('./src/middleware/accessVerifier');
+const apiRequestFlag = require('./src/middleware/apiRequestFlag');
 const {
   collectController,
   collectService,
   collectModel,
 } = require('@tigojs/utils');
 
-const CONTROLLER_DIR = path.resolve(__dirname, './controller');
-const SERVICE_DIR = path.resolve(__dirname, './service');
-const MODEL_DIR = path.resolve(__dirname, './model');
+const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
+const SERVICE_DIR = path.resolve(__dirname, './src/service');
+const MODEL_DIR = path.resolve(__dirname, './src/model');
 
 const plugin = {
   type: 'basic',

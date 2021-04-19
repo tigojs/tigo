@@ -20,20 +20,10 @@ const doPrompt = async function () {
 
 const postInstall = async function () {
   const answers = await doPrompt.call(this);
-  const installedPlugins = Object.keys(this.rc.content.plugins);
-  installedPlugins.forEach((pluginName) => {
-    const plugin = this.rc.content.plugins[pluginName];
-    if (plugin.package === '@tigojs/auth') {
-      if (!plugin.config) {
-        plugin.config = {};
-      }
-      Object.assign(plugin.config, {
-        secret: answers.secret,
-      });
-      this.rc.write(this.rc.status, this.rc.content);
-      this.logger.info('Runtime config has been updated.');
-      return;
-    }
+  this.updatePluginConfig('@tigojs/auth', (pluginConfig) => {
+    Object.assign(pluginConfig, {
+      secret: answers.secret,
+    });
   });
 };
 

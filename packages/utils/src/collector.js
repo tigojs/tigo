@@ -6,7 +6,8 @@ const { killProcess } = require('./process');
 const { pluginPackageExisted, getPluginNameByPackage } = require('./plugins');
 const { registerController } = require('./controller');
 
-const PRIORITY_OFFSET = 10000;
+const PRIORITY_BASIC_OFFSET = 10000;
+const PRIORITY_OFFSET = 100000;
 
 function collectController(dirPath) {
   const controller = {};
@@ -276,6 +277,8 @@ function collectPlugins() {
     // plugins priority: lower first
     if (plugins[pluginName].type === 'dbEngine') {
       plugins[pluginName].priority = (index + 1) * 100;
+    } else if (plugins[pluginName].type === 'basic') {
+      plugins[pluginName].priority = PRIORITY_BASIC_OFFSET + (index + 1) * 100;
     } else {
       plugins[pluginName].priority = PRIORITY_OFFSET + (index + 1) * 100;
     }
