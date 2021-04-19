@@ -44,8 +44,18 @@ const plugin = {
 		const staticFiles = collectStaticFiles.call(app, opts.distPath);
 		app.static.fepanel = staticFiles;
 		// register proxy
-		const targetPath = `http://127.0.0.1:${app.tigo.config.server.port}/static/fepanel/`;
-    app.tigo.hostbinder.proxy.register(opts.domain, targetPath, { ssl: app.tigo.hostbinder.useHttps });
+		const resolver = function(host, url, req) {
+			const formatted = `${host}${url}`;
+			if (/^tigo\.pwp\.app\/(css|fonts|js)\/.+$/.test(formatted)) {
+				return `http://127.0.0.1:${app.tigo.config.server.port}/static/fepanel/`;
+			} else if (/tigo\.pwp\.app\//.test(formatted)) {
+				return {
+					rewriteTo: `http://127.0.0.1:${app.tigo.config.server.port}/static/fepanel/index.html`,
+				};
+			}
+		}
+		resolver.priority = 100;
+    app.tigo.hostbinder.proxy.addResolver(resolver);
 	},
 };
 
