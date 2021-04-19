@@ -35,10 +35,6 @@ const plugin = {
     // init redbird
     const redbirdOpts = {
       port: opts.port || 80,
-      letsencrypt: {
-        path: certPath,
-        port: opts.leMinimalPort || 24292,
-      },
       xfwd: true,
     };
     if (opts.ssl !== false) {
@@ -60,6 +56,10 @@ const plugin = {
         throw new Error("You should set an email address for let's encrypt.");
       }
       Object.assign(redbirdOpts, {
+        letsencrypt: {
+          path: certPath,
+          port: opts.leMinimalPort || 24292,
+        },
         ssl: {
           http2: opts.http2 !== false ? true : false,
           port: opts.sslPort || 443,
