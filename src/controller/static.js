@@ -9,7 +9,7 @@ class StaticFileController extends BaseController {
   }
   getRoutes() {
     return {
-      '/static/:scope/:filename': {
+      '/static/:scope/*filename': {
         type: 'get',
         target: this.handleFile,
         external: true,
@@ -17,16 +17,19 @@ class StaticFileController extends BaseController {
     };
   }
   async handleFile(ctx) {
-    const { scope, filename } = ctx.params;
+    let { scope, filename } = ctx.params;
+    const slashIdx = filename.lastIndexOf('/');
+    if (slashIdx >= 0) {
+      filename = filename.substr(slashIdx + 1);
+    }
     if (!/.+\..+/.test(filename)) {
       ctx.throw(404, '文件名不正确');
     }
     const ext = path.extname(filename).substr(1);
-    const base = path.basename(filename, `.${ext}`);
-    if (!ctx.static[scope] || !ctx.static[scope][ext] || !ctx.static[scope][ext][base]) {
+    if (!ctx.static[scope] || !ctx.static[scope] || !ctx.static[scope][filename]) {
       ctx.throw(404, '文件未找到');
     }
-    const file = ctx.static[scope][ext][base];
+    const file = ctx.static[scope][filename];
     ctx.set('Cache-Control', `max-age=${ctx.tigo.config.static?.cacheTtl || 3600}`);
     ctx.set('Content-Type', mime.getType(ext));
     if (typeof file === 'object') {

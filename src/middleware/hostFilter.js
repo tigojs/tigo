@@ -13,16 +13,7 @@ const hostFilter = {
     }
     return async function (ctx, next) {
       if (hostname && ctx.hostname !== hostname) {
-        ctx.status = 403;
-        if (ctx.headers['origin'] || ctx.headers['x-requested-with']) {
-          // xhr
-          ctx.set('Content-Type', 'application/json');
-          ctx.body = createHttpError('forbiddenAccess');
-          return;
-        }
-        ctx.set('Content-Type', 'text/html');
-        ctx.body = ctx.static.main.html.forbidden;
-        return;
+        ctx.throw(403, 'Host is not in the whitelist.');
       }
       await next();
     }
