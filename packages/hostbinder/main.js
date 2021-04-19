@@ -42,7 +42,7 @@ const plugin = {
       }
     } else {
       app.logger.warn('Use default cert storage path.');
-      certPath = path.resolve(app.config.runDirPath, './hostbinder/proxy');
+      certPath = path.resolve(app.config.runDirPath, './hostbinder/certs');
       if (!fs.existsSync(certPath)) {
         fs.mkdirSync(certPath, { recursive: true });
       }
@@ -51,7 +51,7 @@ const plugin = {
       port: opts.port || 80,
       letsencrypt: {
         path: certPath,
-        port: opts.leMinimalPort || 12131,
+        port: opts.leMinimalPort || 24292,
         production: process.env.NODE_ENV !== 'dev',
       },
       xfwd: true,
@@ -70,6 +70,7 @@ const plugin = {
     const pluginObj = {
       proxy,
       unlocked: !!opts.unlock,
+      useHttps: opts.ssl !== false,
     };
     app.tigo.hostbinder = pluginObj;
     // collect module files
@@ -84,7 +85,7 @@ const plugin = {
     if (Array.isArray(bindings) && bindings.length) {
       bindings.forEach((item) => {
         const targetPath = `http://127.0.0.1:${app.tigo.config.server.port}${item.target}`;
-        app.tigo.hostbinder.proxy.register(item.domain, targetPath);
+        app.tigo.hostbinder.proxy.register(item.domain, targetPath, { ssl: app.tigo.hostbinder.useHttps });
       });
     }
   }

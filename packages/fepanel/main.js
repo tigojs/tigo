@@ -45,7 +45,7 @@ const plugin = {
 		app.static.fepanel = staticFiles;
 		// register proxy
 		const targetPath = `http://127.0.0.1:${app.tigo.config.server.port}/static/fepanel/`;
-    app.tigo.hostbinder.proxy.register(opts.domain, targetPath);
+    app.tigo.hostbinder.proxy.register(opts.domain, targetPath, { ssl: app.tigo.hostbinder.useHttps });
 	},
 };
 
