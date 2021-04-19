@@ -8,7 +8,7 @@
   "dependencies": {
     "@tigojs/utils": "^0.2.2",
     "mysql2": "^2.2.5",
-    "sequelize": "^6.5.0"
+    "sequelize": "^6.6.2"
   },
   "tigo": {
     "scripts": {

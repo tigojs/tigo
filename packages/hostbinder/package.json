@@ -9,7 +9,7 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@artcodestudio/redbird": "^0.12.0",
+    "@artcodestudio/redbird": "^0.12.1",
     "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.2.2"
   },
