@@ -1,6 +1,13 @@
 {
-  "nodemonConfig": {
-    "ignore": ["tools/*"],
-    "delay": "2000"
-  }
+  "ignore": [
+    ".git",
+    ".history",
+    "tools/**/*",
+    "run/**/*",
+    ".greenlockrc",
+    "greenlock.d",
+    "node_modules/**/node_modules"
+  ],
+  "delay": "2000",
+  "ext": "js,json"
 }
