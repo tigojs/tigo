@@ -1,12 +1,12 @@
 {
   "name": "@tigojs/sqlite",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "description": "Sqlite db engine for tigo",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@tigojs/utils": "^0.2.1",
+    "@tigojs/utils": "^0.2.2",
     "sequelize": "^6.5.0",
     "sqlite3": "^5.0.2"
   },
