@@ -33,30 +33,32 @@ const plugin = {
       app.logger.warn(`Use SQL database engine [${sqlEngine.name}] by default`);
     }
     // init redbird
-    let certPath;
-    if (opts.certPath) {
-      if (fs.existsSync(opts.certPath)) {
-        certPath = opts.certPath;
-      } else {
-        throw new Error('Path to store certs does not exist.');
-      }
-    } else {
-      app.logger.warn('Use default cert storage path.');
-      certPath = path.resolve(app.config.runDirPath, './hostbinder/certs');
-      if (!fs.existsSync(certPath)) {
-        fs.mkdirSync(certPath, { recursive: true });
-      }
-    }
     const redbirdOpts = {
       port: opts.port || 80,
       letsencrypt: {
         path: certPath,
         port: opts.leMinimalPort || 24292,
-        production: process.env.NODE_ENV !== 'dev',
       },
       xfwd: true,
     };
     if (opts.ssl !== false) {
+      let certPath;
+      if (opts.certPath) {
+        if (fs.existsSync(opts.certPath)) {
+          certPath = opts.certPath;
+        } else {
+          throw new Error('Path to store certs does not exist.');
+        }
+      } else {
+        app.logger.warn('Use default cert storage path.');
+        certPath = path.resolve(app.config.runDirPath, './hostbinder/certs');
+        if (!fs.existsSync(certPath)) {
+          fs.mkdirSync(certPath, { recursive: true });
+        }
+      }
+      if (!opts.leEmail) {
+        throw new Error("You should set an email address for let's encrypt.");
+      }
       Object.assign(redbirdOpts, {
         ssl: {
           http2: opts.http2 !== false ? true : false,
@@ -70,7 +72,12 @@ const plugin = {
     const pluginObj = {
       proxy,
       unlocked: !!opts.unlock,
-      useHttps: opts.ssl !== false,
+      useHttps: opts.ssl !== false ? {
+        letsencrypt: {
+          email: opts.leEmail,
+          production: process.env.NODE_ENV !== 'dev',
+        },
+      }: false,
     };
     app.tigo.hostbinder = pluginObj;
     // collect module files
