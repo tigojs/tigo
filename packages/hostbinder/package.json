@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/hostbinder",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "dependencies": {
     "@artcodestudio/redbird": "^0.12.1",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.2.2"
+    "@tigojs/utils": "^0.2.4"
   },
   "tigo": {
     "scripts": {
