@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/fepanel",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Front-end panel intergration for tigo.",
   "main": "main.js",
   "author": "BackRunner",
