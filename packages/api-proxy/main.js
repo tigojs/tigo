@@ -43,7 +43,7 @@ const plugin = {
         if (!targetPath.endsWith('/')) {
           targetPath = `${targetPath}/`;
         }
-        return;
+        return targetPath;
       }
     };
     resolver.priority = 100;
