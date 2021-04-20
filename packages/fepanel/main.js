@@ -57,7 +57,8 @@ const plugin = {
 		resolver.priority = 100;
     app.tigo.hostbinder.proxy.addResolver(resolver);
 		if (app.tigo.hostbinder.useHttps) {
-			app.tigo.hostbinder.proxy.updateCertificates('tigo.pwp.app', ...app.tigo.hostbinder.useHttps);
+			const { email, production } = app.tigo.hostbinder.useHttps.letsencrypt;
+			app.tigo.hostbinder.proxy.updateCertificates('tigo.pwp.app', email, production);
 		}
 	},
 };
