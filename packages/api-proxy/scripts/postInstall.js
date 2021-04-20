@@ -5,13 +5,19 @@ const doPrompt = async function () {
     {
       type: 'input',
       name: 'domain',
-      message: 'Domain that needs to be bound to the internal APIs',
+      message: 'Domain that needs to be bound to the internal APIs:',
       validate: (domain) => {
         if (!isDomain(domain)) {
           return 'Domain is invalid.';
         }
         return true;
       },
+    },
+    {
+      type: 'input',
+      name: 'prefix',
+      message: 'If you want to add a prefix to the APIs, please input it (or just remain empty):',
+      default: '',
     },
   ]);
 
