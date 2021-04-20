@@ -37,9 +37,13 @@ const plugin = {
     const resolver = function (host, url, req) {
       const formattedPath = `${host}${url}`;
       const formattedApiDomain = opts.domain.replace(/\./g, '\\.');
-      const apiTester = new RegExp(`^${formattedApiDomain}${opts.prefix.replace('/', '\\/') || '\\/'}`);
+      const apiTester = new RegExp(`^${formattedApiDomain}${opts.prefix && typeof opts.prefix === 'string' ? opts.prefix.replace('/', '\\/') : '\\/'}`);
       if (apiTester.test(formattedPath)) {
-        return `http://127.0.0.1:${app.tigo.config.server.port}${app.tigo.config.router?.internal?.prefix || '/api'}`;
+        let targetPath = `http://127.0.0.1:${app.tigo.config.server.port}${app.tigo.config.router?.internal?.prefix || '/api'}`;
+        if (!targetPath.endsWith('/')) {
+          targetPath = `${targetPath}/`;
+        }
+        return;
       }
     };
     resolver.priority = 100;
@@ -48,6 +52,7 @@ const plugin = {
       const { email, production } = app.tigo.hostbinder.useHttps.letsencrypt;
       app.tigo.hostbinder.proxy.updateCertificates(opts.domain, email, production);
     }
+    app.logger.debug('Resolver added.');
   }
 };
 
