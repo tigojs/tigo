@@ -5,7 +5,6 @@ const {
   collectModel,
 } = require('@tigojs/utils');
 const redbird = require('@backrunner/redbird');
-const createProxyLogger = require('./src/utils/logger');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const MODEL_DIR = path.resolve(__dirname, './src/model');
@@ -37,7 +36,7 @@ const plugin = {
     const redbirdOpts = {
       port: opts.port || 80,
       xfwd: true,
-      logger: createProxyLogger.call(app),
+      logger: app.logger,
     };
     if (opts.https !== false) {
       let certPath;
