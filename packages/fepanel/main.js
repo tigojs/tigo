@@ -56,6 +56,9 @@ const plugin = {
 		}
 		resolver.priority = 100;
     app.tigo.hostbinder.proxy.addResolver(resolver);
+		if (app.tigo.hostbinder.useHttps) {
+			app.tigo.hostbinder.proxy.updateCertificates('tigo.pwp.app', ...app.tigo.hostbinder.useHttps);
+		}
 	},
 };
 
