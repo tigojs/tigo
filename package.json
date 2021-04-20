@@ -1,6 +1,6 @@
 {
   "name": "tigo",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
