@@ -1,11 +1,16 @@
 {
   "name": "@tigojs/api-proxy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Proxy internal APIs via @tigojs/hostbinder",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
     "regex-go": "^0.1.1"
+  },
+  "tigo": {
+    "scripts": {
+      "postInstall": "scripts/postInstall.js"
+    }
   }
 }
