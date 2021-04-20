@@ -63,6 +63,7 @@ const plugin = {
       const { email, production } = app.tigo.hostbinder.useHttps.letsencrypt;
       app.tigo.hostbinder.proxy.updateCertificates(opts.domain, email, production);
     }
+		app.logger.debug('Resolver added.');
   },
 };
 
