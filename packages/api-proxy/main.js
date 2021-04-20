@@ -36,7 +36,7 @@ const plugin = {
     // register proxy
     const resolver = function (host, url, req) {
       const formattedPath = `${host}${url}`;
-      const formattedApiDomain = opts.domain.replaceAll('.', '\\.');
+      const formattedApiDomain = opts.domain.replace(/\./g, '\\.');
       const apiTester = new RegExp(`^${formattedApiDomain}${opts.prefix.replace('/', '\\/') || '\\/'}`);
       if (apiTester.test(formattedPath)) {
         return `http://127.0.0.1:${app.tigo.config.server.port}${app.tigo.config.router?.internal?.prefix || '/api'}`;

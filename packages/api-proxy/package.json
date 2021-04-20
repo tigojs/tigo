@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/api-proxy",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Proxy internal APIs via @tigojs/hostbinder",
   "main": "main.js",
   "author": "BackRunner",

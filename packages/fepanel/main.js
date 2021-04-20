@@ -46,7 +46,7 @@ const plugin = {
     // register proxy
     const resolver = function (host, url, req) {
       const formattedPath = `${host}${url}`;
-      const formattedDomain = opts.domain.replaceAll('.', '\\.');
+      const formattedDomain = opts.domain.replace(/\./g, '\\.');
       const staticFilesTester = new RegExp(`^${formattedDomain}\/(css|fonts|js)\/.+$`);
       const domainTester = new RegExp(`^${formattedDomain}\/`);
       if (staticFilesTester.test(formattedPath)) {
