@@ -66,11 +66,7 @@ function initServer() {
   if (process.env.NODE_ENV === 'dev') {
     const accessLogEnabled = this.config.dev && this.config.dev.accessLog;
     if (accessLogEnabled) {
-      this.server.use(
-        koaLogger((str, args) => {
-          this.logger.debug(str);
-        })
-      );
+      this.server.use(koaLogger());
     }
   }
   // use router
