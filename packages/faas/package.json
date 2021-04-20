@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/faas",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "FaaS plugin for tigo",
   "main": "main.js",
   "author": "BackRunner",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.3.0",
+    "@tigojs/utils": "^0.3.1",
     "lru-cache": "^6.0.0",
     "node-fetch": "^2.6.1",
     "superagent": "^6.1.0",
