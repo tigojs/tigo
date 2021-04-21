@@ -21,9 +21,7 @@ const validateConfig = (config) => {
 }
 
 async function createConnection(config) {
-  if (!config || typeof config !== 'object') {
-    throw new Error('Config is empty.');
-  }
+  config = config || {};
   validateConfig(config);
   const { host, port, user, database } = config;
   const key = `${host}${port || 3306}${user}${database}`;

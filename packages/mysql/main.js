@@ -19,8 +19,8 @@ const plugin = {
     if (!opts) {
       app.logger.warn('Cannot find the configuration for mysql db engine, use default settings.');
     }
-    validateConfig(opts, needValidate)
     opts = opts || {};
+    validateConfig(opts, needValidate)
     opts.pool = opts.pool || {};
     opts.define = opts.define || {};
     opts.dialect = opts.dialect || {};
