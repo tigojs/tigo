@@ -187,7 +187,7 @@ function getStaticFile({ filePath, config, fullMemo = false, partialMemo = true 
   return file;
 }
 
-function collectStaticFiles(dirPath, first = true) {
+function collectStaticFiles(dirPath, rootDir = null, first = true) {
   const staticConfig = {
     fullMemo: false,
     partialMemo: true,
@@ -213,7 +213,7 @@ function collectStaticFiles(dirPath, first = true) {
     const fileStat = fs.statSync(filePath);
     // is directory
     if (fileStat.isDirectory()) {
-      const ret = collectStaticFiles.call(this, filePath, false);
+      const ret = collectStaticFiles.call(this, filePath, rootDir, false);
       Object.keys(ret).forEach((key) => {
         if (!statics[key]) {
           statics[key] = {};
@@ -223,13 +223,8 @@ function collectStaticFiles(dirPath, first = true) {
       return;
     }
     // is file
-    const originExt = path.extname(filePath);
-    const ext = originExt.toLowerCase().substr(1);
-    const base = path.basename(filePath, originExt);
-    if (!statics[ext]) {
-      statics[ext] = {};
-    }
-    statics[ext][base] = getStaticFile.call(this, { filePath, config: staticConfig, fullMemo, partialMemo });;
+    const relative = path.relative(rootDir || dirPath, filePath);
+    statics[relative] = getStaticFile.call(this, { filePath, config: staticConfig, fullMemo, partialMemo });;
   });
 
   return statics;

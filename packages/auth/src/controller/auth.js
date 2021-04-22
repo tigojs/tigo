@@ -29,7 +29,7 @@ class AuthController extends BaseController {
       '/auth/register': {
         type: 'post',
         target: this.handleRegister,
-        cond: () => !!this.disableRegister,
+        cond: () => !this.disableRegister,
       },
       '/auth/refresh': {
         type: 'get',

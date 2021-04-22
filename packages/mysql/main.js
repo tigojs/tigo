@@ -19,8 +19,8 @@ const plugin = {
     if (!opts) {
       app.logger.warn('Cannot find the configuration for mysql db engine, use default settings.');
     }
-    validateConfig(opts, needValidate)
     opts = opts || {};
+    validateConfig(opts, needValidate)
     opts.pool = opts.pool || {};
     opts.define = opts.define || {};
     opts.dialect = opts.dialect || {};
@@ -40,8 +40,7 @@ const plugin = {
         freezeTableName: opts.define.freezeTableName || true,
       },
       dialectOptions: {
-        charset: opts.dialect.charset || 'utf8mb4',
-        collate: opts.dialect.collate || 'utf8mb4_unicode_ci',
+        charset: opts.dialect.charset || 'utf8mb4_unicode_ci',
       },
       logging: process.env.DB_ENV === 'dev' ? (msg) => app.logger.debug(msg) : false,
     });

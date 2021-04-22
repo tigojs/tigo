@@ -2,12 +2,13 @@ function pluginPackageExisted(plugins, packageName) {
   if (!plugins) {
     return false;
   }
-  Object.keys(plugins).forEach((name) => {
-    const { package } = plugins[name];
+  const names = Object.keys(plugins);
+  for (const name of names) {
+    const { packageName: package } = plugins[name];
     if (package && package === packageName) {
       return true;
     }
-  });
+  }
   return false;
 }
 

@@ -2,13 +2,13 @@ const doPrompt = async function () {
   const answers = await this.inquirer.prompt([
     {
       type: 'password',
-      message: 'Enter your secret for json web token',
+      message: 'Enter your secret for json web token:',
       name: 'secret',
     },
     {
       type: 'password',
       name: 'confirm',
-      message: 'Enter your secret again',
+      message: 'Enter your secret again:',
     },
   ]);
   if (answers.secret !== answers.confirm) {

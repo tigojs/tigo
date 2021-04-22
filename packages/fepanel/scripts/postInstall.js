@@ -7,7 +7,7 @@ const postInstall = async function () {
     {
       type: 'input',
       name: 'domain',
-      message: 'Domain which you want to bind to the frontend panel',
+      message: 'Domain that needs to be bound to the front panel:',
       validate: (domain) => {
         if (!isDomain(domain)) {
           return 'Domain is invalid.';

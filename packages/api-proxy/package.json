@@ -1,14 +1,12 @@
 {
-  "name": "@tigojs/mysql",
-  "version": "0.1.21",
-  "description": "MySQL engine for tigo",
+  "name": "@tigojs/api-proxy",
+  "version": "0.1.6",
+  "description": "Proxy internal APIs via @tigojs/hostbinder",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@tigojs/utils": "^0.3.1",
-    "mysql2": "^2.2.5",
-    "sequelize": "^6.6.2"
+    "regex-go": "^0.1.1"
   },
   "tigo": {
     "scripts": {

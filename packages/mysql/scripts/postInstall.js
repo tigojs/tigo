@@ -6,13 +6,13 @@ const doPrompt = async function () {
     {
       type: 'input',
       name: 'host',
-      message: 'Host',
+      message: 'Host:',
       default: '127.0.0.1',
     },
     {
       type: 'number',
       name: 'port',
-      message: 'Port',
+      message: 'Port:',
       default: 3306,
       validate: (port) => {
         if (port <= 0 || port > 65535) {
@@ -24,13 +24,13 @@ const doPrompt = async function () {
     {
       type: 'input',
       name: 'user',
-      message: 'User',
+      message: 'User:',
       default: 'root',
     },
     {
       type: 'input',
       name: 'database',
-      message: 'Database',
+      message: 'Database:',
       validate: (database) => {
         if (!database || (typeof database === 'string' && !database.trim())) {
           return 'Database cannot be empty.';
@@ -44,7 +44,7 @@ const doPrompt = async function () {
       {
         type: 'password',
         name: 'password',
-        message: 'Password',
+        message: 'Password:',
         validate: (password) => {
           if (!password || (typeof password === 'string' && !password.trim())) {
             return 'Password cannot be empty.';
@@ -55,7 +55,7 @@ const doPrompt = async function () {
       {
         type: 'password',
         name: 'confirmPassword',
-        message: 'Please reinput the password to confirm',
+        message: 'Please input the password again to confirm:',
         validate: (password) => {
           if (!password || (typeof password === 'string' && !password.trim())) {
             return 'Confirm password cannot be empty.';
