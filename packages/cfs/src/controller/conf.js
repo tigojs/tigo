@@ -25,6 +25,7 @@ class ConfigurationController extends BaseController {
       '/cfs/save': {
         type: 'post',
         auth: true,
+        apiAccess: true,
         target: this.handleSave,
       },
       '/cfs/rename': {
