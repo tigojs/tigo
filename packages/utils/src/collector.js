@@ -148,8 +148,10 @@ function collectMiddleware(dirPath) {
 }
 
 const createWatch = (filePath, file) => {
-  const watcher = fs.watch(filePath, null, async () => {
-    file.content = await fsp.readFile(filePath);
+  const watcher = fs.watch(filePath, null, async (eventType) => {
+    if (eventType === 'change') {
+      file.content = await fsp.readFile(filePath);
+    }
   });
   watcher.on('error', (err) => {
     this.logger.error(`Failed to watch file ${filePath}`, err);
