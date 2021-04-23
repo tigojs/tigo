@@ -184,7 +184,7 @@ function getStaticFile({ filePath, config, fullMemo = false, partialMemo = true 
     return killProcess.call(this, 'staticFilesCollectError');
   }
 
-  createWatch(filePath, file);
+  createWatch.call(this, filePath, file);
 
   return file;
 }
