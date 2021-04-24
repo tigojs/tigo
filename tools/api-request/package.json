@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/api-request",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "API request tool for tigo",
   "main": "main.js",
   "author": "BackRunner",
@@ -10,8 +10,7 @@
     "type": "tsc main.js --declaration --allowJs --emitDeclarationOnly --outDir types"
   },
   "dependencies": {
-    "@tigojs/api-request": "^1.0.1",
-    "@tigojs/api-sign": "^1.1.0",
+    "@tigojs/api-sign": "^1.2.0",
     "superagent": "^6.1.0"
   },
   "devDependencies": {
