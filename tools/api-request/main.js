@@ -38,7 +38,7 @@ const getAgent = (opts) => {
       throw new Error('Missing required parameters about host.');
     }
     const proto = opts.https ? 'https://' : 'http://';
-    let port;
+    let port = '';
     if (opts.port && opts.port !== 80 && opts.port !== 443) {
       port = `:${opts.port}`;
     }
