@@ -43,8 +43,8 @@ const middleware = async function (ctx, next) {
     const offset = maxTimeDelta || 10 * 1000; // 10s in ms
     const now = new Date().valueOf();
     if (
-      timestampValue < now - offset
-      || timestampValue > now + offset
+      timestampValue < (now - offset)
+      || timestampValue > (now + offset)
     ) {
       ctx.throw(400, '请求无效');
     }
