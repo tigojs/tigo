@@ -10,11 +10,11 @@
  * @param {string} opts.sk Your tigo API SecertKey
  */
 export function getAgent(opts: {
-    prefix: string;
-    host: string;
-    port: number;
-    https: boolean;
-    base: string;
+    prefix?: string;
+    host?: string;
+    port?: number;
+    https?: boolean;
+    base?: string;
     ak: string;
     sk: string;
 }): request.SuperAgentStatic & request.Request;
