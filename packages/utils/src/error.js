@@ -116,10 +116,16 @@ function registerErrorHandler(app) {
           ctx.body = createHttpError('paramValidationFailed');
           break;
       }
+
+      // not 500 means is business error
+      if (err.status !== 500) {
+        err._innerType = 'business';
+      }
+
       if (
         err.message
         && err.status !== 422
-        && process.env.NODE_ENV === 'dev'
+        && err._innerType === 'business'
       ) {
         ctx.body.message = err.message;
       }
@@ -140,10 +146,6 @@ function registerErrorHandler(app) {
 
     // end stream
     ctx.res.end(ctx.body);
-
-    if (err.status !== 500) {
-      err._innerType = 'business';
-    }
 
     // output log
     if (err._innerType !== 'business') {
