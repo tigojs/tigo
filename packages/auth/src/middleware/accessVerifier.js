@@ -78,7 +78,7 @@ const middleware = async function (ctx, next) {
       ctx.throw(401, '签名无效');
     }
     ctx.state.user = {
-      uid: userInfo.uid,
+      id: userInfo.uid,
       username: userInfo.username,
       scopeId: userInfo.scopeId,
     };
