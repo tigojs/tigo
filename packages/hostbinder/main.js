@@ -78,6 +78,9 @@ const plugin = {
         letsencrypt: {
           email: opts.leEmail,
           production: process.env.NODE_ENV !== 'dev',
+          greenlockOpts: {
+            configDir: path.resolve(app.config.runDirPath, './run/greenlock.d'),
+          },
         },
         secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3,
       }: false,
