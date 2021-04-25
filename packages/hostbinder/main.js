@@ -65,6 +65,7 @@ const plugin = {
         ssl: {
           http2: opts.http2 !== false ? true : false,
           port: opts.sslPort || 443,
+          secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3,
         },
       });
     }
@@ -87,7 +88,6 @@ const plugin = {
             configDir: greenConfigDir,
           },
         },
-        secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3,
       }: false,
     };
     app.tigo.hostbinder = pluginObj;
