@@ -1,6 +1,6 @@
 {
   "name": "tigo",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
@@ -16,7 +16,7 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=prod node ./server.js",
+    "start": "cross-env NODE_ENV=prod DB_ENV=prod node ./server.js",
     "dev": "cross-env NODE_ENV=dev DB_ENV=prod nodemon ./server.js",
     "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js",
     "upgrade:utils": "node ./scripts/upgradeUtils.js",
