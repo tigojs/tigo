@@ -70,6 +70,11 @@ const plugin = {
     }
     app.logger.debug('Run redbird proxy server...');
     const proxy = redbird(redbirdOpts);
+    // check greenlock config directory
+    const greenConfigDir = path.resolve(app.config.runDirPath, './run/hostbinder/greenlock.d');
+    if (!fs.existsSync(greenConfigDir)) {
+      fs.mkdirSync(greenConfigDir, { recursive: true });
+    }
     // mount to app
     const pluginObj = {
       proxy,
@@ -79,7 +84,7 @@ const plugin = {
           email: opts.leEmail,
           production: process.env.NODE_ENV !== 'dev',
           greenlockOpts: {
-            configDir: path.resolve(app.config.runDirPath, './run/greenlock.d'),
+            configDir: greenConfigDir,
           },
         },
         secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3,
