@@ -71,7 +71,7 @@ const plugin = {
     app.logger.debug('Run redbird proxy server...');
     const proxy = redbird(redbirdOpts);
     // check greenlock config directory
-    const greenConfigDir = path.resolve(app.config.runDirPath, './run/hostbinder/greenlock.d');
+    const greenConfigDir = path.resolve(app.config.runDirPath, './hostbinder/greenlock.d');
     if (!fs.existsSync(greenConfigDir)) {
       fs.mkdirSync(greenConfigDir, { recursive: true });
     }
