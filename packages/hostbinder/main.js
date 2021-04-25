@@ -5,6 +5,7 @@ const {
   collectModel,
 } = require('@tigojs/utils');
 const redbird = require('@backrunner/redbird');
+const { constants } = require('crypto');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const MODEL_DIR = path.resolve(__dirname, './src/model');
@@ -78,6 +79,7 @@ const plugin = {
           email: opts.leEmail,
           production: process.env.NODE_ENV !== 'dev',
         },
+        secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3,
       }: false,
     };
     app.tigo.hostbinder = pluginObj;
