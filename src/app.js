@@ -22,7 +22,7 @@ function checkDirectory() {
   }
 }
 
-function initServer() {
+async function initServer() {
   const tigo = {
     version: packageJson.version,
     config: this.config,
@@ -117,14 +117,14 @@ function initServer() {
     }
     return 0;
   });
-  pluginList.forEach((name) => {
+  for (const name of pluginList) {
     this.logger.setPrefix(name);
     if (typeof plugins[name].mount !== 'function') {
       this.logger.error(`Plugin doesn't have mount function.`);
       return killProcess.call(this, 'pluginMountError');
     }
     try {
-      plugins[name].mount.call(this, this, this.config.plugins[name].config);
+      await Promise.resolve(plugins[name].mount.call(this, this, this.config.plugins[name].config));
       this.logger.debug(`Plugin mounted.`);
     } catch (err) {
       this.logger.error(`Mount plugin failed.`);
@@ -135,13 +135,15 @@ function initServer() {
       this.logger.debug(`Hook detected, running aftereMount method.`);
       plugins[name].afterMount.call(this, this);
     }
-  });
+  }
   this.logger.setPrefix(null);
   this.plugins = plugins;
   this.server.plugins = this.plugins;
   // init controller
   const controllers = collectController.call(this, CONTROLLER_DIR);
   this.controller.main = controllers;
+  // set inited flag
+  this.inited = true;
 }
 
 class App {
@@ -171,10 +173,25 @@ class App {
     this.server = new Koa();
     this.router = new TreeRouter();
     // init server
+    this.inited = false;
     initServer.call(this);
   }
-  start() {
+  waitForInit() {
+    return new Promise((resolve) => {
+      setTimeout(async () => {
+        if (!this.inited) {
+          await this.waitForInit();
+          this.logger.debug('Server inited.');
+          return resolve();
+        }
+        this.logger.debug('Server inited.');
+        resolve();
+      }, 50);
+    });
+  }
+  async start() {
     const port = this.config.server?.port || 8800;
+    await this.waitForInit();
     this.server.listen(port);
     this.logger.info(`Server is listening on port [${port}]...`);
   }
