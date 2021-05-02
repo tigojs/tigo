@@ -24,6 +24,9 @@ function registerDbEngine(app, {
     engineType,
     storageType,
   });
+  if (!app.dbEngine[engineType]) {
+    app.dbEngine[engineType] = {};
+  }
   app.dbEngine[engineType][name] = engine;
 }
 
