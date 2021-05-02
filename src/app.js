@@ -156,7 +156,11 @@ class App {
     this.config = config || {};
     this.config.runDirPath = path.resolve(__dirname, '../run');
     // init db related
-    this.dbEngine = {};
+    this.dbEngine = {
+      kv: {},
+      sql: {},
+      mongodb: {},
+    };
     // init base
     this.controller = {};
     this.service = {};
