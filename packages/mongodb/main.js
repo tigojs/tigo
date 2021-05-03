@@ -19,7 +19,12 @@ const plugin = {
       useNewUrlParser,
       useUnifiedTopology,
     });
-    await client.connect();
+    try {
+      await client.connect();
+    } catch (err) {
+      await client.close();
+      throw err;
+    }
     registerDbEngine(app, {
       engine: client,
       name: 'mongodb',
