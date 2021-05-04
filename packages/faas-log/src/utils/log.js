@@ -11,6 +11,16 @@ const buildLog = (type, ...contents) => {
   };
 };
 
+/**
+ * @param {string} scopeId
+ * @param {string} lambdaName
+ * @returns An identification for lambda log collection
+ */
+const getLambdaId = (scopeId, lambdaName) => {
+  return `${scopeId}_${lambdaName}`;
+};
+
 module.exports = {
-  buildLog
+  buildLog,
+  getLambdaId
 };
