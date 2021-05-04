@@ -1,4 +1,5 @@
 const { BaseController } = require('@tigojs/core');
+const { successResponse } = require('@tigojs/utils');
 
 class FaaSCommonController extends BaseController {
   getRoutes() {
@@ -11,10 +12,7 @@ class FaaSCommonController extends BaseController {
     };
   }
   async enabledFeats(ctx) {
-    const { logServiceEnabled } = ctx.tigo.faas;
-    ctx.body = {
-      logService: !!logServiceEnabled,
-    };
+    ctx.body = successResponse(ctx.tigo.faas.enabledFeats || {});
   }
 }
 
