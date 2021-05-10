@@ -55,17 +55,22 @@ class LogQueryController extends BaseController {
     }
     // query logs
     const collection = ctx.tigo.faasLog.db.collection(lambdaId);
+    const cond = {
+      time: {
+        $gt: beginTime,
+        $lte: endTime,
+      },
+    };
+    const total = await collection.find(cond).count();
     const logs = await collection
-      .find({
-        time: {
-          $gt: beginTime,
-          $lte: endTime,
-        },
-      })
+      .find(cond)
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .toArray();
-    ctx.body = successResponse(logs);
+    ctx.body = successResponse({
+      total,
+      logs,
+    });
   }
 }
 
