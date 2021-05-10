@@ -30,7 +30,7 @@ const plugin = {
     if (!app.tigo.faas.enabledFeats) {
       app.tigo.faas.enabledFeats = {};
     }
-    app.tigo.faas.enabledFeats.lambdaLog = true;
+    app.tigo.faas.enabledFeats.log = true;
     app.tigo.faasLog = faasLog;
   },
 };
