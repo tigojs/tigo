@@ -5,7 +5,7 @@ const { getLambdaId } = require('../utils/log');
 class LogQueryController extends BaseController {
   getRoutes() {
     return {
-      '/faas/log/query': {
+      '/faas/queryLogs': {
         type: 'get',
         auth: true,
         target: this.handleQuery,
@@ -13,8 +13,12 @@ class LogQueryController extends BaseController {
     };
   }
   async handleQuery(ctx) {
-    ctx.query.beginTime = parseInt(ctx.query.beginTime, 10);
-    ctx.query.endTime = parseInt(ctx.query.endTime, 10);
+    const needParse = ['beginTime', 'endTime', 'page', 'pageSize'];
+    needParse.forEach((key) => {
+      if (ctx.query[key]) {
+        ctx.query[key] = parseInt(ctx.query[key], 10);
+      }
+    });
     ctx.verifyParams({
       lambdaName: {
         type: 'string',
