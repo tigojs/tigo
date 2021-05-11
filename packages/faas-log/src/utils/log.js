@@ -3,11 +3,20 @@ const buildLog = (type, ...contents) => {
     // no content, regard as invalid log
     return null;
   }
+  // build message
+  const message = contents.map((content) => {
+    if (typeof content === 'string') {
+      return content;
+    }
+    if (typeof content === 'object') {
+      return JSON.stringify(content);
+    }
+    return `${content}`;
+  }).join(' ');
   return {
     time: new Date().valueOf(),
     type,
-    message: contents[0],
-    customVars: contents.slice(1),
+    message,
   };
 };
 
