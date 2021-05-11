@@ -2,7 +2,6 @@ const LambdaLogger = require('./src/utils/logger');
 const getLambdaId = require('./src/utils/log');
 
 const plugin = {
-  type: 'module',
   dependencies: ['@tigojs/faas'],
   mount(app, opts) {
     if (!opts) {
