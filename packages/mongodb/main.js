@@ -1,4 +1,5 @@
 const { MongoClient } = require('mongodb');
+const { registerDbEngine } = require('@tigojs/utils');
 
 const plugin = {
   type: 'dbEngine',
@@ -15,7 +16,7 @@ const plugin = {
     }
     // create client
     const { useNewUrlParser, useUnifiedTopology } = connectorOpts;
-    const client = new MongoClient(uri, {
+    const client = new MongoClient(opts.uri, {
       useNewUrlParser,
       useUnifiedTopology,
     });
