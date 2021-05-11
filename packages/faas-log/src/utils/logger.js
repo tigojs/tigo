@@ -5,7 +5,7 @@ class LambdaLogger {
     this.app = app;
     this.collection = db.collection(lambdaId);
   }
-  writeLog(type, contents) {
+  async writeLog(type, contents) {
     const log = buildLog(type, contents);
     try {
       await this.collection.insertOne(log);
