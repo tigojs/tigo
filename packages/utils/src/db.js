@@ -1,4 +1,4 @@
-const engineTypes = ['kv', 'sql'];
+const engineTypes = ['kv', 'sql', 'mongodb'];
 const storageTypes = ['local', 'network'];
 
 function registerDbEngine(app, {
