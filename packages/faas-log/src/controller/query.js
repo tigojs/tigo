@@ -51,7 +51,6 @@ class LogQueryController extends BaseController {
     }
     // check collection
     const lambdaId = getLambdaId(ctx.state.user.scopeId, lambdaName);
-    console.log(ctx.tigo.faas.log.db);
     if (!(await ctx.tigo.faas.log.db.listCollections(lambdaId))) {
       ctx.body = successResponse({
         logs: [],
