@@ -4,5 +4,8 @@
   "description": "Log service for tigo lambda",
   "main": "main.js",
   "author": "BackRunner",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@tigojs/utils": "^0.4.1"
+  }
 }
