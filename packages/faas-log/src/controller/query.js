@@ -40,25 +40,26 @@ class LogQueryController extends BaseController {
       pageSize: {
         type: 'number',
         required: true,
-        min: 50,
-        max: 300,
+        min: 20,
+        max: 100,
       },
     });
     const { lambdaName, beginTime, endTime, page, pageSize } = ctx.query;
     // check time span
-    if (endTime - beginTime <= 0 || endTime - beginTime >= ctx.tigo.faasLog.maxTimeSpan) {
+    if (endTime - beginTime <= 0 || endTime - beginTime >= ctx.tigo.faas.log.maxTimeSpan) {
       ctx.throw(400, 'Time span is invalid.');
     }
     // check collection
     const lambdaId = getLambdaId(ctx.state.user.scopeId, lambdaName);
-    if (!(await ctx.tigo.faasLog.db.listCollection(lambdaId))) {
+    console.log(ctx.tigo.faas.log.db);
+    if (!(await ctx.tigo.faas.log.db.listCollections(lambdaId))) {
       ctx.body = successResponse({
         logs: [],
       });
       return;
     }
     // query logs
-    const collection = ctx.tigo.faasLog.db.collection(lambdaId);
+    const collection = ctx.tigo.faas.log.db.collection(lambdaId);
     const cond = {
       time: {
         $gt: beginTime,

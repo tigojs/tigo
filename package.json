@@ -29,7 +29,13 @@
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
+    "@tigojs/auth": "file:packages/auth",
     "@tigojs/core": "^0.1.0",
+    "@tigojs/faas": "file:packages/faas",
+    "@tigojs/faas-log": "file:packages/faas-log",
+    "@tigojs/leveldb": "file:packages/leveldb",
+    "@tigojs/mongodb": "file:packages/mongodb",
+    "@tigojs/sqlite": "file:packages/sqlite",
     "@tigojs/utils": "^0.3.4",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",

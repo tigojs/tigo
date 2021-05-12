@@ -1,5 +1,9 @@
 const LambdaLogger = require('./src/utils/logger');
-const getLambdaId = require('./src/utils/log');
+const { getLambdaId } = require('./src/utils/log');
+const { collectController } = require('@tigojs/utils');
+const path = require('path');
+
+const CONTROLLER_PATH = path.resolve(__dirname, './src/controller');
 
 const plugin = {
   dependencies: ['@tigojs/faas'],
@@ -24,6 +28,9 @@ const plugin = {
     }
     // set up database
     const database = engine.db(opts.database || 'tigo_lambda_log');
+    // collect controllers
+    const controllers = collectController.call(app, CONTROLLER_PATH);
+    Object.assign(app.controller.faas, controllers);
     // set up plugin obj
     const faasLog = {
       db: database,
@@ -35,7 +42,7 @@ const plugin = {
       app.tigo.faas.enabledFeats = {};
     }
     app.tigo.faas.enabledFeats.log = true;
-    app.tigo.faasLog = faasLog;
+    app.tigo.faas.log = faasLog;
   },
 };
 

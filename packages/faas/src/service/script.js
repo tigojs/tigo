@@ -155,8 +155,8 @@ class ScriptService extends BaseService {
     if (this.kvConfig.enable) {
       vm.freeze(KV(ctx, this.config.kv), 'KV');
     }
-    if (ctx.tigo.faasLog) {
-      const logger = ctx.tigo.faasLog.createLogger(ctx.tigo.faasLog.getLambdaId(scopeId, name));
+    if (ctx.tigo.faas.log) {
+      const logger = ctx.tigo.faas.log.createLogger(ctx.tigo.faas.log.getLambdaId(scopeId, name));
       vm.freeze(logger, 'Logger');
     }
     vm.run(script, `${this.scriptPathPrefix}_${new Date().valueOf()}.js`);
