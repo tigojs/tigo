@@ -152,7 +152,7 @@ class ScriptService extends BaseService {
     if (ctx.tigo.oss) {
       vm.freeze(OSS(ctx, this.config.oss), 'OSS');
     }
-    if (this.kvConfig.enable) {
+    if (ctx.tigo.faas.kvEnabled) {
       vm.freeze(KV(ctx, this.config.kv), 'KV');
     }
     if (ctx.tigo.faas.log) {

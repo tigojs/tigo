@@ -96,6 +96,7 @@ const plugin = {
             defaultLocalPath: runDirPath.call(app, './faas/kv'),
           })
         ),
+        kvEnabled: true,
       });
     }
     app.tigo.faas = faas;
