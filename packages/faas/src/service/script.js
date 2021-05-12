@@ -107,6 +107,7 @@ class ScriptService extends BaseService {
     }
   }
   async runLambda(ctx, scopeId, name) {
+    const showStack = ctx.query.__tigoDebug === '1';
     const script = await ctx.tigo.faas.storage.getString(getStorageKey(scopeId, name));
     const eventEmitter = new EventEmitter();
     const addEventListener = (name, func) => {
@@ -151,7 +152,7 @@ class ScriptService extends BaseService {
     }
     if (ctx.tigo.faas.log) {
       const logger = ctx.tigo.faas.log.createLogger(ctx.tigo.faas.log.getLambdaId(scopeId, name));
-      vm.freeze(logger, 'Logger');
+      vm.freeze(logger, 'Log');
     }
     try {
       vm.run(script, `${this.scriptPathPrefix}_${new Date().valueOf()}.js`);
