@@ -1,12 +1,7 @@
 const engineTypes = ['kv', 'sql', 'mongodb'];
 const storageTypes = ['local', 'network'];
 
-function registerDbEngine(app, {
-  name,
-  engine,
-  engineType,
-  storageType,
-}) {
+function registerDbEngine(app, { name, engine, engineType, storageType }) {
   if (!name || !engine || !engineType || !storageType) {
     throw new Error('Cannot register the database engine because of the invalid arguments');
   }
@@ -48,11 +43,21 @@ function extendLevelDb(db) {
       return false;
     }
     return true;
-  }
+  };
   db.putObject = async (key, value) => {
     return await db.put(key, JSON.stringify(value));
-  }
+  };
   db.setObject = db.putObject;
+  db.getString = async (key) => {
+    try {
+      return await db.get(key, { asBuffer: false });
+    } catch (err) {
+      if (err.notFound) {
+        return null;
+      }
+      throw err;
+    }
+  };
   db.getObject = async (key) => {
     try {
       const obj = await db.get(key, {
@@ -65,7 +70,7 @@ function extendLevelDb(db) {
       }
       throw err;
     }
-  }
+  };
   db.setExpires = (key, data, expires) => {
     if (typeof expires !== 'number') {
       throw new Error('Expires must be a number');
@@ -78,7 +83,7 @@ function extendLevelDb(db) {
       value: data,
       createAt: new Date().valueOf(),
     });
-  }
+  };
   db.getExpires = async (key) => {
     const stored = await db.getObject(key);
     if (!stored) {
@@ -90,7 +95,7 @@ function extendLevelDb(db) {
       return null;
     }
     return value;
-  }
+  };
   return db;
 }
 
