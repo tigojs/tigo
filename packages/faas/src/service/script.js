@@ -11,6 +11,7 @@ const allowList = require('../constants/allowList');
 const Response = require('../classes/Response');
 const CFS = require('../classes/CFS');
 const OSS = require('../classes/OSS');
+const KV = require('../classes/KV');
 
 const getScriptContent = (content) => Buffer.from(content, 'base64').toString('utf-8');
 
