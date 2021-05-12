@@ -6,6 +6,7 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
+    "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.4.1"
   }
 }
