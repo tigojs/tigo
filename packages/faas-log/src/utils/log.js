@@ -1,4 +1,4 @@
-const buildLog = (type, ...contents) => {
+const buildLog = (type, contents) => {
   if (!contents.length) {
     // no content, regard as invalid log
     return null;
@@ -14,7 +14,7 @@ const buildLog = (type, ...contents) => {
     return `${content}`;
   }).join(' ');
   return {
-    time: new Date().valueOf(),
+    time: Date.now(),
     type,
     message,
   };
