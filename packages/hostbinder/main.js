@@ -5,6 +5,7 @@ const {
   collectModel,
 } = require('@tigojs/utils');
 const redbird = require('@backrunner/redbird');
+const { constants } = require('crypto');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const MODEL_DIR = path.resolve(__dirname, './src/model');
@@ -64,11 +65,17 @@ const plugin = {
         ssl: {
           http2: opts.http2 !== false ? true : false,
           port: opts.sslPort || 443,
+          secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3,
         },
       });
     }
     app.logger.debug('Run redbird proxy server...');
     const proxy = redbird(redbirdOpts);
+    // check greenlock config directory
+    const greenConfigDir = path.resolve(app.config.runDirPath, './hostbinder/greenlock.d');
+    if (!fs.existsSync(greenConfigDir)) {
+      fs.mkdirSync(greenConfigDir, { recursive: true });
+    }
     // mount to app
     const pluginObj = {
       proxy,
@@ -77,6 +84,9 @@ const plugin = {
         letsencrypt: {
           email: opts.leEmail,
           production: process.env.NODE_ENV !== 'dev',
+          greenlockOpts: {
+            configDir: greenConfigDir,
+          },
         },
       }: false,
     };

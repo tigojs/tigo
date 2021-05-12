@@ -59,7 +59,7 @@ class BinderController extends BaseController {
       ctx.throw(400, '域名已存在');
     }
     const targetPath = `http://127.0.0.1:${ctx.tigo.config.server.port}${target}`;
-    ctx.tigo.hostbinder.proxy.register(domain, targetPath, { ssl: app.tigo.hostbinder.useHttps });
+    ctx.tigo.hostbinder.proxy.register(domain, targetPath, { ssl: ctx.tigo.hostbinder.useHttps });
     await ctx.model.hostbinder.binding.create({
       uid: ctx.state.user.id,
       domain,

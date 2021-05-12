@@ -11,6 +11,7 @@ const allowList = require('../constants/allowList');
 const Response = require('../classes/Response');
 const CFS = require('../classes/CFS');
 const OSS = require('../classes/OSS');
+const KV = require('../classes/KV');
 
 const getScriptContent = (content) => Buffer.from(content, 'base64').toString('utf-8');
 
@@ -58,19 +59,12 @@ class ScriptService extends BaseService {
       eventEmitter = cached.eventEmitter;
     } else {
       // func not in cache
-      try {
-        const res = await this.runLambda(ctx, scopeId, name);
-        eventEmitter = res.eventEmitter;
-        this.cache.set(cacheKey, res);
-      } catch (err) {
-        if (err.notFound) {
-          ctx.throw(400, '无法找到对应的函数');
-        } else {
-          err.stack = showStack ? stackFilter(err.stack) : null;
-          err.fromFaas = true;
-          throw err;
-        }
+      const res = await this.runLambda(ctx, scopeId, name);
+      if (!res) {
+        ctx.throw(400, '无法找到对应的函数');
       }
+      eventEmitter = res.eventEmitter;
+      this.cache.set(cacheKey, res);
     }
     try {
       await new Promise((resolve, reject) => {
@@ -113,7 +107,8 @@ class ScriptService extends BaseService {
     }
   }
   async runLambda(ctx, scopeId, name) {
-    const script = await ctx.tigo.faas.storage.get(getStorageKey(scopeId, name));
+    const showStack = ctx.query.__tigoDebug === '1';
+    const script = await ctx.tigo.faas.storage.getString(getStorageKey(scopeId, name));
     const eventEmitter = new EventEmitter();
     const addEventListener = (name, func) => {
       eventEmitter.on(name, func);
@@ -152,10 +147,20 @@ class ScriptService extends BaseService {
     if (ctx.tigo.oss) {
       vm.freeze(OSS(ctx, this.config.oss), 'OSS');
     }
-    if (this.kvConfig.enable) {
+    if (ctx.tigo.faas.kvEnabled) {
       vm.freeze(KV(ctx, this.config.kv), 'KV');
     }
-    vm.run(script, `${this.scriptPathPrefix}_${new Date().valueOf()}.js`);
+    if (ctx.tigo.faas.log) {
+      const logger = ctx.tigo.faas.log.createLogger(ctx.tigo.faas.log.getLambdaId(scopeId, name));
+      vm.freeze(logger, 'Log');
+    }
+    try {
+      vm.run(script, `${this.scriptPathPrefix}_${new Date().valueOf()}.js`);
+    } catch (err) {
+      err.stack = showStack ? stackFilter(err.stack) : null;
+      err.fromFaas = true;
+      throw err;
+    }
     return { vm, eventEmitter };
   }
   async add(ctx) {
@@ -207,7 +212,7 @@ class ScriptService extends BaseService {
       this.cache.del(`${scopeId}_${dbItem.name}`);
       // env
       const envKey = getEnvStorageKey(scopeId, dbItem.name);
-      const env = await ctx.tigo.faas.storage.get(envKey);
+      const env = await ctx.tigo.faas.storage.getObject(envKey);
       if (env) {
         await ctx.tigo.faas.storage.del(envKey);
         await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, name), env);
@@ -237,13 +242,16 @@ class ScriptService extends BaseService {
     );
     // script
     const oldKey = getStorageKey(scopeId, dbItem.name);
-    const content = await ctx.tigo.faas.storage.get(oldKey);
+    const content = await ctx.tigo.faas.storage.getString(oldKey);
+    if (typeof content !== 'string') {
+      ctx.throw(500, '无法找到函数内容');
+    }
     await ctx.tigo.faas.storage.del(oldKey);
     this.cache.del(`${scopeId}_${dbItem.name}`);
     await ctx.tigo.faas.storage.put(getStorageKey(scopeId, newName), content);
     // env
     const envKey = getEnvStorageKey(scopeId, dbItem.name);
-    const env = await ctx.tigo.faas.storage.get(envKey);
+    const env = await ctx.tigo.faas.storage.getObject(envKey);
     if (env) {
       await ctx.tigo.faas.storage.del(getStorageKey(envKey));
       await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, newName), env || {});
@@ -266,7 +274,7 @@ class ScriptService extends BaseService {
     const { id } = ctx.query;
     const { scopeId } = ctx.state.user;
     const dbItem = await generalCheck(ctx, id);
-    return await ctx.tigo.faas.storage.get(getStorageKey(scopeId, dbItem.name));
+    return await ctx.tigo.faas.storage.getString(getStorageKey(scopeId, dbItem.name));
   }
   deleteCache(key) {
     this.cache.del(key);

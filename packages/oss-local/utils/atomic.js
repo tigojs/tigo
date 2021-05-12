@@ -61,7 +61,12 @@ const safeDel = async (db, key, cond) => {
       throw err;
     }
   }
-  await db.del(key);
+  try {
+    await db.del(key);
+  } catch (err) {
+    unlock(key);
+    throw err;
+  }
   unlock(key);
 }
 

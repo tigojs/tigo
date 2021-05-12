@@ -49,8 +49,8 @@ const plugin = {
     resolver.priority = 100;
     app.tigo.hostbinder.proxy.addResolver(resolver);
     if (app.tigo.hostbinder.useHttps) {
-      const { email, production } = app.tigo.hostbinder.useHttps.letsencrypt;
-      app.tigo.hostbinder.proxy.updateCertificates(opts.domain, email, production);
+      const { email, production, greenlockOpts } = app.tigo.hostbinder.useHttps.letsencrypt;
+      app.tigo.hostbinder.proxy.updateCertificates(opts.domain, email, production, greenlockOpts);
     }
     app.logger.debug('Resolver added.');
   }

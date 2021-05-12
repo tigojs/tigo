@@ -37,7 +37,7 @@ class ConfigStorageService extends BaseService {
     if (stored) {
       return stored;
     }
-    const content = (await ctx.tigo.cfs.storage.get(getStorageKey(key))).toString();
+    const content = await ctx.tigo.cfs.storage.getString(getStorageKey(key));
     if (!content) {
       return null;
     }
@@ -47,7 +47,7 @@ class ConfigStorageService extends BaseService {
   }
   async getContent(ctx, id) {
     const dbItem = await generalCheck(ctx, id);
-    const ret = await ctx.tigo.cfs.storage.get(getStorageKey(`${ctx.state.user.scopeId}_${dbItem.type}_${dbItem.name}`));
+    const ret = await ctx.tigo.cfs.storage.getString(getStorageKey(`${ctx.state.user.scopeId}_${dbItem.type}_${dbItem.name}`));
     return ret.toString();
   }
   async add(ctx) {
@@ -124,7 +124,10 @@ class ConfigStorageService extends BaseService {
     });
     const key = `${scopeId}_${dbItem.type}_${dbItem.name}`;
     const newKey = `${scopeId}_${dbItem.type}_${newName}`;
-    const content = await ctx.tigo.faas.storage.get(key);
+    const content = await ctx.tigo.faas.storage.getString(key);
+    if (!content) {
+      ctx.throw(500, '无法找到对应的配置文件内容');
+    }
     await ctx.tigo.cfs.storage.del(getStorageKey(key));
     this.cache.del(key);
     // broadcast events

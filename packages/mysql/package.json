@@ -1,12 +1,12 @@
 {
   "name": "@tigojs/mysql",
-  "version": "0.1.22",
+  "version": "0.1.25",
   "description": "MySQL engine for tigo",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@tigojs/utils": "^0.3.2",
+    "@tigojs/utils": "^0.4.1",
     "mysql2": "^2.2.5",
     "sequelize": "^6.6.2"
   },

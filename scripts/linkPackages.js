@@ -4,7 +4,7 @@ const child_process = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const pkgNameTester = /\@tigojs\/[a-z-]+/g
+const pkgNameTester = /\@tigojs\/[a-z-]+/g;
 
 const linkPackages = () => {
   const rc = getRawRC();
@@ -13,8 +13,12 @@ const linkPackages = () => {
     return;
   }
   // read framework package.json
-  const framePkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json')), { encoding: 'utf-8' });
-  const dependencies = framePkg?.dependencies;
+  const framePkgInfo = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json')), { encoding: 'utf-8' });
+  const { dependencies } = framePkgInfo;
+  let dependencyNames;
+  if (dependencies) {
+    dependencyNames = Object.keys(dependencies);
+  }
   const matches = rc.matchAll(pkgNameTester);
   const pkgs = [];
   for (const match of matches) {
@@ -22,7 +26,7 @@ const linkPackages = () => {
   }
   logger.info('Found following packages: ', pkgs);
   pkgs.forEach((pkg) => {
-    if (Array.isArray(dependencies) && dependencies.includes(pkg)) {
+    if (dependencyNames && dependencyNames.includes(pkg)) {
       logger.info(`${pkg} has been linked to framework, skip.`);
       return;
     }
@@ -30,6 +34,6 @@ const linkPackages = () => {
     child_process.execSync(`npm link ${pkg} --save`, { stdio: 'inherit' });
   });
   logger.info('All packages were linked to the framework.');
-}
+};
 
 linkPackages();

@@ -1,12 +1,12 @@
 {
   "name": "@tigojs/rlkv",
-  "version": "0.1.14",
+  "version": "0.1.17",
   "description": "Redis-list key-value database engine for tigo",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@tigojs/utils": "^0.3.2",
+    "@tigojs/utils": "^0.4.1",
     "levelup": "^5.0.0",
     "redis": "^3.1.1",
     "redisdown": "^0.1.12"
