@@ -68,6 +68,9 @@ class LogQueryController extends BaseController {
     const total = await collection.find(cond).count();
     const logs = await collection
       .find(cond)
+      .sort({
+        time: -1,
+      })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .toArray();
