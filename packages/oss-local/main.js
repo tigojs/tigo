@@ -171,17 +171,11 @@ class LocalStorageEngine {
     let hashExisted = false;
 
     if (hash) {
-      // check hash
-      try {
-        fileId = await this.kv.get(getHash2FileIdKey(hash));
-      } catch (err) {
-        if (err.notFound) {
-          const err = new Error('Hash is not in the database.');
-          err.hashNotFound = true;
-          throw err;
-        } else {
-          throw err;
-        }
+      fileId = await this.kv.getString(getHash2FileIdKey(hash));
+      if (!fileId) {
+        const err = new Error('Hash is not in the database.');
+        err.hashNotFound = true;
+        throw err;
       }
       hashExisted = true;
     } else {
@@ -222,7 +216,7 @@ class LocalStorageEngine {
       name: key.replace(new RegExp(`${dirPath}\/?`), ''),
       file: fileId,
       isDirectory: false,
-    }
+    };
     if (hashExisted) {
       // hash of file already in the db.
       if (!meta) {
@@ -240,7 +234,7 @@ class LocalStorageEngine {
         type: file.type || 'unknown',
         lastModified: file.lastModifiedDate.valueOf(),
         hash: file.hash,
-      }
+      };
     }
     const storedMeta = await this.kv.getObject(metaKey);
     if (storedMeta) {
