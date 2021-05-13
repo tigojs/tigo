@@ -15,6 +15,7 @@ tigo add sqlite
 Here's a template for the configuration of this plugin:
 
 ```javascript
+// .tigorc.js
 module.exports = {
   plugins: {
     sqlite: {
