@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/sqlite",
-  "version": "0.2.23",
+  "version": "0.3.0",
   "description": "Sqlite db engine for tigo",
   "main": "main.js",
   "author": "BackRunner",
