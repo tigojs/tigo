@@ -39,12 +39,14 @@ const migrate = async function () {
     'ALTER TABLE tigo_faas_script ADD COLUMN scope_id VARCHAR(255);',
     answer.dbType === 'sqlite'
       ? 'UPDATE tigo_faas_script SET scope_id = (SELECT scope_id from tigo_auth_user WHERE uid = tigo_faas_script.uid);'
-      : 'UPDATE s SET s.scope_id = u.scope_id FROM tigo_faas_script s INNER JOIN tigo_auth_user u ON u.id = s.uid;',
-    ...(answer.dbType === 'sqlite' ? [
-      `ALTER TABLE tigo_faas_script RENAME TO ${oldTable};`,
-      `CREATE TABLE tigo_faas_script (id VARCHAR(255) PRIMARY KEY NOT NULL, scope_id INTEGER, name VARCHAR(255), created_at DATETIME, updated_at DATETIME);`,
-      `INSERT INTO tigo_faas_script (id, scope_id, name, created_at, updated_at) SELECT id, scope_id, name, created_at, updated_at FROM ${oldTable};`
-    ] : ['ALTER TABLE tigo_faas_script MODIFY COLUMN id VARCHAR(255) PRIMARY KEY NOT NULL;']),
+      : 'UPDATE tigo_faas_script s INNER JOIN tigo_auth_user u ON u.id = s.uid SET s.scope_id = u.scope_id;',
+    ...(answer.dbType === 'sqlite'
+      ? [
+          `ALTER TABLE tigo_faas_script RENAME TO ${oldTable};`,
+          `CREATE TABLE tigo_faas_script (id VARCHAR(255) PRIMARY KEY NOT NULL, scope_id INTEGER, name VARCHAR(255), created_at DATETIME, updated_at DATETIME);`,
+          `INSERT INTO tigo_faas_script (id, scope_id, name, created_at, updated_at) SELECT id, scope_id, name, created_at, updated_at FROM ${oldTable};`,
+        ]
+      : ['ALTER TABLE tigo_faas_script MODIFY COLUMN id VARCHAR(255) NOT NULL;']),
     answer.dbType !== 'sqlite' ? 'ALTER TABLE tigo_faas_script DROP COLUMN uid;' : null,
   ].filter((item) => !!item);
 
@@ -67,9 +69,9 @@ const migrate = async function () {
     try {
       await db.exec(sqls.join(''));
     } catch (err) {
-      this.logger.error("Failed to execute SQL, we've export the SQL to a file that you can execute manually.\n", err);
+      this.logger.warn("Failed to execute SQL, we've export the SQL to a file that you can execute manually.");
       exportSQLFile(this.workDir, sqls);
-      return;
+      throw err;
     }
   } else if (answer.dbType === 'mysql') {
     sqls.push('UPDATE tigo_faas_script SET id = uuid()');
@@ -94,11 +96,12 @@ const migrate = async function () {
       try {
         await connection.execute(sql, sqls);
       } catch (err) {
-        this.logger.error("Failed to execute SQL, we've export the SQL to a file that you can execute manually.\n", err);
+        this.logger.warn("Failed to execute SQL, we've export the SQL to a file that you can execute manually.");
         exportSQLFile(this.workDir, sqls);
-        return;
+        throw err;
       }
     }
+    await connection.close();
   } else {
     this.logger.warn('Exporting a SQL file to "migration/faas_v0.3.0.sql", please try to migrate manually.');
     this.logger.warn(
