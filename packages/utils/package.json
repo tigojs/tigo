@@ -5,6 +5,11 @@
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
+  "files": [
+    "constants",
+    "src",
+    "main.js"
+  ],
   "scripts": {
     "dev": "cd ../../ && npm run dev"
   },
