@@ -3,6 +3,7 @@ const LRU = require('lru-cache');
 const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const { NodeVM } = require('vm2');
+const { v4: uuidv4 } = require('uuid');
 const { BaseService } = require('@tigojs/core');
 const { createContextProxy } = require('../utils/context');
 const { stackFilter } = require('../utils/stackFilter');
@@ -13,14 +14,30 @@ const CFS = require('../classes/CFS');
 const OSS = require('../classes/OSS');
 const KV = require('../classes/KV');
 
+/**
+ * @param {string} content String content before decoding
+ * @returns {string} Content after decoded
+ */
 const getScriptContent = (content) => Buffer.from(content, 'base64').toString('utf-8');
 
-const generalCheck = async (ctx, id) => {
-  const dbItem = await ctx.model.faas.script.findByPk(id);
+/**
+ * @param {string} scopeId
+ * @param {string} name
+ * @returns {string} Lambda ID LRU cache key
+ */
+const getLambdaIdCacheKey = (scopeId, name) => `${scopeId}_${name}`;
+
+/**
+ * @param {object} ctx koa context
+ * @param {string} lambdaId ID of lambda
+ * @returns {object} Lambda script model instance
+ */
+const generalCheck = async (ctx, lambdaId) => {
+  const dbItem = await ctx.model.faas.script.findByPk(lambdaId);
   if (!dbItem) {
     ctx.throw(400, '找不到该函数');
   }
-  if (dbItem.uid !== ctx.state.user.id) {
+  if (dbItem.scopeId !== ctx.state.user.scopeId) {
     ctx.throw(401, '无权访问');
   }
   return dbItem;
@@ -39,19 +56,47 @@ class ScriptService extends BaseService {
     cacheConfig = cacheConfig || {};
     // set cache
     this.cache = new LRU({
-      max: cacheConfig.max || 100,
-      maxAge: cacheConfig.maxAge || 60 * 1000, // default max age is 1min,
+      max: cacheConfig.maxLambda || 100,
+      maxAge: cacheConfig.maxLambdaAge || 60 * 1000, // default max age is 1min,
       updateAgeOnGet: true,
       dispose: (_, cached) => {
         cached.eventEmitter = null;
         cached.vm = null;
       },
     });
+    this.lambdaIdCache = new LRU({
+      max: cacheConfig.maxIds || 1000,
+      maxAge: cacheConfig.maxIdAge || 60 * 1000,
+      updateAgeOnGet: true,
+    });
     this.maxWaitTime = config.maxWaitTime || 10;
     this.scriptPathPrefix = path.resolve(app.rootDirPath, './lambda_userscript');
   }
+  async getLambdaId(scopeId, name) {
+    // check cache
+    const cached = this.lambdaIdCache.get(getLambdaIdCacheKey(scopeId, name));
+    if (cached) {
+      return cached;
+    }
+    // get id from db
+    const id = await ctx.model.faas.script.find({
+      where: {
+        scopeId,
+        name,
+      },
+    });
+    if (id) {
+      this.lambdaIdCache.set(getLambdaIdCacheKey(scopeId, name), id);
+    }
+    return id || null;
+  }
   async exec(ctx, scopeId, name) {
-    const cacheKey = `${scopeId}_${name}`;
+    // get lambda id from db
+    const lambdaId = await this.getLambdaId(scopeId, name);
+    if (!res) {
+      ctx.throw(400, '无法找到对应的函数');
+    }
+    // check cache
     const cached = this.cache.get(cacheKey);
     const showStack = ctx.query.__tigoDebug === '1';
     let eventEmitter;
@@ -59,7 +104,7 @@ class ScriptService extends BaseService {
       eventEmitter = cached.eventEmitter;
     } else {
       // func not in cache
-      const res = await this.runLambda(ctx, scopeId, name);
+      const res = await this.runLambda(ctx, lambdaId);
       if (!res) {
         ctx.throw(400, '无法找到对应的函数');
       }
@@ -106,25 +151,24 @@ class ScriptService extends BaseService {
       throw err;
     }
   }
-  async runLambda(ctx, scopeId, name) {
+  async runLambda(ctx, lambdaId) {
     const showStack = ctx.query.__tigoDebug === '1';
-    const script = await ctx.tigo.faas.storage.getString(getStorageKey(scopeId, name));
+    const script = await ctx.tigo.faas.storage.getString(getStorageKey(lambdaId));
     const eventEmitter = new EventEmitter();
     const addEventListener = (name, func) => {
       eventEmitter.on(name, func);
     };
     const emitLambda = async (name, ...args) => {
-      const cacheKey = `${scopeId}_${name}`;
-      const cached = this.cache.get(cacheKey);
+      const cached = this.cache.get(lambdaId);
       if (cached) {
         cached.eventEmitter.emit(name, ...args);
       } else {
-        const res = await this.runLambda(ctx, scopeId, name);
-        this.cache.set(cacheKey, res);
+        const res = await this.runLambda(ctx, lambdaId);
+        this.cache.set(lambdaId, res);
         res.eventEmitter.emit(name, ...args);
       }
     };
-    const env = await ctx.tigo.faas.storage.getObject(getEnvStorageKey(scopeId, name));
+    const env = await ctx.tigo.faas.storage.getObject(getEnvStorageKey(lambdaId));
     const vm = new NodeVM({
       eval: false,
       wasm: false,
@@ -148,10 +192,10 @@ class ScriptService extends BaseService {
       vm.freeze(OSS(ctx, this.config.oss), 'OSS');
     }
     if (ctx.tigo.faas.kvEnabled) {
-      vm.freeze(KV(ctx, this.config.kv), 'KV');
+      vm.freeze(KV(ctx, lambdaId, this.config.lambdaKv), 'KV');
     }
     if (ctx.tigo.faas.log) {
-      const logger = ctx.tigo.faas.log.createLogger(ctx.tigo.faas.log.getLambdaId(scopeId, name));
+      const logger = ctx.tigo.faas.log.createLogger(lambdaId);
       vm.freeze(logger, 'Log');
     }
     try {
@@ -165,40 +209,43 @@ class ScriptService extends BaseService {
   }
   async add(ctx) {
     const { name, content, env } = ctx.request.body;
-    const { id: uid, scopeId } = ctx.state.user;
+    const { scopeId } = ctx.state.user;
     // check content
     const scriptContent = getScriptContent(content);
     // check duplicate items
-    if (await ctx.model.faas.script.hasName(uid, name)) {
+    if (await ctx.model.faas.script.hasName(scopeId, name)) {
       ctx.throw(400, '名称已被占用');
     }
+    // generate lambda id
+    const lambdaId = uuidv4();
     // write content to kv storage
-    const key = getStorageKey(scopeId, name);
+    const key = getStorageKey(lambdaId);
     await ctx.tigo.faas.storage.put(key, scriptContent);
     // save relation to db
     const script = await ctx.model.faas.script.create({
-      uid: ctx.state.user.id,
+      id: lambdaId,
+      scopeId: ctx.state.user.scopeId,
       name,
     });
     // if env exists, add env to kv db
     if (env) {
-      await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, name), env || {});
+      await ctx.tigo.faas.storage.putObject(getEnvStorageKey(lambdaId), env || {});
     }
     return script.id;
   }
   async edit(ctx) {
     const { id, name, content } = ctx.request.body;
-    const { id: uid, scopeId } = ctx.state.user;
+    const { scopeId } = ctx.state.user;
     // check content
     const scriptContent = getScriptContent(content);
     // check db item
-    const dbItem = await generalCheck(ctx, id);
+    const lambda = await generalCheck(ctx, id);
     // if name changed, delete previous version in storage
-    if (dbItem.name !== name) {
-      if (await ctx.model.faas.script.hasName(uid, name)) {
+    if (lambda.name !== name) {
+      if (await ctx.model.faas.script.hasName(scopeId, name)) {
         ctx.throw(400, '名称已被占用');
       }
-      await ctx.tigo.faas.storage.del(getStorageKey(scopeId, dbItem.name));
+      await ctx.tigo.faas.storage.del(getStorageKey(lambda.id));
       await ctx.model.faas.script.update(
         {
           name,
@@ -209,27 +256,27 @@ class ScriptService extends BaseService {
           },
         }
       );
-      this.cache.del(`${scopeId}_${dbItem.name}`);
+      this.cache.del(lambda.id);
       // env
-      const envKey = getEnvStorageKey(scopeId, dbItem.name);
+      const envKey = getEnvStorageKey(lambda.id);
       const env = await ctx.tigo.faas.storage.getObject(envKey);
       if (env) {
         await ctx.tigo.faas.storage.del(envKey);
-        await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, name), env);
+        await ctx.tigo.faas.storage.putObject(getEnvStorageKey(lambda.id), env);
       }
     } else {
-      this.cache.del(`${scopeId}_${name}`);
+      this.cache.del(lambda.id);
     }
     // update script
-    await ctx.tigo.faas.storage.put(getStorageKey(scopeId, name), scriptContent);
+    await ctx.tigo.faas.storage.put(getStorageKey(lambda.id), scriptContent);
   }
   async rename(ctx) {
     const { id, newName } = ctx.request.body;
-    const { id: uid, scopeId } = ctx.state.user;
-    if (await ctx.model.faas.script.hasName(uid, newName)) {
+    const { scopeId } = ctx.state.user;
+    if (await ctx.model.faas.script.hasName(scopeId, newName)) {
       ctx.throw(400, '名称已被占用');
     }
-    const dbItem = await generalCheck(ctx, id);
+    await generalCheck(ctx, id);
     await ctx.model.faas.script.update(
       {
         name: newName,
@@ -240,30 +287,13 @@ class ScriptService extends BaseService {
         },
       }
     );
-    // script
-    const oldKey = getStorageKey(scopeId, dbItem.name);
-    const content = await ctx.tigo.faas.storage.getString(oldKey);
-    if (typeof content !== 'string') {
-      ctx.throw(500, '无法找到函数内容');
-    }
-    await ctx.tigo.faas.storage.del(oldKey);
-    this.cache.del(`${scopeId}_${dbItem.name}`);
-    await ctx.tigo.faas.storage.put(getStorageKey(scopeId, newName), content);
-    // env
-    const envKey = getEnvStorageKey(scopeId, dbItem.name);
-    const env = await ctx.tigo.faas.storage.getObject(envKey);
-    if (env) {
-      await ctx.tigo.faas.storage.del(getStorageKey(envKey));
-      await ctx.tigo.faas.storage.putObject(getEnvStorageKey(scopeId, newName), env || {});
-    }
   }
   async delete(ctx) {
     const { id } = ctx.request.body;
-    const { scopeId } = ctx.state.user;
-    const dbItem = await generalCheck(ctx, id);
-    await ctx.tigo.faas.storage.del(getEnvStorageKey(scopeId, dbItem.name));
-    await ctx.tigo.faas.storage.del(getStorageKey(scopeId, dbItem.name));
-    this.cache.del(`${scopeId}_${dbItem.name}`);
+    const lambda = await generalCheck(ctx, id);
+    await ctx.tigo.faas.storage.del(getEnvStorageKey(lambda.id));
+    await ctx.tigo.faas.storage.del(getStorageKey(lambda.id));
+    this.cache.del(lambda.id);
     await ctx.model.faas.script.destroy({
       where: {
         id,
@@ -272,9 +302,8 @@ class ScriptService extends BaseService {
   }
   async getContent(ctx) {
     const { id } = ctx.query;
-    const { scopeId } = ctx.state.user;
-    const dbItem = await generalCheck(ctx, id);
-    return await ctx.tigo.faas.storage.getString(getStorageKey(scopeId, dbItem.name));
+    const lambda = await generalCheck(ctx, id);
+    return await ctx.tigo.faas.storage.getString(getStorageKey(lambda.id));
   }
   deleteCache(key) {
     this.cache.del(key);

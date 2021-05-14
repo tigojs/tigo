@@ -48,19 +48,16 @@ class ScriptController extends BaseController {
   async handleList(ctx) {
     const list = await ctx.model.faas.script.findAll({
       where: {
-        uid: ctx.state.user.id,
+        scopeId: ctx.state.user.scopeId,
       },
     });
     ctx.body = successResponse(list);
   }
   async handleGetContent(ctx) {
-    if (ctx.query.id) {
-      ctx.query.id = parseInt(ctx.query.id, 10);
-    }
     ctx.verifyParams({
       id: {
-        type: 'number',
-        min: 1,
+        type: 'string',
+        required: true,
       },
     });
     ctx.body = successResponse({
@@ -79,9 +76,8 @@ class ScriptController extends BaseController {
         required: true,
       },
       id: {
-        type: 'number',
+        type: 'string',
         required: false,
-        min: 1,
       },
       name: {
         type: 'string',
@@ -112,9 +108,8 @@ class ScriptController extends BaseController {
   async handleRename(ctx) {
     ctx.verifyParams({
       id: {
-        type: 'number',
+        type: 'string',
         required: true,
-        min: 1,
       },
       newName: {
         type: 'string',
@@ -127,9 +122,8 @@ class ScriptController extends BaseController {
   async handleDelete(ctx) {
     ctx.verifyParams({
       id: {
-        type: 'number',
+        type: 'string',
         required: true,
-        min: 1,
       }
     });
     await ctx.service.faas.script.delete(ctx);

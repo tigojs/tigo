@@ -1,5 +1,4 @@
 const LambdaLogger = require('./src/utils/logger');
-const { getLambdaId } = require('./src/utils/log');
 const { collectController } = require('@tigojs/utils');
 const path = require('path');
 
@@ -35,7 +34,6 @@ const plugin = {
     const faasLog = {
       db: database,
       createLogger: (lambdaId) => new LambdaLogger(app, database, lambdaId),
-      getLambdaId,
       maxTimeSpan: opts.maxTimeSpan || 1000 * 60 * 60 * 24  // 1 day
     };
     if (!app.tigo.faas.enabledFeats) {

@@ -1,10 +1,20 @@
 {
   "name": "@tigojs/faas",
-  "version": "0.3.1",
+  "version": "0.3.0",
   "description": "FaaS plugin for tigo",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
+  "files": [
+    "main.js",
+    "src",
+    "scripts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tigojs/tigo.git"
+  },
+  "homepage": "https://github.com/tigojs/tigo/tree/main/packages/faas",
   "scripts": {
     "dev": "cd ../../ && npm run dev"
   },

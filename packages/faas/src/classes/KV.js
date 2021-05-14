@@ -1,9 +1,9 @@
 const LRUCache = require('lru-cache');
 const wrapper = require('../utils/classWrapper');
-const ctx = Symbol('ctx');
-const scopeId = Symbol('scopeId');
+const ctx = Symbol('koaContext');
+const lambdaId = Symbol('lambdaId');
 
-const getKvKey = (scopeId, key) => `faas_kv_${scopeId}_${key}`;
+const getKvKey = (lambdaId, key) => `faas_kv_${lambdaId}_${key}`;
 
 const checkKey = (key) => {
   if (typeof key !== 'string') {
@@ -17,12 +17,12 @@ const checkValue = (value) => {
 };
 
 class KV {
-  constructor(context, config) {
+  constructor(context, _lambdaId, config) {
     if (!context.tigo.faas.kvStorage) {
       throw new Error('Lambda KV Storage is not enabled on this server.');
     }
     this[ctx] = context;
-    this[scopeId] = context.params.scopeId;
+    this[lambdaId] = _lambdaId;
     // init cache
     const cacheConfig = config?.cache || {};
     this.cache = new LRUCache({
@@ -33,13 +33,13 @@ class KV {
   }
   async get(key) {
     checkKey(key);
-    const cacheKey = `${this[scopeId]}_${key}`;
+    const cacheKey = `${this[lambdaId]}_${key}`;
     const cached = this.cache.get(cacheKey);
     if (cached) {
       return cached;
     }
     // no cached value
-    const value = await this[ctx].tigo.faas.kvStorage.getString(getKvKey(this[scopeId], key));
+    const value = await this[ctx].tigo.faas.kvStorage.getString(getKvKey(this[lambdaId], key));
     if (value) {
       this.cache.set(cacheKey, value);
     }
@@ -49,23 +49,23 @@ class KV {
     checkKey(key);
     checkValue(value);
     try {
-      await this[ctx].tigo.faas.kvStorage.put(getKvKey(this[scopeId], key), value);
+      await this[ctx].tigo.faas.kvStorage.put(getKvKey(this[lambdaId], key), value);
     } catch (err) {
       this[ctx].logger.error('Failed to set value.', err);
       throw new Error('Failed to set value.');
     }
-    const cacheKey = `${this[scopeId]}_${key}`;
+    const cacheKey = `${this[lambdaId]}_${key}`;
     this.cache.del(cacheKey);
   }
   async remove(key) {
     checkKey(key);
     try {
-      await this[ctx].tigo.faas.kvStorage.del(getKvKey(this[scopeId], key));
+      await this[ctx].tigo.faas.kvStorage.del(getKvKey(this[lambdaId], key));
     } catch (err) {
       this[ctx].logger.error('Failed to remove key.', err);
       throw new Error('Failed to remove key from kv storage.');
     }
-    const cacheKey = `${this[scopeId]}_${key}`;
+    const cacheKey = `${this[lambdaId]}_${key}`;
     this.cache.del(cacheKey);
   }
 }

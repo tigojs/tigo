@@ -2,11 +2,16 @@ const { getTablePrefix } = require('@tigojs/utils');
 
 const define = function (app, engine) {
   const prefix = getTablePrefix(app);
-  const { INTEGER, STRING } = engine.Sequelize;
+  const { STRING } = engine.Sequelize;
 
   const Script = engine.define('fassScript', {
-    uid: {
-      type: INTEGER,
+    id: {
+      type: STRING,
+      primaryKey: true,
+      allowNull: false,
+    },
+    scopeId: {
+      type: STRING,
     },
     name: {
       type: STRING,
@@ -15,14 +20,18 @@ const define = function (app, engine) {
     tableName: `${prefix}_faas_script`,
   });
 
-  Script.hasName = async function (uid, name) {
+  Script.hasName = async function (scopeId, name) {
     const item = await this.findOne({
       where: {
-        uid,
+        scopeId,
         name,
       },
     });
     return !!item;
+  }
+
+  if (process.env.NODE_ENV === 'dev' && process.env.DB_ENV === 'dev') {
+    Script.sync({ alter: true });
   }
 
   return Script;

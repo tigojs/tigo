@@ -9,11 +9,11 @@ const MODEL_DIR = path.resolve(__dirname, './src/model');
 const getKvOptions = function ({ kvEngine, kvConfig, defaultLocalPath }) {
   let dbOpts;
   if (kvEngine.storageType === 'local') {
-    if (kvConfig.storage && kvConfig.storage.path) {
-      if (!fs.existsSync(kvConfig.storage.path)) {
-        throw new Error(`Cannot find the specific storage path [${opts.storage.path}].`);
+    if (kvConfig && kvConfig.storagePath) {
+      if (!fs.existsSync(kvConfig.storagePath)) {
+        throw new Error(`Cannot find the specific storage path [${kvConfig.storagePath}].`);
       }
-      dbOpts = kvConfig.storage.path;
+      dbOpts = kvConfig.storagePath;
     } else {
       dbOpts = defaultLocalPath;
       this.logger.warn('Use default storage path.');
@@ -41,8 +41,8 @@ const plugin = {
     }
     // check sql db engine
     let sqlEngine;
-    if (opts.dbEngine) {
-      const engine = app.dbEngine.sql[opts.dbEngine];
+    if (opts.sqlEngine) {
+      const engine = app.dbEngine.sql[opts.sqlEngine];
       if (!engine) {
         throw new Error('Cannot find the specific SQL database engine.');
       }
@@ -57,8 +57,8 @@ const plugin = {
     }
     // check kv db engine
     let kvEngine;
-    if (opts.storageEngine) {
-      const engine = app.dbEngine.kv[opts.storageEngine];
+    if (opts.kvEngine) {
+      const engine = app.dbEngine.kv[opts.kvEngine];
       if (!engine) {
         throw new Error('Cannot find the specific storage engine');
       }
@@ -77,22 +77,22 @@ const plugin = {
         app,
         getKvOptions.call(app, {
           kvEngine,
-          kvConfig: opts.storage || {},
+          kvConfig: opts.kvConfig || {},
           defaultLocalPath: runDirPath.call(app, './faas/storage'),
         })
       ),
       allowedRequire: opts.allowedRequire || [],
     };
     // init lambda kv if enabled
-    const lambdaKvConfig = opts.kv || {};
-    if (lambdaKvConfig.enable) {
+    const lambdaKvConfig = opts.lambdaKv || {};
+    if (lambdaKvConfig.enabled) {
       app.logger.info('Lambda KV is enabled, starting to init lambda KV.');
       Object.assign(faas, {
         kvStorage: kvEngine.openDatabase(
           app,
           getKvOptions.call(app, {
             kvEngine,
-            kvConfig: lambdaKvConfig.storage || {},
+            kvConfig: lambdaKvConfig.storageConfig || {},
             defaultLocalPath: runDirPath.call(app, './faas/kv'),
           })
         ),
