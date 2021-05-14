@@ -2,4 +2,4 @@
 
 ## 0.5.0
 
-Fix: add missing `log4js` to dependencies.
+- Fix: add missing `log4js` to dependencies.

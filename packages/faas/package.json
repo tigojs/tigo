@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.4.1",
+    "@tigojs/utils": "^0.5.0",
     "lru-cache": "^6.0.0",
     "node-fetch": "^2.6.1",
     "superagent": "^6.1.0",
