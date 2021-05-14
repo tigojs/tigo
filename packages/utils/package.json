@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/utils",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Utils for tigo.",
   "main": "main.js",
   "author": "BackRunner",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "escape-html": "^1.0.3",
+    "log4js": "^6.3.0",
     "size-converter": "^1.0.1",
     "stream-wormhole": "^1.1.0"
   }
