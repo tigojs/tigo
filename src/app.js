@@ -10,6 +10,7 @@ const compress = require('koa-compress');
 const parameter = require('koa-parameter');
 const { createLogger, registerErrorHandler, killProcess, collectMiddleware, collectStaticFiles, collectPlugins, collectController } = require('@tigojs/utils');
 const packageJson = require('../package.json');
+const EventEmitter = require('events');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './controller');
 const MIDDLWARE_DIR = path.resolve(__dirname, './middleware');
@@ -131,8 +132,8 @@ async function initServer() {
       this.logger.error(err);
       return killProcess.call(this, 'pluginMountError');
     }
-    if (typeof plugins[name].afterMount === 'function') {
-      this.logger.debug(`Hook detected, running aftereMount method.`);
+    if (typeof plugins[name].afterMount === 'function' && process.env.DB_ENV !== 'migrate') {
+      this.logger.debug(`Hook detected, running afterMount method.`);
       plugins[name].afterMount.call(this, this);
     }
   }
@@ -144,6 +145,7 @@ async function initServer() {
   this.controller.main = controllers;
   // set inited flag
   this.inited = true;
+  this.events.emit('inited');
 }
 
 class App {
@@ -175,6 +177,7 @@ class App {
     this.router = new TreeRouter();
     // init server
     this.inited = false;
+    this.events = new EventEmitter();
     initServer.call(this);
   }
   waitForInit() {

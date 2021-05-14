@@ -51,4 +51,7 @@ logger.info('Initializing server instance...');
 const app = new App(rc);
 logger.info('Server instance has been initialized.');
 
-doMigrate(app);
+app.events.on('inited', () => {
+  doMigrate(app);
+});
+
