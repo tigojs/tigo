@@ -5,11 +5,12 @@ const buildLog = (type, contents) => {
   }
   // build message
   const message = contents.map((content) => {
-    if (typeof content === 'string') {
-      return content;
-    }
     if (typeof content === 'object') {
-      return JSON.stringify(content);
+      if (content instanceof Error) {
+        return `${content}`;
+      } else {
+        return JSON.stringify(content);
+      }
     }
     return `${content}`;
   }).join(' ');
