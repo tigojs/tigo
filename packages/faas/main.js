@@ -86,17 +86,25 @@ const plugin = {
     // init lambda kv if enabled
     const lambdaKvConfig = opts.lambdaKv || {};
     if (lambdaKvConfig.enabled) {
-      app.logger.info('Lambda KV is enabled, starting to init lambda KV.');
+      app.logger.debug('Lambda KV is enabled.');
+      // get mongodb engine
+      const keys = Object.keys(app.dbEngine.mongodb);
+      let engine;
+      if (!keys.length) {
+        throw new Error('Cannot find any mongodb engine.');
+      }
+      if (lambdaKvConfig.engine) {
+        if (!keys.includes(lambdaKvConfig.engine)) {
+          throw new Error('Cannot find the specific mongodb engine.');
+        }
+        engine = app.dbEngine.mongodb[lambdaKvConfig.engine];
+      } else {
+        engine = app.dbEngine.mongodb[keys[0]];
+      }
+      engine = engine.db(opts.database || 'tigo_lambda_kv');
       Object.assign(faas, {
-        kvStorage: kvEngine.openDatabase(
-          app,
-          getKvOptions.call(app, {
-            kvEngine,
-            kvConfig: lambdaKvConfig.storageConfig || {},
-            defaultLocalPath: runDirPath.call(app, './faas/kv'),
-          })
-        ),
-        kvEnabled: true,
+        lambdaKvEngine: engine,
+        lambdaKvEnabled: true,
       });
     }
     app.tigo.faas = faas;
