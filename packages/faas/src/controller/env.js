@@ -7,7 +7,7 @@ const generalCheck = async (ctx, lambdaId) => {
   if (!lambda) {
     ctx.throw(400, '无法找到对应的函数');
   }
-  if (lambda.uid !== ctx.state.user.id) {
+  if (lambda.scopeId !== ctx.state.user.scopeId) {
     ctx.throw(401, '无权访问');
   }
   return lambda;
