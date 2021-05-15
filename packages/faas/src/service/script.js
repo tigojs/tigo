@@ -69,17 +69,25 @@ class ScriptService extends BaseService {
       maxAge: cacheConfig.maxIdAge || 60 * 1000,
       updateAgeOnGet: true,
     });
+    this.lambdaNameCache = new LRU({
+      max: cacheConfig.maxNames || 1000,
+      maxAge: cacheConfig.maxNameAge || 30 * 1000,
+      updateAgeOnGet: true,
+    });
     this.maxWaitTime = config.maxWaitTime || 10;
     this.scriptPathPrefix = path.resolve(app.rootDirPath, './lambda_userscript');
   }
-  async getLambdaId(scopeId, name) {
+  async getLambdaId(ctx, scopeId, name) {
     // check cache
     const cached = this.lambdaIdCache.get(getLambdaIdCacheKey(scopeId, name));
     if (cached) {
       return cached;
     }
     // get id from db
-    const id = await ctx.model.faas.script.find({
+    const { id } = await ctx.model.faas.script.findOne({
+      attributes: [
+        'id',
+      ],
       where: {
         scopeId,
         name,
@@ -92,12 +100,12 @@ class ScriptService extends BaseService {
   }
   async exec(ctx, scopeId, name) {
     // get lambda id from db
-    const lambdaId = await this.getLambdaId(scopeId, name);
-    if (!res) {
+    const lambdaId = await this.getLambdaId(ctx, scopeId, name);
+    if (!lambdaId) {
       ctx.throw(400, '无法找到对应的函数');
     }
     // check cache
-    const cached = this.cache.get(cacheKey);
+    const cached = this.cache.get(lambdaId);
     const showStack = ctx.query.__tigoDebug === '1';
     let eventEmitter;
     if (cached) {
@@ -109,7 +117,7 @@ class ScriptService extends BaseService {
         ctx.throw(400, '无法找到对应的函数');
       }
       eventEmitter = res.eventEmitter;
-      this.cache.set(cacheKey, res);
+      this.cache.set(lambdaId, res);
     }
     try {
       await new Promise((resolve, reject) => {
@@ -129,9 +137,13 @@ class ScriptService extends BaseService {
               });
             }
             ctx.body = response.body || '';
-            // set content type when body is a string
-            if (typeof response.body === 'string' && !ctx.headers['content-type']) {
-              ctx.set('Content-Type', 'application/json');
+            // set content type when body is a object
+            if (!ctx.headers['content-type']) {
+              if (typeof response.body === 'object') {
+                ctx.set('Content-Type', 'application/json');
+              } else {
+                ctx.set('Content-Type', 'text/plain');
+              }
             }
             clearTimeout(wait);
             resolve();
@@ -191,7 +203,7 @@ class ScriptService extends BaseService {
     if (ctx.tigo.oss) {
       vm.freeze(OSS(ctx, this.config.oss), 'OSS');
     }
-    if (ctx.tigo.faas.kvEnabled) {
+    if (ctx.tigo.faas.lambdaKvEnabled) {
       vm.freeze(KV(ctx, lambdaId, this.config.lambdaKv), 'KV');
     }
     if (ctx.tigo.faas.log) {
@@ -291,8 +303,11 @@ class ScriptService extends BaseService {
   async delete(ctx) {
     const { id } = ctx.request.body;
     const lambda = await generalCheck(ctx, id);
+    // delete env and script content
     await ctx.tigo.faas.storage.del(getEnvStorageKey(lambda.id));
     await ctx.tigo.faas.storage.del(getStorageKey(lambda.id));
+    // delete kv storage
+    // delete logs
     this.cache.del(lambda.id);
     await ctx.model.faas.script.destroy({
       where: {
@@ -300,10 +315,16 @@ class ScriptService extends BaseService {
       },
     });
   }
+  async getName(ctx) {
+    const { id } = ctx.query;
+    const lambda = await generalCheck(ctx, id);
+    return lambda.name;
+  }
   async getContent(ctx) {
     const { id } = ctx.query;
     const lambda = await generalCheck(ctx, id);
-    return await ctx.tigo.faas.storage.getString(getStorageKey(lambda.id));
+    const res = await ctx.tigo.faas.storage.getString(getStorageKey(lambda.id));
+    return res;
   }
   deleteCache(key) {
     this.cache.del(key);

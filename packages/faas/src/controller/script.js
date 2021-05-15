@@ -22,6 +22,11 @@ class ScriptController extends BaseController {
         auth: true,
         target: this.handleList,
       },
+      '/faas/getName': {
+        type: 'get',
+        auth: true,
+        target: this.handleGetName,
+      },
       '/faas/getContent': {
         type: 'get',
         auth: true,
@@ -52,6 +57,15 @@ class ScriptController extends BaseController {
       },
     });
     ctx.body = successResponse(list);
+  }
+  async handleGetName(ctx) {
+    ctx.verifyParams({
+      id: {
+        type: 'string',
+        required: true,
+      },
+    });
+    ctx.body = successResponse(await ctx.service.faas.script.getName(ctx));
   }
   async handleGetContent(ctx) {
     ctx.verifyParams({
