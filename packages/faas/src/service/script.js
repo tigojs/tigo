@@ -326,7 +326,11 @@ class ScriptService extends BaseService {
     await ctx.tigo.faas.storage.del(getEnvStorageKey(lambda.id));
     await ctx.tigo.faas.storage.del(getStorageKey(lambda.id));
     // delete kv storage
+    await ctx.tigo.faas.lambdaKvEngine.dropCollection(lambda.id);
     // delete logs
+    if (ctx.tigo.faas.log) {
+      await ctx.tigo.faas.log.db.dropCollection(lambda.id);
+    }
     this.cache.del(lambda.id);
     await ctx.model.faas.script.destroy({
       where: {

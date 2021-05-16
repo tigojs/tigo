@@ -16,6 +16,8 @@
 
 - Fix: lambda KV storage key and cache key is not right.
 
+- Fix: lambda's KV storage will be deleted when lambda is removed.
+
 - Fix: service can read lambda kv config correctly now.
 
 - Fix: lambda event emitter will remove all event listeners when it be diposed.
