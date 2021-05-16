@@ -1,5 +1,5 @@
 const path = require('path');
-const LRU = require('lru-cache');
+const LRUCache = require('lru-cache');
 const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const { NodeVM } = require('vm2');
@@ -55,7 +55,7 @@ class ScriptService extends BaseService {
     let { cache: cacheConfig } = config;
     cacheConfig = cacheConfig || {};
     // set cache
-    this.cache = new LRU({
+    this.cache = new LRUCache({
       max: cacheConfig.maxLambda || 100,
       maxAge: cacheConfig.maxLambdaAge || 60 * 1000, // default max age is 1min,
       updateAgeOnGet: true,
@@ -65,12 +65,12 @@ class ScriptService extends BaseService {
         cached.vm = null;
       },
     });
-    this.lambdaIdCache = new LRU({
+    this.lambdaIdCache = new LRUCache({
       max: cacheConfig.maxIds || 1000,
       maxAge: cacheConfig.maxIdAge || 60 * 1000,
       updateAgeOnGet: true,
     });
-    this.lambdaNameCache = new LRU({
+    this.lambdaNameCache = new LRUCache({
       max: cacheConfig.maxNames || 1000,
       maxAge: cacheConfig.maxNameAge || 30 * 1000,
       updateAgeOnGet: true,
