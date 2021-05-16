@@ -18,4 +18,8 @@
 
 - Fix: service can read lambda kv config correctly now.
 
+- Fix: lambda event emitter will remove all event listeners when it be diposed.
+
+- Fix: unhandled promise rejection in lambda will be transformed into an error and be thrown to the outside.
+
 - Minor: upgrade `@tigojs/utils`.

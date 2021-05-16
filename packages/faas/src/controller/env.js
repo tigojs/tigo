@@ -11,7 +11,7 @@ const generalCheck = async (ctx, lambdaId) => {
     ctx.throw(401, '无权访问');
   }
   return lambda;
-}
+};
 
 class ScriptEnvController extends BaseController {
   getRoutes() {
@@ -47,7 +47,7 @@ class ScriptEnvController extends BaseController {
     });
     const { lambdaId } = ctx.query;
     const lambda = await generalCheck(ctx, lambdaId);
-    const envObj = await ctx.tigo.faas.storage.getObject(getEnvStorageKey(lambda.id))
+    const envObj = await ctx.tigo.faas.storage.getObject(getEnvStorageKey(lambda.id));
     ctx.body = successResponse(envObj);
   }
   async handleAdd(ctx) {

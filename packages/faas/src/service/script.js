@@ -60,6 +60,7 @@ class ScriptService extends BaseService {
       maxAge: cacheConfig.maxLambdaAge || 60 * 1000, // default max age is 1min,
       updateAgeOnGet: true,
       dispose: (_, cached) => {
+        cached.eventEmitter.removeAllListeners();
         cached.eventEmitter = null;
         cached.vm = null;
       },
@@ -123,7 +124,13 @@ class ScriptService extends BaseService {
       await new Promise((resolve, reject) => {
         const wait = setTimeout(() => {
           reject(new Error('The function execution time is above the limit.'));
+          eventEmitter.off('error', errorHandler);
         }, this.maxWaitTime * 1000);
+        const errorHandler = (err) => {
+          clearTimeout(wait);
+          reject(err);
+        };
+        eventEmitter.once('error', errorHandler);
         eventEmitter.emit('request', {
           context: createContextProxy(ctx),
           respondWith: (response) => {
@@ -146,6 +153,7 @@ class ScriptService extends BaseService {
               }
             }
             clearTimeout(wait);
+            eventEmitter.off('error', errorHandler);
             resolve();
           },
         });
@@ -157,7 +165,9 @@ class ScriptService extends BaseService {
           stack: err,
         };
       } else {
-        err.stack = showStack ? stackFilter(err.stack) : null;
+        if (process.env.NODE_ENV !== 'dev') {
+          err.stack = showStack ? stackFilter(err.stack) : null;
+        }
       }
       err.fromFaas = true;
       throw err;
@@ -168,7 +178,14 @@ class ScriptService extends BaseService {
     const script = await ctx.tigo.faas.storage.getString(getStorageKey(lambdaId));
     const eventEmitter = new EventEmitter();
     const addEventListener = (name, func) => {
-      eventEmitter.on(name, func);
+      const wrapper = async (...args) => {
+        try {
+          await Promise.resolve(func.call(null, ...args));
+        } catch (err) {
+          eventEmitter.emit('error', err);
+        }
+      };
+      eventEmitter.on(name, wrapper);
     };
     const emitLambda = async (name, ...args) => {
       const cached = this.cache.get(lambdaId);
@@ -213,7 +230,9 @@ class ScriptService extends BaseService {
     try {
       vm.run(script, `${this.scriptPathPrefix}_${new Date().valueOf()}.js`);
     } catch (err) {
-      err.stack = showStack ? stackFilter(err.stack) : null;
+      if (process.env.NODE_ENV !== 'dev') {
+        err.stack = showStack ? stackFilter(err.stack) : null;
+      }
       err.fromFaas = true;
       throw err;
     }
