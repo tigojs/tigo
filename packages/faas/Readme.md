@@ -31,6 +31,7 @@ module.exports = {
           storagePath: '',  // storage path for kv engine (local type)
         },  // Configuration object that will be passed to KV engine
         allowedRequire: [''],  // string array, packages allowd to be required from external in the lambda
+        maxWaitTime: 10,  // default max wait time for lambda executing
         lambdaKv: {
           enabled: false,  // whether enable the lambda kv
           storageConfig: {},  // same as kvConfig, to create another database instance for lambda kv
