@@ -57,6 +57,8 @@ module.exports = {
           maxLambdaAge: 60 * 1000,  // max lambda age in lru cache
           maxIds: 1000,  // max lambda ids in lru cache
           maxIdAge: 60 * 1000,  // max lambda id age in lru cache
+          maxPolicies: 100,  // max policy in lru cache
+          maxPolicyAge: 60 * 1000,  // max policy age
         },
       },
     },

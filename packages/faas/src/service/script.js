@@ -120,12 +120,17 @@ class ScriptService extends BaseService {
       eventEmitter = res.eventEmitter;
       this.cache.set(lambdaId, res);
     }
+    // get policy
+    let policy = await ctx.service.faas.policy.get(lambdaId);
+    if (!policy) {
+      policy = {};
+    }
     try {
       await new Promise((resolve, reject) => {
         const wait = setTimeout(() => {
           reject(new Error('The function execution time is above the limit.'));
           eventEmitter.off('error', errorHandler);
-        }, this.maxWaitTime * 1000);
+        }, policy.maxWaitTime || this.maxWaitTime * 1000);
         const errorHandler = (err) => {
           clearTimeout(wait);
           reject(err);

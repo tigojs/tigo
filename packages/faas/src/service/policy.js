@@ -1,8 +1,30 @@
 const { BaseService } = require('@tigojs/core');
 const { getPolicyKey } = require('../utils/storage');
+const LRUCache = require('lru-cache');
+const { validatePolicy } = require('../utils/validate');
 
 class LambdaPolicyService extends BaseService {
+  constructor(app) {
+    super(app);
+    // get config
+    let { config } = app.config.plugins.faas;
+    if (!config) {
+      config = {};
+    }
+    let { cache: cacheConfig } = config;
+    cacheConfig = cacheConfig || {};
+    // init cache
+    this.cache = new LRUCache({
+      max: cacheConfig.maxPolicies || 100,
+      maxAge: cacheConfig.maxPolicyAge || 60 * 1000,
+      updateAgeOnGet: true,
+    });
+  }
   async get(ctx, lambdaId) {
+    const stored = this.cache.get(lambdaId);
+    if (stored) {
+      return stored;
+    }
     let policy;
     try {
       policy = await ctx.tigo.faas.storage.getObject(getPolicyKey(lambdaId));
@@ -12,10 +34,17 @@ class LambdaPolicyService extends BaseService {
       }
       throw err;
     }
+    if (policy) {
+      this.cache.set(lambdaId, policy);
+    }
     return policy || null;
   }
   async set(ctx, lambdaId, policy) {
+    // validate
+    validatePolicy(ctx, policy);
+    // set to db
     await ctx.tigo.faas.storage.putObject(getPolicyKey(lambdaId), policy);
+    this.cache.del(lambdaId);
   }
 };
 

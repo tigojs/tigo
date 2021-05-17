@@ -12,6 +12,8 @@
 
 - Feat: added a method called `getName` to get lambda name by ID.
 
+- Feat: added configurable lambda policy.
+
 - Fix: the default `Content-Type` header will be `text/plain` by default when `body` in `respondWith` method is not an object.
 
 - Fix: lambda KV storage key and cache key is not right.
