@@ -1,36 +1,65 @@
 const { isDomain } = require('regex-go/dist/regex-go.umd');
 
 const doPrompt = async function () {
-  const answer = await this.inquirer.prompt([
+  let opts = {};
+  const confirm = await this.inquirer.prompt([
     {
-      type: 'input',
-      name: 'domain',
-      message: 'Domain that needs to be bound to the internal APIs:',
-      validate: (domain) => {
-        if (!isDomain(domain)) {
-          return 'Domain is invalid.';
-        }
-        return true;
-      },
-    },
-    {
-      type: 'input',
-      name: 'prefix',
-      message: 'If you want to add a prefix to the APIs, please input it (or just remain empty):',
-      default: '',
+      type: 'confirm',
+      name: 'separate',
+      message: 'Do you want to proxy internal APIs and external APIs separately?',
+      default: false,
     },
   ]);
+  if (confirm.seperate) {
+    const answer = await this.inquirer.prompt([
+      {
+        type: 'input',
+        name: 'internal',
+        message: 'Proxy domain for internal APIs:',
+        validate: (domain) => {
+          if (!isDomain(domain)) {
+            return 'Domain is invalid.';
+          }
+          return true;
+        },
+      },
+      {
+        type: 'input',
+        name: 'external',
+        message: 'Proxy domain for external APIs',
+        validate: (domain) => {
+          if (!isDomain(domain)) {
+            return 'Domain is invalid.';
+          }
+          return true;
+        },
+      },
+    ]);
+    Object.assign(opts, answer);
+  } else {
+    const answer = await this.inquirer.prompt([
+      {
+        type: 'input',
+        name: 'domain',
+        message: 'Proxy domain for APIs:',
+        validate: (domain) => {
+          if (!isDomain(domain)) {
+            return 'Domain is invalid.';
+          }
+          return true;
+        },
+      },
+    ]);
+    opts.domain = answer.domain;
+  }
 
-  return answer;
-}
+  return opts;
+};
 
 const postInstall = async function () {
-  const answer = await doPrompt.call(this);
-  const { domain } = answer;
+  const opts = await doPrompt.call(this);
   this.updatePluginConfig('@tigojs/api-proxy', (pluginConfig) => {
-    Object.assign(pluginConfig, {
-      domain,
-    });
+    Object.assign(pluginConfig, opts);
   });
 };
 
