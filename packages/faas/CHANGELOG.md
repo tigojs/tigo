@@ -26,4 +26,6 @@
 
 - Fix: unhandled promise rejection in lambda will be transformed into an error and be thrown to the outside.
 
+- Fix: edit lambda environment will throw a cache related error.
+
 - Minor: upgrade `@tigojs/utils`.

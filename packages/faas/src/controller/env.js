@@ -110,7 +110,7 @@ class ScriptEnvController extends BaseController {
     }
     envObj[k] = v;
     await ctx.tigo.faas.storage.setObject(key, envObj);
-    ctx.service.faas.deleteCache(lambda.id);
+    ctx.service.faas.script.deleteCache(lambda.id);
     ctx.body = successResponse(null, '修改成功');
   }
   async handleDelete(ctx) {

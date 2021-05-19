@@ -105,6 +105,10 @@ class ScriptController extends BaseController {
         type: 'object',
         required: false,
       },
+      policy: {
+        type: 'object',
+        required: false,
+      },
     });
     const { action } = ctx.request.body;
     if (action === 'add') {

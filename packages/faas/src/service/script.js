@@ -7,7 +7,8 @@ const { v4: uuidv4 } = require('uuid');
 const { BaseService } = require('@tigojs/core');
 const { createContextProxy } = require('../utils/context');
 const { stackFilter } = require('../utils/stackFilter');
-const { getStorageKey, getEnvStorageKey } = require('../utils/storage');
+const { getStorageKey, getEnvStorageKey, getPolicyKey } = require('../utils/storage');
+const { validatePolicy } = require('../utils/validate');
 const allowList = require('../constants/allowList');
 const Response = require('../classes/Response');
 const CFS = require('../classes/CFS');
@@ -244,13 +245,17 @@ class ScriptService extends BaseService {
     return { vm, eventEmitter };
   }
   async add(ctx) {
-    const { name, content, env } = ctx.request.body;
+    const { name, content, env, policy } = ctx.request.body;
     const { scopeId } = ctx.state.user;
     // check content
     const scriptContent = getScriptContent(content);
     // check duplicate items
     if (await ctx.model.faas.script.hasName(scopeId, name)) {
       ctx.throw(400, '名称已被占用');
+    }
+    // validate policy if exists
+    if (policy) {
+      validatePolicy(ctx, policy);
     }
     // generate lambda id
     const lambdaId = uuidv4();
@@ -266,6 +271,10 @@ class ScriptService extends BaseService {
     // if env exists, add env to kv db
     if (env) {
       await ctx.tigo.faas.storage.putObject(getEnvStorageKey(lambdaId), env || {});
+    }
+    // if policy exists, add policy to kv db
+    if (policy) {
+      await ctx.tigo.faas.storage.putObject(getPolicyKey(lambdaId), policy);
     }
     return script.id;
   }
@@ -331,10 +340,20 @@ class ScriptService extends BaseService {
     await ctx.tigo.faas.storage.del(getEnvStorageKey(lambda.id));
     await ctx.tigo.faas.storage.del(getStorageKey(lambda.id));
     // delete kv storage
-    await ctx.tigo.faas.lambdaKvEngine.dropCollection(lambda.id);
+    const kvCollections = await ctx.tigo.faas.log.db.listCollections({
+      name: lambda.id,
+    }).toArray();
+    if (kvCollections.length) {
+      await ctx.tigo.faas.lambdaKvEngine.dropCollection(lambda.id);
+    }
     // delete logs
     if (ctx.tigo.faas.log) {
-      await ctx.tigo.faas.log.db.dropCollection(lambda.id);
+      const logCollections = await ctx.tigo.faas.log.db.listCollections({
+        name: lambda.id,
+      }).toArray();
+      if (logCollections.length) {
+        await ctx.tigo.faas.log.db.dropCollection(lambda.id);
+      }
     }
     this.cache.del(lambda.id);
     await ctx.model.faas.script.destroy({

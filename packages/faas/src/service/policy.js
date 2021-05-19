@@ -1,7 +1,7 @@
 const { BaseService } = require('@tigojs/core');
 const { getPolicyKey } = require('../utils/storage');
-const LRUCache = require('lru-cache');
 const { validatePolicy } = require('../utils/validate');
+const LRUCache = require('lru-cache');
 
 class LambdaPolicyService extends BaseService {
   constructor(app) {
@@ -46,6 +46,9 @@ class LambdaPolicyService extends BaseService {
     await ctx.tigo.faas.storage.putObject(getPolicyKey(lambdaId), policy);
     this.cache.del(lambdaId);
   }
-};
+  delCache(lambdaId) {
+    this.cache.del(lambdaId);
+  }
+}
 
 module.exports = LambdaPolicyService;
