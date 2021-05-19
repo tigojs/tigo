@@ -49,7 +49,10 @@ class LogQueryController extends BaseController {
       ctx.throw(400, 'Time span is invalid.');
     }
     // check collection
-    if (!(await ctx.tigo.faas.log.db.listCollections(lambdaId))) {
+    const collections = await ctx.tigo.faas.log.db.listCollections({
+      name: lambdaId,
+    }).toArray();
+    if (!collections.length) {
       ctx.body = successResponse({
         logs: [],
       });
