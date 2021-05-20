@@ -2,16 +2,16 @@ const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
 const { getEnvStorageKey } = require('../utils/storage');
 
-const generalCheck = async (ctx, scriptId) => {
-  const script = await ctx.model.faas.script.findByPk(scriptId);
-  if (!script) {
+const generalCheck = async (ctx, lambdaId) => {
+  const lambda = await ctx.model.faas.script.findByPk(lambdaId);
+  if (!lambda) {
     ctx.throw(400, '无法找到对应的函数');
   }
-  if (script.uid !== ctx.state.user.id) {
+  if (lambda.scopeId !== ctx.state.user.scopeId) {
     ctx.throw(401, '无权访问');
   }
-  return script;
-}
+  return lambda;
+};
 
 class ScriptEnvController extends BaseController {
   getRoutes() {
@@ -39,25 +39,21 @@ class ScriptEnvController extends BaseController {
     };
   }
   async handleGet(ctx) {
-    if (ctx.query.scriptId) {
-      ctx.query.scriptId = parseInt(ctx.query.scriptId, 10);
-    }
     ctx.verifyParams({
-      scriptId: {
-        type: 'number',
+      lambdaId: {
+        type: 'string',
         required: true,
       },
     });
-    const { scriptId } = ctx.query;
-    const { scopeId } = ctx.state.user;
-    const script = await generalCheck(ctx, scriptId);
-    const envObj = await ctx.tigo.faas.storage.getObject(getEnvStorageKey(scopeId, script.name))
+    const { lambdaId } = ctx.query;
+    const lambda = await generalCheck(ctx, lambdaId);
+    const envObj = await ctx.tigo.faas.storage.getObject(getEnvStorageKey(lambda.id));
     ctx.body = successResponse(envObj);
   }
   async handleAdd(ctx) {
     ctx.verifyParams({
-      scriptId: {
-        type: 'number',
+      lambdaId: {
+        type: 'string',
         required: true,
       },
       k: {
@@ -69,10 +65,9 @@ class ScriptEnvController extends BaseController {
         required: true,
       },
     });
-    const { scriptId, k, v } = ctx.request.body;
-    const { scopeId } = ctx.state.user;
-    const script = await generalCheck(ctx, scriptId);
-    const key = getEnvStorageKey(scopeId, script.name);
+    const { lambdaId, k, v } = ctx.request.body;
+    const lambda = await generalCheck(ctx, lambdaId);
+    const key = getEnvStorageKey(lambda.id);
     const envObj = await ctx.tigo.faas.storage.getObject(key);
     if (envObj) {
       if (envObj[k]) {
@@ -90,8 +85,8 @@ class ScriptEnvController extends BaseController {
   }
   async handleEdit(ctx) {
     ctx.verifyParams({
-      scriptId: {
-        type: 'number',
+      lambdaId: {
+        type: 'string',
         required: true,
       },
       k: {
@@ -103,10 +98,9 @@ class ScriptEnvController extends BaseController {
         required: true,
       },
     });
-    const { scriptId, k, v } = ctx.request.body;
-    const { scopeId } = ctx.state.user;
-    const script = await generalCheck(ctx, scriptId);
-    const key = getEnvStorageKey(scopeId, script.name);
+    const { lambdaId, k, v } = ctx.request.body;
+    const lambda = await generalCheck(ctx, lambdaId);
+    const key = getEnvStorageKey(lambda.id);
     const envObj = await ctx.tigo.faas.storage.getObject(key);
     if (!envObj) {
       ctx.throw(400, '找不到环境配置');
@@ -116,13 +110,13 @@ class ScriptEnvController extends BaseController {
     }
     envObj[k] = v;
     await ctx.tigo.faas.storage.setObject(key, envObj);
-    ctx.service.faas.deleteCache(`${scopeId}_${script.name}`);
+    ctx.service.faas.script.deleteCache(lambda.id);
     ctx.body = successResponse(null, '修改成功');
   }
   async handleDelete(ctx) {
     ctx.verifyParams({
-      scriptId: {
-        type: 'number',
+      lambdaId: {
+        type: 'string',
         required: true,
       },
       k: {
@@ -130,10 +124,9 @@ class ScriptEnvController extends BaseController {
         required: true,
       },
     });
-    const { scriptId, k } = ctx.request.body;
-    const { scopeId } = ctx.state.user;
-    const script = await generalCheck(ctx, scriptId);
-    const key = getEnvStorageKey(scopeId, script.name);
+    const { lambdaId, k } = ctx.request.body;
+    const lambda = await generalCheck(ctx, lambdaId);
+    const key = getEnvStorageKey(lambda.id);
     const envObj = await ctx.tigo.faas.storage.getObject(key);
     if (!envObj) {
       ctx.throw(400, '找不到环境配置');
@@ -143,7 +136,7 @@ class ScriptEnvController extends BaseController {
     }
     delete envObj[k];
     await ctx.tigo.faas.storage.setObject(key, envObj);
-    ctx.service.faas.deleteCache(`${scopeId}_${script.name}`);
+    ctx.service.faas.deleteCache(lambda.id);
     ctx.body = successResponse(null, '删除成功');
   }
 }

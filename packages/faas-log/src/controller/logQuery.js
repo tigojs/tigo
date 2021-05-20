@@ -1,6 +1,5 @@
 const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
-const { getLambdaId } = require('../utils/log');
 
 class LogQueryController extends BaseController {
   getRoutes() {
@@ -20,7 +19,7 @@ class LogQueryController extends BaseController {
       }
     });
     ctx.verifyParams({
-      lambdaName: {
+      lambdaId: {
         type: 'string',
         required: true,
       },
@@ -44,14 +43,16 @@ class LogQueryController extends BaseController {
         max: 100,
       },
     });
-    const { lambdaName, beginTime, endTime, page, pageSize } = ctx.query;
+    const { lambdaId, beginTime, endTime, page, pageSize } = ctx.query;
     // check time span
     if (endTime - beginTime <= 0 || endTime - beginTime >= ctx.tigo.faas.log.maxTimeSpan) {
       ctx.throw(400, 'Time span is invalid.');
     }
     // check collection
-    const lambdaId = getLambdaId(ctx.state.user.scopeId, lambdaName);
-    if (!(await ctx.tigo.faas.log.db.listCollections(lambdaId))) {
+    const collections = await ctx.tigo.faas.log.db.listCollections({
+      name: lambdaId,
+    }).toArray();
+    if (!collections.length) {
       ctx.body = successResponse({
         logs: [],
       });

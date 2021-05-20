@@ -14,15 +14,15 @@ const plugins = {
     }
 
     const conf = config || {};
-    if (conf.storage && !fs.existsSync(path.dirname(conf.storage))) {
-      app.logge.error('Directory of sqlite storage does not exist.');
+    if (conf.dbPath && !fs.existsSync(path.dirname(conf.dbPath))) {
+      app.logge.error('Directory for sqlite storage does not exist.');
       throw new Error('Sqlite storage directory does not exist.');
     }
 
-    if (!conf.storage) {
+    if (!conf.dbPath) {
       app.logger.warn('Use default storage path.');
     }
-    const storagePath = conf.storage || path.resolve(app.config.runDirPath, './sqlite.db');
+    const storagePath = conf.dbPath || path.resolve(app.config.runDirPath, './sqlite.db');
 
     const sqlite = new Sequelize('database', null, null, {
       dialect: 'sqlite',

@@ -5,11 +5,12 @@ const buildLog = (type, contents) => {
   }
   // build message
   const message = contents.map((content) => {
-    if (typeof content === 'string') {
-      return content;
-    }
     if (typeof content === 'object') {
-      return JSON.stringify(content);
+      if (content instanceof Error) {
+        return `${content}`;
+      } else {
+        return JSON.stringify(content);
+      }
     }
     return `${content}`;
   }).join(' ');
@@ -20,16 +21,6 @@ const buildLog = (type, contents) => {
   };
 };
 
-/**
- * @param {string} scopeId
- * @param {string} lambdaName
- * @returns An identification for lambda log collection
- */
-const getLambdaId = (scopeId, lambdaName) => {
-  return `${scopeId}_${lambdaName}`;
-};
-
 module.exports = {
   buildLog,
-  getLambdaId
 };

@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/lambda-mysql",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Mysql support for tigo lambda",
   "main": "main.js",
   "author": "BackRunner",
@@ -8,5 +8,8 @@
   "dependencies": {
     "lru-cache": "^6.0.0",
     "mysql2": "^2.2.5"
+  },
+  "tigo": {
+    "type": "lambda-package"
   }
 }

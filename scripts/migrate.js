@@ -6,9 +6,14 @@ const logger = require('./utils/logger');
 const serverDir = path.resolve(__dirname, '../');
 const rc = getRuntimeConfig(serverDir);
 
-const doMigrate = async () => {
+const doMigrate = async (app) => {
   // start migration
   logger.info('Starting migration...');
+  const modelScopes = Object.keys(app.model);
+  if (!modelScopes.length) {
+    logger.error('Cannot find any data model.');
+    return;
+  }
   try {
     await Promise.all(
       Object.keys(app.model)
@@ -46,4 +51,7 @@ logger.info('Initializing server instance...');
 const app = new App(rc);
 logger.info('Server instance has been initialized.');
 
-doMigrate();
+app.events.on('inited', () => {
+  doMigrate(app);
+});
+

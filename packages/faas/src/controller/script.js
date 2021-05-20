@@ -22,6 +22,11 @@ class ScriptController extends BaseController {
         auth: true,
         target: this.handleList,
       },
+      '/faas/getName': {
+        type: 'get',
+        auth: true,
+        target: this.handleGetName,
+      },
       '/faas/getContent': {
         type: 'get',
         auth: true,
@@ -48,19 +53,25 @@ class ScriptController extends BaseController {
   async handleList(ctx) {
     const list = await ctx.model.faas.script.findAll({
       where: {
-        uid: ctx.state.user.id,
+        scopeId: ctx.state.user.scopeId,
       },
     });
     ctx.body = successResponse(list);
   }
-  async handleGetContent(ctx) {
-    if (ctx.query.id) {
-      ctx.query.id = parseInt(ctx.query.id, 10);
-    }
+  async handleGetName(ctx) {
     ctx.verifyParams({
       id: {
-        type: 'number',
-        min: 1,
+        type: 'string',
+        required: true,
+      },
+    });
+    ctx.body = successResponse(await ctx.service.faas.script.getName(ctx));
+  }
+  async handleGetContent(ctx) {
+    ctx.verifyParams({
+      id: {
+        type: 'string',
+        required: true,
       },
     });
     ctx.body = successResponse({
@@ -79,9 +90,8 @@ class ScriptController extends BaseController {
         required: true,
       },
       id: {
-        type: 'number',
+        type: 'string',
         required: false,
-        min: 1,
       },
       name: {
         type: 'string',
@@ -92,6 +102,10 @@ class ScriptController extends BaseController {
         required: true,
       },
       env: {
+        type: 'object',
+        required: false,
+      },
+      policy: {
         type: 'object',
         required: false,
       },
@@ -112,9 +126,8 @@ class ScriptController extends BaseController {
   async handleRename(ctx) {
     ctx.verifyParams({
       id: {
-        type: 'number',
+        type: 'string',
         required: true,
-        min: 1,
       },
       newName: {
         type: 'string',
@@ -127,9 +140,8 @@ class ScriptController extends BaseController {
   async handleDelete(ctx) {
     ctx.verifyParams({
       id: {
-        type: 'number',
+        type: 'string',
         required: true,
-        min: 1,
       }
     });
     await ctx.service.faas.script.delete(ctx);

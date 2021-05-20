@@ -26,7 +26,7 @@ const plugin = {
     opts.dialect = opts.dialect || {};
     const mysql = new Sequelize(opts.database, opts.user, opts.password, {
       host: opts.host,
-      port: opts.port,
+      port: opts.port || 3306,
       dialect: 'mysql',
       pool: {
         max: opts.pool.max || 30,

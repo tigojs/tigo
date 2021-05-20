@@ -5,7 +5,7 @@ const cache = new LRU({
   max: 100,
   maxAge: 1000 * 30,
   dispose: function (key, conn) {
-    conn.end();
+    conn.__end.call(conn);
   },
   updateAgeOnGet: true,
 });
@@ -14,7 +14,7 @@ const needValidate = ['host', 'user', 'database'];
 
 const validateConfig = (config) => {
   needValidate.forEach((key) => {
-    if (!config.key) {
+    if (!config[key]) {
       throw new Error(`Parameter [${key}] is necessary.`);
     }
   });
@@ -32,6 +32,7 @@ async function createConnection(config) {
   const conn = await mysql.createConnection(config);
   conn.__end = conn.end;
   conn.end = (...args) => {
+    cache.del(key);
     conn.__end.call(conn, args);
   }
   cache.set(key, conn);

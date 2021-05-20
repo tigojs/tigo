@@ -66,11 +66,14 @@ class DebuggerController extends BaseController {
         headers: res.headers,
       });
     } catch (err) {
+      if (process.env.NODE_ENV === 'dev') {
+        ctx.logger.error('Failed to send debug request.', err);
+      }
       ctx.body = successResponse({
-        status: err.response.status,
-        text: err.response.text,
-        body: err.response.body,
-        headers: err.response.headers,
+        status: err.response?.status || 200,
+        text: err.response?.text || '',
+        body: err.response?.body || null,
+        headers: err.response?.headers || null,
       });
     }
   }

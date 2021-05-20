@@ -4,7 +4,20 @@ const validateRules = {
   domain: {
     required: true,
     validator: (v) => {
+      if (typeof domain === 'object') {
+        const { internal, external } = domain;
+        return isDomain(internal) && isDomain(external);
+      }
       return isDomain(v);
+    },
+  },
+  strict: {
+    required: false,
+    validator: (v) => {
+      if (typeof v !== 'boolean') {
+        return false;
+      }
+      return true;
     },
   },
 };
@@ -34,26 +47,56 @@ const plugin = {
   mount(app, opts) {
     validate(opts, validateRules);
     // register proxy
-    const resolver = function (host, url, req) {
-      const formattedPath = `${host}${url}`;
-      const formattedApiDomain = opts.domain.replace(/\./g, '\\.');
-      const apiTester = new RegExp(`^${formattedApiDomain}${opts.prefix && typeof opts.prefix === 'string' ? opts.prefix.replace('/', '\\/') : '\\/'}`);
-      if (apiTester.test(formattedPath)) {
-        let targetPath = `http://127.0.0.1:${app.tigo.config.server.port}${app.tigo.config.router?.internal?.prefix || '/api'}`;
-        if (!targetPath.endsWith('/')) {
-          targetPath = `${targetPath}/`;
+    let resolver;
+    if (typeof opts.domain === 'object') {
+      const { internal, external } = opts.domain;
+      const internalPrefix = app.tigo.config.router?.internal?.prefix || '/api';
+      const externalPrefix = app.tigo.config.router?.external?.prefix || '';
+      resolver = function (host, url, req) {
+        const formattedPath = `${host}${url}`;
+        const formattedInternalDomain = internal.replace(/\./g, '\\.').replace(/\//g, '\\/');
+        const formattedExternalDomain = external.replace(/\./g, '\\.').replace(/\//g, '\\/');
+        const internalTester = new RegExp(`^${formattedInternalDomain}`);
+        const externalTester = new RegExp(`^${formattedExternalDomain}`);
+        const strictTester = new RegExp(`^${externalTester}/${internalPrefix.replace(/\//g, '\\/')}`);
+        if (internalTester.test(formattedPath)) {
+          let targetPath = `http://127.0.0.1:${app.tigo.config.server.port}/${internalPrefix}`;
+          if (!targetPath.endsWith('/')) {
+            targetPath = `${targetPath}/`;
+          }
+          return targetPath;
         }
-        return targetPath;
-      }
-    };
+        if (externalTester.test(formattedPath) && (!opts.strict || (opts.strict && !strictTester.test()))) {
+          let targetPath = `http://127.0.0.1:${app.tigo.config.server.port}/${externalPrefix}`;
+          if (!targetPath.endsWith('/')) {
+            targetPath = `${targetPath}/`;
+          }
+          return targetPath;
+        }
+      };
+    } else {
+      resolver = function (host, url, req) {
+        const formattedPath = `${host}${url}`;
+        const formattedApiDomain = opts.domain.replace(/\./g, '\\.');
+        const apiTester = new RegExp(`^${formattedApiDomain}`);
+        if (apiTester.test(formattedPath)) {
+          const targetPath = `http://127.0.0.1:${app.tigo.config.server.port}/`;
+          return targetPath;
+        }
+      };
+    }
     resolver.priority = 100;
     app.tigo.hostbinder.proxy.addResolver(resolver);
+    // update certs
     if (app.tigo.hostbinder.useHttps) {
       const { email, production, greenlockOpts } = app.tigo.hostbinder.useHttps.letsencrypt;
-      app.tigo.hostbinder.proxy.updateCertificates(opts.domain, email, production, greenlockOpts);
+      if (typeof opts.domain === 'object') {
+      } else {
+        app.tigo.hostbinder.proxy.updateCertificates(opts.domain, email, production, greenlockOpts);
+      }
     }
     app.logger.debug('Resolver added.');
-  }
+  },
 };
 
 module.exports = plugin;
