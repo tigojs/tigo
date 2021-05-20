@@ -1,1 +1,1 @@
-module.exports = ['@tigojs/lambda-*', '@tigojs/api-*', '@tigojs/oss-client'];
+module.exports = ['@tigojs/lambda-*', '@tigojs/api-*'];

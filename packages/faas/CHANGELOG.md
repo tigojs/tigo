@@ -8,6 +8,8 @@
 
 - Breaking change: lambda KV storage now must need a `mongodb database engine`.
 
+- Breaking change: remove `@tigojs/oss-client` from lambda external modules whitelist.
+
 - Feat: added support for `@tigojs/faas-log` (due to the breaking changes, the addon will not work with older version).
 
 - Feat: added a method called `getName` to get lambda name by ID.
