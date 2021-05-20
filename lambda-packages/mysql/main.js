@@ -5,7 +5,7 @@ const cache = new LRU({
   max: 100,
   maxAge: 1000 * 30,
   dispose: function (key, conn) {
-    conn.end();
+    conn.__end.call(conn);
   },
   updateAgeOnGet: true,
 });
