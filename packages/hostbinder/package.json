@@ -1,7 +1,7 @@
 {
   "name": "@tigojs/hostbinder",
-  "version": "0.2.14",
-  "description": "",
+  "version": "0.2.15",
+  "description": "Provide reverse proxy support for tigo",
   "main": "main.js",
   "scripts": {
     "dev": "cd ../../ && npm run dev"
@@ -9,7 +9,7 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@backrunner/redbird": "^0.12.4",
+    "@backrunner/redbird": "^0.12.5",
     "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.5.0",
     "log4js": "^6.3.0"
