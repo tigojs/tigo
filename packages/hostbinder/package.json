@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/hostbinder",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@backrunner/redbird": "^0.12.3",
+    "@backrunner/redbird": "^0.12.4",
     "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.5.0",
     "log4js": "^6.3.0"
