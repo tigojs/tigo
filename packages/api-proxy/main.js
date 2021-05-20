@@ -91,6 +91,8 @@ const plugin = {
     if (app.tigo.hostbinder.useHttps) {
       const { email, production, greenlockOpts } = app.tigo.hostbinder.useHttps.letsencrypt;
       if (typeof opts.domain === 'object') {
+        app.tigo.hostbinder.proxy.updateCertificates(opts.domain.internal, email, production, greenlockOpts);
+        app.tigo.hostbinder.proxy.updateCertificates(opts.domain.external, email, production, greenlockOpts);
       } else {
         app.tigo.hostbinder.proxy.updateCertificates(opts.domain, email, production, greenlockOpts);
       }
