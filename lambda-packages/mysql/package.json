@@ -8,5 +8,8 @@
   "dependencies": {
     "lru-cache": "^6.0.0",
     "mysql2": "^2.2.5"
+  },
+  "tigo": {
+    "type": "lambda-package"
   }
 }

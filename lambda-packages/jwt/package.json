@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/lambda-jwt",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "JWT helper for tigo lambda",
   "main": "dist/main.js",
   "scripts": {
@@ -24,5 +24,8 @@
     "@types/jsonwebtoken": "^8.5.0",
     "rollup": "^2.40.0",
     "typescript": "^4.2.2"
+  },
+  "tigo": {
+    "type": "lambda-package"
   }
 }
