@@ -33,7 +33,7 @@ class DebuggerController extends BaseController {
       },
     });
     const { scopeId } = ctx.state.user;
-    const path = `/lambda/${scopeId}/${ctx.request.body.path}`;
+    const path = encodeURI(`/lambda/${scopeId}/${ctx.request.body.path}`);
     const requestPath = `http://127.0.0.1:${ctx.tigo.config.server.port}${path}`;
     const { method, headers: userHeaders, values } = ctx.request.body;
     const headers = {
