@@ -14,6 +14,8 @@ npm install -g @tigojs/cli
 tigo add faas
 ```
 
+Note: Be sure your server has already installed `@tigojs/auth` or other authorization plugin.
+
 ## Configuration
 
 Here's a template:

@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/faas",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "FaaS plugin for tigo",
   "main": "main.js",
   "author": "BackRunner",
@@ -26,5 +26,10 @@
     "superagent": "^6.1.0",
     "uuid": "^8.3.2",
     "vm2": "^3.9.3"
+  },
+  "tigo": {
+    "scripts": {
+      "postInstall": "scripts/postInstall.js"
+    }
   }
 }

@@ -1,6 +1,10 @@
 # @tigojs/faas changelog
 
-## 0.3.0
+## v0.3.1
+
+- Feat: add post install script.
+
+## v0.3.0
 
 - Breaking change: using UUID string as lambda script ID (also the primary key in SQL database).
 
