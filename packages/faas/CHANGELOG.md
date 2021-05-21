@@ -4,6 +4,10 @@
 
 - Feat: add post install script.
 
+- Fix: debugger doesn't encode the url before sending.
+
+- Fix: cannot get value from lambda KV storage properly.
+
 ## v0.3.0
 
 - Breaking change: using UUID string as lambda script ID (also the primary key in SQL database).
