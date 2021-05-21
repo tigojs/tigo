@@ -1,6 +1,6 @@
 # @tigojs/fepanel
 
-Front-end panel intergration for tigo.
+Integrate the panel to your `tigo` server.
 
 ## Usage
 
@@ -26,16 +26,29 @@ tigo add fepanel
 
 In your .tigorc, please set the configuration for this module:
 
-```json
-{
-  "plugins": {
-    "fepanel": {
-      "package": "@tigojs/fepanel",
-      "config": {
-        "distPath": "",  // the dist path of tigo-panel
-        "domain": ""  // a domain that you want to bind to the panel
-      }
-    }
-  }
-}
+```js
+// .tigorc.js
+module.exports = {
+  plugins: {
+    fepanel: {
+      package: '@tigojs/fepanel',
+      config: {
+        distPath: '', // the dist path of tigo-panel
+        domain: '', // a domain that you want to bind to the panel
+      },
+    },
+  },
+};
 ```
+
+## Upgrade panel
+
+If you want to upgrade the panel, you can use `@tigojs/cli` to do this quickly.
+
+```bash
+tigo panel upgrade
+```
+
+## License
+
+MIT
