@@ -217,7 +217,6 @@ class ScriptService extends BaseService {
         },
       },
     });
-    console.log(env);
     vm.freeze(env, 'SCRIPT_ENV');
     vm.freeze(Response, 'Response');
     vm.freeze(fetch, 'fetch');
