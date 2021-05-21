@@ -34,13 +34,15 @@ class KV {
       return cached;
     }
     // no cached value
-    let { value } = await this[collection].findOne({
+    const res = await this[collection].findOne({
       key,
     });
-    if (typeof value !== 'undefined' && value !== null) {
-      this.cache.set(cacheKey, value);
+    if (typeof res !== 'undefined' && res !== null) {
+      this.cache.set(cacheKey, res.value);
+    } else {
+      return null;
     }
-    return value;
+    return res.value;
   }
   async set(key, value) {
     validateKey(key);
