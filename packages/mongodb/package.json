@@ -5,8 +5,17 @@
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
+  "files": [
+    "scripts",
+    "main.js"
+  ],
   "dependencies": {
     "@tigojs/utils": "^0.5.0",
     "mongodb": "^3.6.6"
+  },
+  "tigo": {
+    "scripts": {
+      "postInstall": "scripts/postInstall.js"
+    }
   }
 }
