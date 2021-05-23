@@ -21,6 +21,7 @@ module.exports = {
       package: '@tigojs/faas-log',
       config: {
         mongoEngine: '',  // specific a mongodb engine, optional
+        maxTimeSpan: 1000 * 60 * 60 * 24, // max time span for querying logs, default 1 day
       },
     },
   },
