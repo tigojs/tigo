@@ -10,6 +10,11 @@
     "sequelize": "^6.6.2",
     "sqlite3": "^5.0.2"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tigojs/tigo.git"
+  },
+  "homepage": "https://github.com/tigojs/tigo/tree/main/packages/sqlite",
   "tigo": {
     "scripts": {
       "postInstall": "scripts/postInstall.js"

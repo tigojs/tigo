@@ -13,6 +13,11 @@
     "@tigojs/utils": "^0.5.1",
     "lru-cache": "^6.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tigojs/tigo.git"
+  },
+  "homepage": "https://github.com/tigojs/tigo/tree/main/packages/oss",
   "tigo": {
     "scripts": {
       "postInstall": "scripts/postInstall.js"

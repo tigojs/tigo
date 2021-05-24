@@ -13,6 +13,11 @@
   "scripts": {
     "dev": "cd ../../ && npm run dev"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tigojs/tigo.git"
+  },
+  "homepage": "https://github.com/tigojs/tigo/tree/main/packages/utils",
   "dependencies": {
     "escape-html": "^1.0.3",
     "log4js": "^6.3.0",

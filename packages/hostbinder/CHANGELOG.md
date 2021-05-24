@@ -4,6 +4,8 @@
 
 - Minor: upgrade `@tigojs/utils`.
 
+- Minor: upgrade `@backrunner/redbird`.
+
 ## v0.2.19
 
 - Fix: add `packageRoot` to the options for greenlock.js.
