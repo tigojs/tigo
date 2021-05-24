@@ -1,17 +1,7 @@
 const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
 const { getEnvStorageKey } = require('../utils/storage');
-
-const generalCheck = async (ctx, lambdaId) => {
-  const lambda = await ctx.model.faas.script.findByPk(lambdaId);
-  if (!lambda) {
-    ctx.throw(400, '无法找到对应的函数');
-  }
-  if (lambda.scopeId !== ctx.state.user.scopeId) {
-    ctx.throw(401, '无权访问');
-  }
-  return lambda;
-};
+const { ownerCheck } = require('../utils/validate');
 
 class ScriptEnvController extends BaseController {
   getRoutes() {
@@ -46,7 +36,7 @@ class ScriptEnvController extends BaseController {
       },
     });
     const { lambdaId } = ctx.query;
-    const lambda = await generalCheck(ctx, lambdaId);
+    const lambda = await ownerCheck(ctx, lambdaId);
     const envObj = await ctx.tigo.faas.storage.getObject(getEnvStorageKey(lambda.id));
     ctx.body = successResponse(envObj);
   }
@@ -66,7 +56,7 @@ class ScriptEnvController extends BaseController {
       },
     });
     const { lambdaId, k, v } = ctx.request.body;
-    const lambda = await generalCheck(ctx, lambdaId);
+    const lambda = await ownerCheck(ctx, lambdaId);
     const key = getEnvStorageKey(lambda.id);
     const envObj = await ctx.tigo.faas.storage.getObject(key);
     if (envObj) {
@@ -99,7 +89,7 @@ class ScriptEnvController extends BaseController {
       },
     });
     const { lambdaId, k, v } = ctx.request.body;
-    const lambda = await generalCheck(ctx, lambdaId);
+    const lambda = await ownerCheck(ctx, lambdaId);
     const key = getEnvStorageKey(lambda.id);
     const envObj = await ctx.tigo.faas.storage.getObject(key);
     if (!envObj) {
@@ -125,7 +115,7 @@ class ScriptEnvController extends BaseController {
       },
     });
     const { lambdaId, k } = ctx.request.body;
-    const lambda = await generalCheck(ctx, lambdaId);
+    const lambda = await ownerCheck(ctx, lambdaId);
     const key = getEnvStorageKey(lambda.id);
     const envObj = await ctx.tigo.faas.storage.getObject(key);
     if (!envObj) {

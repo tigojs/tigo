@@ -1,17 +1,7 @@
 const { BaseController } = require('@tigojs/core');
 const { successResponse } = require('@tigojs/utils');
 const { getPolicyKey } = require('../utils/storage');
-
-const generalCheck = async (ctx, lambdaId) => {
-  const lambda = await ctx.model.faas.script.findByPk(lambdaId);
-  if (!lambda) {
-    ctx.throw(400, '无法找到对应的函数');
-  }
-  if (lambda.scopeId !== ctx.state.user.scopeId) {
-    ctx.throw(401, '无权访问');
-  }
-  return lambda;
-};
+const { ownerCheck } = require('../utils/validate');
 
 class PolicyController extends BaseController {
   getRoutes() {
@@ -36,9 +26,9 @@ class PolicyController extends BaseController {
       },
     });
     const { lambdaId } = ctx.query;
-    await generalCheck(ctx, lambdaId);
+    await ownerCheck(ctx, lambdaId);
     // get policy
-    const policy = await ctx.service.faas.policy.get(ctx, lambdaId);
+    const policy = await ctx.service.faas.policy.get(ctx, getPolicyKey(lambdaId));
     if (policy) {
       ctx.body = successResponse(policy);
     } else {
@@ -57,9 +47,9 @@ class PolicyController extends BaseController {
       },
     });
     const { lambdaId } = ctx.request.body;
-    await generalCheck(ctx, lambdaId);
+    await ownerCheck(ctx, lambdaId);
     // set policy
-    await ctx.service.faas.policy.set(ctx, lambdaId, policy);
+    await ctx.service.faas.policy.set(ctx, getPolicyKey(lambdaId), policy);
     ctx.body = successResponse();
   }
 }

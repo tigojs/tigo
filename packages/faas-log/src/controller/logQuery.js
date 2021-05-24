@@ -44,6 +44,7 @@ class LogQueryController extends BaseController {
       },
     });
     const { lambdaId, beginTime, endTime, page, pageSize } = ctx.query;
+    await ctx.tigo.faas.ownerCheck(ctx, lambdaId);
     // check time span
     if (endTime - beginTime <= 0 || endTime - beginTime >= ctx.tigo.faas.log.maxTimeSpan) {
       ctx.throw(400, 'Time span is invalid.');

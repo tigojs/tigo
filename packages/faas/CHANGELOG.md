@@ -1,5 +1,13 @@
 # @tigojs/faas changelog
 
+## v0.3.2
+
+- Feat: add `ownerCheck` to `app.tigo.faas`.
+
+- Feat: all the results of `ownerCheck` will be cached.
+
+- Fix: set lambda policy to the right key.
+
 ## v0.3.1
 
 - Feat: add post install script.

@@ -1,6 +1,7 @@
+const { collectController, collectService, collectModel } = require('@tigojs/utils');
+const { ownerCheck } = require('./src/utils/validate');
 const path = require('path');
 const fs = require('fs');
-const { collectController, collectService, collectModel } = require('@tigojs/utils');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const SERVICE_DIR = path.resolve(__dirname, './src/service');
@@ -82,6 +83,7 @@ const plugin = {
         })
       ),
       allowedRequire: opts.allowedRequire || [],
+      ownerCheck,
     };
     // init lambda kv if enabled
     const lambdaKvConfig = opts.lambdaKv || {};
