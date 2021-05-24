@@ -1,5 +1,9 @@
 # @tigojs/utils changelog
 
-## 0.5.0
+## v0.5.1
+
+- Fix: the error log is not error only.
+
+## v0.5.0
 
 - Fix: add missing `log4js` to dependencies.

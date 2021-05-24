@@ -27,7 +27,7 @@ function createLogger() {
         daysToKeep: loggerConfig.daysToKeep || 0,
         keepFileExt: true,
       },
-      errorOnly: {
+      errorFile: {
         type: 'dateFile',
         filename: path.resolve(logPath, 'error.log'),
         compress: true,
@@ -35,9 +35,9 @@ function createLogger() {
         daysToKeep: loggerConfig.daysToKeep || 0,
         keepFileExt: true,
       },
-      errorFilter: {
+      errorOnly: {
         type: 'logLevelFilter',
-        appender: 'errorOnly',
+        appender: 'errorFile',
         level: 'error',
       },
     },
