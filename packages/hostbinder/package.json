@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/hostbinder",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "description": "Provide reverse proxy support for tigo",
   "main": "main.js",
   "scripts": {
