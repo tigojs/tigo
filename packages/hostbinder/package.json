@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/hostbinder",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "description": "Provide reverse proxy support for tigo",
   "main": "main.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "dependencies": {
     "@backrunner/redbird": "^0.12.7-prev.2",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.5.0",
+    "@tigojs/utils": "^0.5.1",
     "log4js": "^6.3.0"
   },
   "tigo": {

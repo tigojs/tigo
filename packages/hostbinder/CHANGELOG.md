@@ -1,9 +1,13 @@
 # @tigojs/hostbinder changelog
 
-## v0.12.9
+## v0.2.20
+
+- Minor: upgrade `@tigojs/utils`.
+
+## v0.2.19
 
 - Fix: add `packageRoot` to the options for greenlock.js.
 
-## v0.12.4 - v0.12.8
+## v0.2.14 - v0.12.18
 
 - Minor: upgrade `@backrunner/redbird`.

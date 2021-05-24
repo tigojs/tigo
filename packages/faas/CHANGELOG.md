@@ -1,5 +1,9 @@
 # @tigojs/faas changelog
 
+## v0.3.3
+
+- Minor: upgrade `@tigojs/utils`.
+
 ## v0.3.2
 
 - Feat: add `ownerCheck` to `app.tigo.faas`.
