@@ -1,5 +1,6 @@
 const { collectController } = require('@tigojs/utils');
 const path = require('path');
+const RequestPermLog = require('./src/classes/requestPermLog');
 
 const CONTROLLER_PATH = path.resolve(__dirname, './src/controller');
 
@@ -31,6 +32,8 @@ const plugin = {
     // set up plugin obj
     const faasPerm = {
       db: database,
+      maxTimeSpan: opts.maxTimeSpan || 86400 * 1000,
+      createReqPermLog: (lambdaId) => new RequestPermLog(database, lambdaId),
     };
     if (!app.tigo.faas.enabledFeats) {
       app.tigo.faas.enabledFeats = {};
