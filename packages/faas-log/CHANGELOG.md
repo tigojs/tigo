@@ -1,6 +1,6 @@
 # @tigojs/faas-log changelog
 
-## v0.1.2
+## v0.1.2 - v0.1.3
 
 - Minor: upgrade `@tigojs/utils`.
 
