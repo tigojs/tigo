@@ -121,6 +121,12 @@ class ScriptService extends BaseService {
           reject(err);
         };
         eventEmitter.once('error', errorHandler);
+        // init performence log
+        let performenceLog;
+        if (ctx.tigo.faas.perm) {
+          performenceLog = ctx.tigo.faas.perm.createReqPermLog(lambdaId);
+        }
+        performenceLog && performenceLog.begin();
         eventEmitter.emit('request', {
           context: createContextProxy(ctx),
           respondWith: (response) => {
@@ -145,6 +151,8 @@ class ScriptService extends BaseService {
             clearTimeout(wait);
             eventEmitter.off('error', errorHandler);
             resolve();
+            // only the succeed request will be logged
+            performenceLog && performenceLog.end();
           },
         });
       });

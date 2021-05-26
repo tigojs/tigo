@@ -1,5 +1,9 @@
 # @tigojs/faas changelog
 
+## v0.3.4
+
+- Feat: add performence log support for the request event.
+
 ## v0.3.3
 
 - Minor: upgrade `@tigojs/utils`.
