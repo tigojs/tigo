@@ -37,7 +37,7 @@ class PermQueryController extends BaseController {
     // get data
     const collection = ctx.tigo.faas.perm.db.collection(lambdaId);
     const data = await collection.find({
-      beginTime: {
+      point: {
         $gt: beginTime,
         $lte: endTime,
       },

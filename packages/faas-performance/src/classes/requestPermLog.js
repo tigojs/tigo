@@ -1,4 +1,5 @@
 const nanoid = require('nanoid');
+const moment = require('moment');
 const { getRequestPermCollectionName } = require('../utils');
 
 class RequestPermLog {
@@ -12,12 +13,29 @@ class RequestPermLog {
   async end() {
     this.endTime = Date.now();
     this.executionTime = this.endTime - this.startTime;
-    await this.db.insertOne({
-      executionId: this.executionId,
-      beginTime: this.beginTime,
-      endTime: this.endTime,
-      executionTime: this.executionTime,
+    // calc avg per min
+    const point = moment().startOf('minute').valueOf();
+    const stored = await this.db.findOne({
+      point,
     });
+    if (!stored) {
+      stored.avgTimeCost = (avgTimeCost * stored.count + this.executionTime) / (stored.count + 1);
+      stored.count += 1;
+      await this.db.updateOne(
+        {
+          point,
+        },
+        {
+          $set: stored,
+        }
+      );
+    } else {
+      await this.db.insertOne({
+        point,
+        avgTimeCost: this.executionTime,
+        count: 1,
+      });
+    }
   }
 }
 
