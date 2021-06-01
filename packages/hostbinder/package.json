@@ -1,7 +1,7 @@
 {
   "name": "@tigojs/hostbinder",
-  "version": "0.2.13",
-  "description": "",
+  "version": "0.2.20",
+  "description": "Provide reverse proxy support for tigo",
   "main": "main.js",
   "scripts": {
     "dev": "cd ../../ && npm run dev"
@@ -9,11 +9,16 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@backrunner/redbird": "^0.12.3",
+    "@backrunner/redbird": "^0.12.7-prev.3",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.5.0",
+    "@tigojs/utils": "^0.5.1",
     "log4js": "^6.3.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tigojs/tigo.git"
+  },
+  "homepage": "https://github.com/tigojs/tigo/tree/main/packages/hostbinder",
   "tigo": {
     "scripts": {
       "postInstall": "scripts/postInstall.js"

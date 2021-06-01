@@ -86,6 +86,7 @@ const plugin = {
           production: process.env.NODE_ENV !== 'dev',
           greenlockOpts: {
             configDir: greenConfigDir,
+            packageRoot: app.rootDirPath,
           },
         },
       }: false,

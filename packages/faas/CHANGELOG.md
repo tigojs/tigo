@@ -1,6 +1,30 @@
 # @tigojs/faas changelog
 
-## 0.3.0
+## v0.3.4
+
+- Feat: add performence log support for the request event.
+
+## v0.3.3
+
+- Minor: upgrade `@tigojs/utils`.
+
+## v0.3.2
+
+- Feat: add `ownerCheck` to `app.tigo.faas`.
+
+- Feat: all the results of `ownerCheck` will be cached.
+
+- Fix: set lambda policy to the right key.
+
+## v0.3.1
+
+- Feat: add post install script.
+
+- Fix: debugger doesn't encode the url before sending.
+
+- Fix: cannot get value from lambda KV storage properly.
+
+## v0.3.0
 
 - Breaking change: using UUID string as lambda script ID (also the primary key in SQL database).
 

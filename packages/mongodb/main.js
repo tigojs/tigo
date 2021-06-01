@@ -28,7 +28,7 @@ const plugin = {
     }
     registerDbEngine(app, {
       engine: client,
-      name: 'mongodb',
+      name: 'tmongo',
       engineType: 'mongodb',
       storageType: 'network',
     });
