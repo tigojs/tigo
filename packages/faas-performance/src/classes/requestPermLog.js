@@ -1,6 +1,6 @@
 const nanoid = require('nanoid');
 const moment = require('moment');
-const { getRequestPermCollectionName } = require('../utils');
+const { getRequestPermCollectionName } = require('../utils/collection');
 
 class RequestPermLog {
   constructor(db, lambdaId) {
