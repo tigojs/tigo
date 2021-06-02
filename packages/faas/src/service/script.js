@@ -109,7 +109,7 @@ class ScriptService extends BaseService {
       policy = {};
     }
     let statusLog;
-    if (ctx.tigo.faas.statusLog) {
+    if (ctx.tigo.faas.perm) {
       statusLog = ctx.tigo.faas.perm.createReqStatusLog(lambdaId);
     }
     try {

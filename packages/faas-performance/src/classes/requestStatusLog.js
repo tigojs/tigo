@@ -1,3 +1,4 @@
+const moment = require('moment');
 const { getRequestStatusCollectionName } = require('../utils/collection');
 
 class RequestStatusLog {
@@ -9,9 +10,9 @@ class RequestStatusLog {
     const min = current.minute();
     let point;
     if (min >= 30) {
-      point = current.minute(30).second(0).valueOf();
+      point = current.minute(30).second(0).millisecond(0).valueOf();
     } else {
-      point = current.minute(0).second(0).valueOf();
+      point = current.minute(0).second(0).millisecond(0).valueOf();
     }
     const stored = await this.db.findOne({
       point,
@@ -32,6 +33,7 @@ class RequestStatusLog {
       );
     } else {
       await this.db.insertOne({
+        point,
         success: isSuccess ? 1 : 0,
         error: isSuccess ? 0 : 1,
       });
