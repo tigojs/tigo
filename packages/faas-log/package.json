@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/faas-log",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Log service for tigo lambda",
   "main": "main.js",
   "author": "BackRunner",

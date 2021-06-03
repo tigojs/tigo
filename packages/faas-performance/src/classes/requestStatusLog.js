@@ -2,8 +2,11 @@ const moment = require('moment');
 const { getRequestStatusCollectionName } = require('../utils/collection');
 
 class RequestStatusLog {
-  constructor(db, lambdaId) {
-    this.db = db.collection(getRequestStatusCollectionName(lambdaId));
+  constructor(app, db, lambdaId) {
+    this.collection = db.collection(getRequestStatusCollectionName(lambdaId));
+    if (app.tigo.faas.perm.maxKeepDays) {
+      this.collection.ensureIndex({ point: 1 }, { expireAfterSeconds: maxKeepDays * 86400 });
+    }
   }
   async writeLog(isSuccess) {
     const current = moment();
@@ -14,7 +17,7 @@ class RequestStatusLog {
     } else {
       point = current.minute(0).second(0).millisecond(0).valueOf();
     }
-    const stored = await this.db.findOne({
+    const stored = await this.collection.findOne({
       point,
     });
     if (stored) {
@@ -23,7 +26,7 @@ class RequestStatusLog {
       } else {
         stored.error += 1;
       }
-      await this.db.updateOne(
+      await this.collection.updateOne(
         {
           point,
         },
@@ -32,7 +35,7 @@ class RequestStatusLog {
         }
       );
     } else {
-      await this.db.insertOne({
+      await this.collection.insertOne({
         point,
         success: isSuccess ? 1 : 0,
         error: isSuccess ? 0 : 1,
