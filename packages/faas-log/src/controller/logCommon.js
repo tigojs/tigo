@@ -11,7 +11,7 @@ class LogCommonController extends BaseController {
       },
     };
   }
-  async getOptions(ctx) {
+  async handleGetOptions(ctx) {
     ctx.body = successResponse({
       maxKeepDays: ctx.tigo.faas.perm.maxKeepDays || null,
     });
