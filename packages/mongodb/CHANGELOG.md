@@ -1,6 +1,6 @@
 # @tigojs/mongodb changelog
 
-## v0.2.1
+## v0.2.1 - v0.2.2
 
 - Minor: upgrade `@tigojs/utils`.
 

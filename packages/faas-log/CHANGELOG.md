@@ -6,6 +6,8 @@
 
 - Feat: add `maxKeepDays` option.
 
+- Minor: upgrade `@tigojs/utils`.
+
 ## v0.1.2 - v0.1.3
 
 - Minor: upgrade `@tigojs/utils`.

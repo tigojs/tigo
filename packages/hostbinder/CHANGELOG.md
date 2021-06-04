@@ -1,5 +1,9 @@
 # @tigojs/hostbinder changelog
 
+## v0.2.21
+
+- Minor: upgrade `@tigojs/utils`.
+
 ## v0.2.20
 
 - Minor: upgrade `@tigojs/utils`.

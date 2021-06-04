@@ -1,5 +1,9 @@
 # @tigojs/faas changelog
 
+## v0.4.1
+
+- Minor: upgrade `@tigojs/utils`.
+
 ## v0.4.0
 
 - Breaking change: API for lambda policies changed to `/faas/policy/set` and `/faas/policy/get`.
