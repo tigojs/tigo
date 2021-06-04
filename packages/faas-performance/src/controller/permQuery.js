@@ -30,15 +30,15 @@ const requestDataQueryCheck = async (ctx) => {
 class PermQueryController extends BaseController {
   getRoutes() {
     return {
-      '/faas/getRequestStatusData': {
+      '/faas/perm/requestStatus': {
         type: 'get',
         auth: true,
         target: this.handleGetRequestStatusData,
       },
-      '/faas/getRequestPermData': {
+      '/faas/perm/requestExecTime': {
         type: 'get',
         auth: true,
-        target: this.handleGetRequestPermData,
+        target: this.handleGetRequestExecTimeData,
       },
     };
   }
@@ -72,7 +72,7 @@ class PermQueryController extends BaseController {
       .toArray();
     ctx.body = successResponse(data);
   }
-  async handleGetRequestPermData(ctx) {
+  async handleGetRequestExecTimeData(ctx) {
     await requestDataQueryCheck(ctx);
     const { lambdaId, beginTime, endTime } = ctx.query;
     // get data
