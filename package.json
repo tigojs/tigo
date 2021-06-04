@@ -1,5 +1,6 @@
 {
   "name": "tigo",
+  "description": "All-in-one lightweight cloud service platform",
   "version": "0.6.1",
   "main": "server.js",
   "author": "BackRunner",
@@ -15,6 +16,11 @@
   "engines": {
     "node": ">=14.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tigojs/tigo.git"
+  },
+  "homepage": "https://github.com/tigojs/tigo",
   "scripts": {
     "start": "cross-env NODE_ENV=prod DB_ENV=prod node ./server.js",
     "dev": "cross-env NODE_ENV=dev DB_ENV=prod nodemon ./server.js",
@@ -30,13 +36,13 @@
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.5.1",
+    "@tigojs/utils": "^0.5.4",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",
     "koa-logger": "^3.2.1",
     "koa-parameter": "^3.0.1",
-    "koa-tree-router": "^0.7.0",
+    "koa-tree-router": "^0.8.0",
     "log4js": "^6.3.0",
     "mime": "^2.5.2"
   },
