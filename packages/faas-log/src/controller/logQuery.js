@@ -4,14 +4,14 @@ const { successResponse, parseContextQuery } = require('@tigojs/utils');
 class LogQueryController extends BaseController {
   getRoutes() {
     return {
-      '/faas/queryLogs': {
+      '/faas/log/list': {
         type: 'get',
         auth: true,
-        target: this.handleQuery,
+        target: this.handleList,
       },
     };
   }
-  async handleQuery(ctx) {
+  async handleList(ctx) {
     parseContextQuery(ctx, ['beginTime', 'endTime', 'page', 'pageSize']);
     needParse.forEach((key) => {
       if (ctx.query[key]) {

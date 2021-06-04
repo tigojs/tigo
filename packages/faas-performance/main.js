@@ -1,6 +1,7 @@
 const { collectController } = require('@tigojs/utils');
 const path = require('path');
 const RequestPermLog = require('./src/classes/requestPermLog');
+const RequestStatusLog = require('./src/classes/requestStatusLog');
 
 const CONTROLLER_PATH = path.resolve(__dirname, './src/controller');
 
@@ -9,6 +10,14 @@ const plugin = {
   mount(app, opts) {
     if (!opts) {
       opts = {};
+    }
+    // validate time span
+    if (opts.maxTimeSpan && typeof opts.maxTimeSpan !== 'number') {
+      throw new Error('maxTimeSpan should be a number.');
+    }
+    // validate maxKeepDays
+    if (opts.maxKeepDays && typeof opts.maxKeepDays !== 'number') {
+      throw new Error('maxKeepDays should be a number.');
     }
     // get mongodb engine
     let engine;
@@ -33,7 +42,9 @@ const plugin = {
     const faasPerm = {
       db: database,
       maxTimeSpan: opts.maxTimeSpan || 86400 * 1000,
-      createReqPermLog: (lambdaId) => new RequestPermLog(database, lambdaId),
+      maxKeepDays: opts.maxKeepDays,
+      createReqPermLog: (lambdaId) => new RequestPermLog(app, database, lambdaId),
+      createReqStatusLog: (lambdaId) => new RequestStatusLog(app, database, lambdaId),
     };
     if (!app.tigo.faas.enabledFeats) {
       app.tigo.faas.enabledFeats = {};

@@ -1,12 +1,12 @@
 {
   "name": "@tigojs/fepanel",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "Front-end panel intergration for tigo.",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@tigojs/utils": "^0.5.1",
+    "@tigojs/utils": "^0.5.4",
     "regex-go": "^0.1.1"
   },
   "repository": {

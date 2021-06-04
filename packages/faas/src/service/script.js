@@ -71,9 +71,7 @@ class ScriptService extends BaseService {
     }
     // get id from db
     const { id } = await ctx.model.faas.script.findOne({
-      attributes: [
-        'id',
-      ],
+      attributes: ['id'],
       where: {
         scopeId,
         name,
@@ -110,6 +108,10 @@ class ScriptService extends BaseService {
     if (!policy) {
       policy = {};
     }
+    let statusLog;
+    if (ctx.tigo.faas.perm) {
+      statusLog = ctx.tigo.faas.perm.createReqStatusLog(lambdaId);
+    }
     try {
       await new Promise((resolve, reject) => {
         const wait = setTimeout(() => {
@@ -131,6 +133,7 @@ class ScriptService extends BaseService {
           context: createContextProxy(ctx),
           respondWith: (response) => {
             if (!response || !response instanceof Response) {
+              statusLog && statusLog.error();
               reject(new Error('Response is invalid, please check your code.'));
             }
             ctx.status = response.status || 200;
@@ -153,6 +156,7 @@ class ScriptService extends BaseService {
             resolve();
             // only the succeed request will be logged
             performenceLog && performenceLog.end();
+            statusLog && statusLog.success();
           },
         });
       });
@@ -168,6 +172,7 @@ class ScriptService extends BaseService {
         }
       }
       err.fromFaas = true;
+      statusLog && statusLog.error();
       throw err;
     }
   }
@@ -333,17 +338,21 @@ class ScriptService extends BaseService {
     await ctx.tigo.faas.storage.del(getEnvStorageKey(lambda.id));
     await ctx.tigo.faas.storage.del(getStorageKey(lambda.id));
     // delete kv storage
-    const kvCollections = await ctx.tigo.faas.log.db.listCollections({
-      name: lambda.id,
-    }).toArray();
+    const kvCollections = await ctx.tigo.faas.log.db
+      .listCollections({
+        name: lambda.id,
+      })
+      .toArray();
     if (kvCollections.length) {
       await ctx.tigo.faas.lambdaKvEngine.dropCollection(lambda.id);
     }
     // delete logs
     if (ctx.tigo.faas.log) {
-      const logCollections = await ctx.tigo.faas.log.db.listCollections({
-        name: lambda.id,
-      }).toArray();
+      const logCollections = await ctx.tigo.faas.log.db
+        .listCollections({
+          name: lambda.id,
+        })
+        .toArray();
       if (logCollections.length) {
         await ctx.tigo.faas.log.db.dropCollection(lambda.id);
       }

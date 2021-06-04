@@ -10,6 +10,14 @@ const plugin = {
     if (!opts) {
       opts = {};
     }
+    // validate time span
+    if (opts.maxTimeSpan && typeof opts.maxTimeSpan !== 'number') {
+      throw new Error('maxTimeSpan should be a number.');
+    }
+    // validate maxKeepDays
+    if (opts.maxKeepDays && typeof opts.maxKeepDays !== 'number') {
+      throw new Error('maxKeepDays should be a number.');
+    }
     // get mongodb engine
     let engine;
     if (opts.mongoEngine) {
@@ -34,7 +42,8 @@ const plugin = {
     const faasLog = {
       db: database,
       createLogger: (lambdaId) => new LambdaLogger(app, database, lambdaId),
-      maxTimeSpan: opts.maxTimeSpan || 1000 * 60 * 60 * 24  // 1 day
+      maxTimeSpan: opts.maxTimeSpan || 1000 * 60 * 60 * 24,  // 1 day
+      maxKeepDays: opts.maxKeepDays,
     };
     if (!app.tigo.faas.enabledFeats) {
       app.tigo.faas.enabledFeats = {};

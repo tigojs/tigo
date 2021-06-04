@@ -7,8 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.5.2",
-    "moment": "^2.29.1",
-    "nanoid": "^3.1.23"
+    "@tigojs/utils": "^0.5.4",
+    "moment": "^2.29.1"
   }
 }

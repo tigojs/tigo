@@ -6,12 +6,12 @@ const { ownerCheck } = require('../utils/validate');
 class PolicyController extends BaseController {
   getRoutes() {
     return {
-      '/faas/getPolicy': {
+      '/faas/policy/get': {
         type: 'get',
         auth: true,
         target: this.handleGetPolicy,
       },
-      '/faas/setPolicy': {
+      '/faas/policy/set': {
         type: 'post',
         auth: true,
         target: this.handleSetPolicy,

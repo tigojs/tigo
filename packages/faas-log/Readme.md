@@ -22,6 +22,7 @@ module.exports = {
       config: {
         mongoEngine: '',  // specific a mongodb engine, optional
         maxTimeSpan: 1000 * 60 * 60 * 24, // max time span for querying logs, default 1 day
+        maxKeepDays: 7,  // optional, set the max days to keep the log
       },
     },
   },

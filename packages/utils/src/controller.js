@@ -5,6 +5,9 @@ const noStoreMiddleware = async (ctx, next) => {
 
 function registerRoute({ path, type, info, instance }) {
   const args = [path];
+  if (!info.target || typeof info.target !== 'function') {
+    throw new Error(`Cannot find the target for the route [${path}].`);
+  }
   if (info.cors !== false) {
     args.push(this.framework.cors);
   }

@@ -2,8 +2,10 @@ const { buildLog } = require('./log');
 
 class LambdaLogger {
   constructor(app, db, lambdaId) {
-    this.app = app;
     this.collection = db.collection(lambdaId);
+    if (app.tigo.faas.log.maxKeepDays) {
+      this.collection.ensureIndex({ point: 1 }, { expireAfterSeconds: maxKeepDays * 86400 });
+    }
   }
   async writeLog(type, contents) {
     const log = buildLog(type, contents);
