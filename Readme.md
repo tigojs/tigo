@@ -1,6 +1,6 @@
 # tigo
 
-`tigo` is a All-in-one lightweight cloud service platform that you can easily deploy it to your own server.
+`tigo` is an All-in-one lightweight cloud service platform that you can easily deploy it to your own server.
 
 ## What's our goal?
 

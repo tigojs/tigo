@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.1
+
+- Minor: upgrade dependencies.
+
 ## v0.6.0
 
 - Feat: add an `EventEmitter` named `events` to `App` class, can emit an event named `inited` after the server was initailized.
