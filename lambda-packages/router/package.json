@@ -6,7 +6,7 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "koa-tree-router": "^0.7.0"
+    "koa-tree-router": "^0.8.0"
   },
   "tigo": {
     "type": "lambda-package"

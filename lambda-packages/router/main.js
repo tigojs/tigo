@@ -2,7 +2,6 @@ const TreeRouter = require('koa-tree-router');
 
 /**
  * Create a router for your lambda
- * @param {object} ctx the context
  */
 const createRouter = () => {
   const router = TreeRouter();
