@@ -11,7 +11,7 @@ const cors = require('@tigojs/lambda-cors');
 
 async function handleRequest(ctx) {
   // if you use an async function or the return of function is a promise, you should add an await before the cors(ctx);
-  cors(ctx);
+  cors(ctx, corsOptions);
 };
 
 module.exports = handleRequest;
