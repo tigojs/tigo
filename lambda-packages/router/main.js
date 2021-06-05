@@ -2,13 +2,14 @@ const TreeRouter = require('koa-tree-router');
 
 /**
  * Create a router for your lambda
+ * @param {object} ctx lambda request event context
  */
-const createRouter = () => {
+const createRouter = (ctx) => {
   const router = TreeRouter();
   const handler = {
     apply: function (target, thisArg, args) {
       // equal to "router.routes()(ctx, null)"
-      return target()(args[0], null);
+      return target()(ctx, null);
     },
   };
   const proxy = new Proxy(router.routes, handler);
