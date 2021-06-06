@@ -1,13 +1,13 @@
-# @tigojs/faas-log
+# @tigojs/faas-performance
 
-Add log service for `@tigojs/faas`, allow to record logs inside the lambda.
+Provide performance log support for tigo lambda.
 
 ## Usage
 
-Use `@tigojs/cli` to install.
+Install this plugin with `@tigojs/cli`:
 
 ```bash
-tigo add faas-log
+tigo add faas-performance
 ```
 
 ## Configuration
@@ -18,8 +18,8 @@ Here's a template:
 // .tigorc.js
 module.exports = {
   plugins: {
-    faasLog: {
-      package: '@tigojs/faas-log',
+    faasPerm: {
+      package: '@tigojs/faas-performance',
       config: {
         mongoEngine: '',  // specific a mongodb engine, optional
         database: '', // specific a database name, optional

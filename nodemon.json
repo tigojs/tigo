@@ -6,7 +6,8 @@
     "run/**/*",
     ".greenlockrc",
     "greenlock.d",
-    "node_modules/**/node_modules"
+    "node_modules/**/node_modules",
+    "*.md"
   ],
   "delay": "2000",
   "ext": "js,json"

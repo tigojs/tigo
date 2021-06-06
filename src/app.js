@@ -74,8 +74,6 @@ async function initServer() {
       );
     }
   }
-  // use router
-  this.server.use(this.router.routes());
   // register error handler
   registerErrorHandler(this.server);
   // init middlewares
@@ -87,10 +85,14 @@ async function initServer() {
     }
     const func = middleware.install(this);
     if (!func || typeof func !== 'function') {
+      middleware.name && this.logger.debug(`Skipped the registration of [${middleware.name}] middleware.`);
       return;
     }
     this.server.use(func);
+    middleware.name && this.logger.debug(`Middleware [${middleware.name}] has been registered.`);
   });
+  // use router
+  this.server.use(this.router.routes());
   // add tigo obj to app, server and context
   this.tigo = tigo;
   this.server.tigo = tigo;

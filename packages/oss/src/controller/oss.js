@@ -218,7 +218,6 @@ class OssController extends BaseController {
     ctx.body = successResponse(null, '设置成功');
   }
   async handleListObjects(ctx) {
-    ctx.query.pageSize = parseInt(ctx.query.pageSize, 10);
     ctx.verifyParams({
       bucketName: {
         type: 'string',

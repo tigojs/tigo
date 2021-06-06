@@ -13,15 +13,15 @@ const MODEL_DIR = path.resolve(__dirname, './src/model');
 
 const plugin = {
   type: 'module',
-  mount(app, config) {
+  mount(app, opts) {
     // check auth plugin
     if (!app.tigo.auth) {
       throw new Error('Cannot find any mounted authorization plugin.');
     }
     // check sql engine
     let sqlEngine;
-    if (config?.dbEngine) {
-      const engine = app.dbEngine.sql[config.dbEngine];
+    if (opts?.dbEngine) {
+      const engine = app.dbEngine.sql[opts.dbEngine];
       if (!engine) {
         throw new Error('Cannot find the specific SQL database engine.');
       }
@@ -36,8 +36,8 @@ const plugin = {
     }
     // check kv storage engine
     let kvEngine;
-    if (config?.storageEngine) {
-      const engine = app.dbEngine.kv[config.storageEngine];
+    if (opts?.kvEngine) {
+      const engine = app.dbEngine.kv[opts.kvEngine];
       if (!engine) {
         throw new Error('Cannot find the specific storage engine');
       }
@@ -53,11 +53,12 @@ const plugin = {
     // open database
     let secondArg;
     if (kvEngine.storageType === 'local') {
-      if (config?.storage?.path) {
-        if (!fs.existsSync(config.storage.path)) {
-          throw new Error(`Cannot find the specific storage path [${config.storage.path}] for cfs.`);
+      if (opts?.kvConfig?.storagePath) {
+        const { storagePath } = opts.kvConfig;
+        if (!fs.existsSync(storagePath)) {
+          throw new Error(`Cannot find the specific storage path [${storagePath}] for cfs.`);
         }
-        secondArg = config.storage.path;
+        secondArg = storagePath;
       } else {
         app.logger.warn('Use default storage path for cfs.');
         secondArg = path.resolve(app.config.runDirPath, './cfs/storage');
@@ -66,7 +67,10 @@ const plugin = {
         }
       }
     } else {
-      secondArg = config.storage.connection;
+      if (!opts?.kvConfig?.connection) {
+        throw new Error('You should provide necessary connection info for the KV database engine.');
+      }
+      secondArg = opts.kvConfig.connection;
     }
     // set object to app
     const cfs = {

@@ -1,5 +1,9 @@
 # @tigojs/faas-log changelog
 
+## v0.3.0
+
+- Breaking change: remove the `parseContextQuery` reference.
+
 ## v0.2.0
 
 - Breaking change: `/faas/queryLogs` now changed to `/faas/log/list`.

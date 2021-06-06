@@ -1,9 +1,8 @@
 const { BaseController } = require('@tigojs/core');
-const { parseContextQuery, successResponse } = require('@tigojs/utils');
+const { successResponse } = require('@tigojs/utils');
 const { getRequestPermCollectionName, getRequestStatusCollectionName } = require('../utils/collection');
 
 const requestDataQueryCheck = async (ctx) => {
-  parseContextQuery(ctx, ['beginTime', 'endTime']);
   ctx.verifyParams({
     lambdaId: {
       type: 'string',

@@ -5,9 +5,14 @@
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tigojs/tigo.git"
+  },
+  "homepage": "https://github.com/tigojs/tigo/tree/main/packages/faas-performance",
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.5.4",
+    "@tigojs/utils": "^0.6.0",
     "moment": "^2.29.1"
   }
 }
