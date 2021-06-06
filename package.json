@@ -1,7 +1,7 @@
 {
   "name": "tigo",
   "description": "All-in-one lightweight cloud service platform",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
@@ -36,7 +36,7 @@
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.5.4",
+    "@tigojs/utils": "^0.6.0",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.0.1",
