@@ -1,6 +1,5 @@
-const { createHttpError } = require('@tigojs/utils');
-
 const hostFilter = {
+  name: 'hostFilter',
   priority: 100,
   install(app) {
     const { server: serverConfig } = app.config;
