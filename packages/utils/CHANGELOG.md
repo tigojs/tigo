@@ -1,5 +1,9 @@
 # @tigojs/utils changelog
 
+## v0.6.0
+
+- Breaking change: remove `parseContextQuery`, this feature has been added to the framework.
+
 ## v0.5.4
 
 - Fix: `registerController` method will detect if target existed now.
