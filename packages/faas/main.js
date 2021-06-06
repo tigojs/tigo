@@ -23,6 +23,9 @@ const getKvOptions = function ({ kvEngine, kvConfig, defaultLocalPath }) {
       }
     }
   } else {
+    if (!kvConfig || !kvConfig.connection) {
+      throw new Error('You should provide necessary connection info for the KV database engine.');
+    }
     dbOpts = kvConfig.storage;
   }
   return dbOpts;

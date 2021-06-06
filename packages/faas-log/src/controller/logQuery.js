@@ -1,5 +1,5 @@
 const { BaseController } = require('@tigojs/core');
-const { successResponse, parseContextQuery } = require('@tigojs/utils');
+const { successResponse } = require('@tigojs/utils');
 
 class LogQueryController extends BaseController {
   getRoutes() {
@@ -12,12 +12,6 @@ class LogQueryController extends BaseController {
     };
   }
   async handleList(ctx) {
-    parseContextQuery(ctx, ['beginTime', 'endTime', 'page', 'pageSize']);
-    needParse.forEach((key) => {
-      if (ctx.query[key]) {
-        ctx.query[key] = parseInt(ctx.query[key], 10);
-      }
-    });
     ctx.verifyParams({
       lambdaId: {
         type: 'string',
