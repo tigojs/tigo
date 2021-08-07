@@ -1,6 +1,7 @@
 const { BaseService } = require('@tigojs/core');
-const LRU = require('lru-cache');
 const { allowedType } = require('../constants/type');
+const { v4: uuidv4 } = require('uuid');
+const LRU = require('lru-cache');
 
 const getStorageKey = (configId) => `confsto_item_${configId}`;
 
@@ -9,7 +10,7 @@ const generalCheck = async (ctx, id) => {
   if (!dbItem) {
     ctx.throw(400, '找不到该配置文件');
   }
-  if (dbItem.uid !== ctx.state.user.id) {
+  if (dbItem.scopeId !== ctx.state.user.scopeId) {
     ctx.throw(401, '无权访问');
   }
   return dbItem;
@@ -52,21 +53,22 @@ class ConfigStorageService extends BaseService {
   }
   async add(ctx) {
     const { name, content, type } = ctx.request.body;
-    const { id: uid, scopeId } = ctx.state.user;
+    const { scopeId } = ctx.state.user;
     // check type
     const formattedType = type.toLowerCase();
     if (!allowedType.includes(formattedType)) {
       ctx.throw(400, '不支持该类型的配置文件');
     }
     // check name
-    if (await ctx.model.cfs.conf.exists(uid, formattedType, name)) {
+    if (await ctx.model.cfs.conf.exists(scopeId, formattedType, name)) {
       ctx.throw(400, '名称已被占用');
     }
     // write
     const key = getStorageKey(`${scopeId}_${formattedType}_${name}`);
     await ctx.tigo.cfs.storage.put(key, content);
     const conf = await ctx.model.cfs.conf.create({
-      uid: ctx.state.user.id,
+      id: uuidv4(),
+      scopeId: ctx.state.user.scopeId,
       type: formattedType,
       name,
     });
@@ -75,7 +77,7 @@ class ConfigStorageService extends BaseService {
   }
   async edit(ctx) {
     const { id, name, content, type } = ctx.request.body;
-    const { id: uid, scopeId } = ctx.state.user;
+    const { scopeId } = ctx.state.user;
     // check type
     const formattedType = type.toLowerCase();
     if (!allowedType.includes(formattedType)) {
@@ -85,7 +87,7 @@ class ConfigStorageService extends BaseService {
     const dbItem = await generalCheck(ctx, id);
     // if name or type changed, delete cache and previous stored file.
     if (dbItem.name !== name || dbItem.type !== formattedType) {
-      if (await ctx.model.cfs.conf.exists(uid, formattedType, name)) {
+      if (await ctx.model.cfs.conf.exists(scopeId, formattedType, name)) {
         ctx.throw(400, '名称已被占用');
       }
       const oldKey = `${scopeId}_${dbItem.type}_${dbItem.name}`;
@@ -110,9 +112,9 @@ class ConfigStorageService extends BaseService {
   }
   async rename(ctx) {
     const { id, newName } = ctx.request.body;
-    const { id: uid, scopeId } = ctx.state.user;
+    const { scopeId } = ctx.state.user;
     const dbItem = await generalCheck(ctx, id);
-    if (await ctx.model.cfs.storage.exists(uid, dbItem.type, newName)) {
+    if (await ctx.model.cfs.storage.exists(scopeId, dbItem.type, newName)) {
       ctx.throw(400, '名称已被占用');
     }
     await ctx.model.faas.script.update({
