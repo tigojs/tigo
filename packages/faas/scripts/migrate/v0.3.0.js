@@ -43,7 +43,7 @@ const migrate = async function () {
     ...(answer.dbType === 'sqlite'
       ? [
           `ALTER TABLE tigo_faas_script RENAME TO ${oldTable};`,
-          `CREATE TABLE tigo_faas_script (id VARCHAR(255) PRIMARY KEY NOT NULL, scope_id INTEGER, name VARCHAR(255), created_at DATETIME, updated_at DATETIME);`,
+          `CREATE TABLE tigo_faas_script (id VARCHAR(255) PRIMARY KEY NOT NULL, scope_id VARCHAR(255), name VARCHAR(255), created_at DATETIME, updated_at DATETIME);`,
           `INSERT INTO tigo_faas_script (id, scope_id, name, created_at, updated_at) SELECT id, scope_id, name, created_at, updated_at FROM ${oldTable};`,
         ]
       : ['ALTER TABLE tigo_faas_script MODIFY COLUMN id VARCHAR(255) NOT NULL;']),
