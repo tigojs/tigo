@@ -1,5 +1,9 @@
 # @tigojs/sqlite changelog
 
+## v0.3.4
+
+- Minor: upgrade `sequelize`.
+
 ## v0.3.1 - v0.3.3
 
 - Minor: upgrade `@tigojs/utils`.
