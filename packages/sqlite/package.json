@@ -6,7 +6,7 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@tigojs/utils": "^0.5.4",
+    "@tigojs/utils": "^0.6.0",
     "sequelize": "^6.6.5",
     "sqlite3": "^5.0.2"
   },

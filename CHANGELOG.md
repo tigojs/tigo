@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.3
+
+- Minor: upgrade dependencies.
+
 ## v0.6.2
 
 - Feat: add `queryTransformer` middleware to parse numbers in `ctx.query`.

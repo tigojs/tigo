@@ -1,5 +1,9 @@
 # @tigojs/leveldb changelog
 
+## v0.2.26
+
+- Minor: upgrade `@tigojs/utils`.
+
 ## v0.2.25
 
 - Minor: upgrade `levelup` and `leveldown`.

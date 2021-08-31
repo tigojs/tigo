@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/mongodb",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Create a connection between tigo and mongodb",
   "main": "main.js",
   "author": "BackRunner",
@@ -10,8 +10,8 @@
     "main.js"
   ],
   "dependencies": {
-    "@tigojs/utils": "^0.5.4",
-    "mongodb": "^3.6.11"
+    "@tigojs/utils": "^0.6.0",
+    "mongodb": "^4.1.1"
   },
   "repository": {
     "type": "git",
