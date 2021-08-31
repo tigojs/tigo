@@ -1,8 +1,8 @@
 # @tigojs/fepanel changelog
 
-## v0.2.14 - v0.2.15
+## v0.2.14 - v0.2.16
 
-- Minor: upgrade `@tigojs/utils`.
+- Minor: upgrade dependencies.
 
 ## v0.2.13
 

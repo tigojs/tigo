@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/faas-log",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Log service for tigo lambda",
   "main": "main.js",
   "author": "BackRunner",
@@ -12,6 +12,6 @@
   "homepage": "https://github.com/tigojs/tigo/tree/main/packages/faas-log",
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.5.4"
+    "@tigojs/utils": "^0.6.0"
   }
 }

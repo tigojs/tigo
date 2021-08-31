@@ -43,7 +43,7 @@ class ConfigurationController extends BaseController {
   async handleList(ctx) {
     const list = await ctx.model.cfs.conf.findAll({
       where: {
-        uid: ctx.state.user.id,
+        scopeId: ctx.state.user.scopeId,
       },
     });
     ctx.body = successResponse(list);
@@ -51,9 +51,8 @@ class ConfigurationController extends BaseController {
   async handleGetContent(ctx) {
     ctx.verifyParams({
       id: {
-        type: 'number',
+        type: 'string',
         required: true,
-        min: 1,
       },
     });
     const { id } = ctx.query;
@@ -97,9 +96,8 @@ class ConfigurationController extends BaseController {
         required: true,
       },
       id: {
-        type: 'number',
+        type: 'string',
         required: false,
-        min: 1,
       },
       name: {
         type: 'string',
@@ -129,9 +127,8 @@ class ConfigurationController extends BaseController {
   async handleRename(ctx) {
     ctx.verifyParams({
       id: {
-        type: 'number',
+        type: 'string',
         required: true,
-        min: 1,
       },
       newName: {
         type: 'string',
@@ -144,10 +141,9 @@ class ConfigurationController extends BaseController {
   async handleDelete(ctx) {
     ctx.verifyParams({
       id: {
-        type: 'number',
+        type: 'string',
         required: true,
-        min: 1,
-      }
+      },
     });
     const { id } = ctx.request.body;
     await ctx.service.cfs.conf.delete(ctx, id);

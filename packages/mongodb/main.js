@@ -7,19 +7,8 @@ const plugin = {
     if (!opts.uri) {
       throw new Error('You should set the uri for create a mongodb connection.');
     }
-    const connectorOpts = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    };
-    if (opts.connectorOptions) {
-      Object.assign(connectorOpts, opts.connectorOptions);
-    }
     // create client
-    const { useNewUrlParser, useUnifiedTopology } = connectorOpts;
-    const client = new MongoClient(opts.uri, {
-      useNewUrlParser,
-      useUnifiedTopology,
-    });
+    const client = new MongoClient(opts.uri, opts.connectorOptions || {});
     try {
       await client.connect();
     } catch (err) {

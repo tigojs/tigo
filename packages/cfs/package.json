@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/cfs",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Config storage plugin for tigo",
   "main": "main.js",
   "scripts": {
@@ -17,6 +17,7 @@
     "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.6.0",
     "lru-cache": "^6.0.0",
-    "mime": "^2.5.2"
+    "mime": "^2.5.2",
+    "uuid": "^8.3.2"
   }
 }

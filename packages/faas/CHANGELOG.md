@@ -1,5 +1,13 @@
 # @tigojs/faas changelog
 
+## v0.4.3
+
+- Minor: upgrade utils.
+
+## v0.4.2
+
+- Fix: wrong migration SQL lines for SQLite.
+
 ## v0.4.1
 
 - Minor: upgrade `@tigojs/utils`.

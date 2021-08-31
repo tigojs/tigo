@@ -1,5 +1,9 @@
 # @tigojs/faas-log changelog
 
+## v0.3.1
+
+- Minor: upgrade utils.
+
 ## v0.3.0
 
 - Breaking change: remove the `parseContextQuery` reference.

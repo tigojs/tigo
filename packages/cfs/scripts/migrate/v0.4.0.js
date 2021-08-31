@@ -6,7 +6,7 @@ const exportSQLFile = (workDir, sqls) => {
   if (!fs.existsSync(migrationFolder)) {
     fs.mkdirSync(migrationFolder, { recursive: true });
   }
-  const targetPath = path.resolve(migrationFolder, './faas_v0.3.0.sql');
+  const targetPath = path.resolve(migrationFolder, './cfs_v0.4.0.sql');
   fs.writeFileSync(targetPath, sqls.join('\r\n'));
 };
 
@@ -34,31 +34,31 @@ const migrate = async function () {
   ]);
 
   // build sqls
-  const oldTable = `_tigo_faas_script_bfv030_${Date.now()}`;
+  const oldTable = `_tigo_stored_config_bfv040_${Date.now()}`;
   const sqls = [
-    'ALTER TABLE tigo_faas_script ADD COLUMN scope_id VARCHAR(255);',
+    'ALTER TABLE tigo_stored_config ADD COLUMN scope_id VARCHAR(255);',
     answer.dbType === 'sqlite'
-      ? 'UPDATE tigo_faas_script SET scope_id = (SELECT scope_id from tigo_auth_user WHERE uid = tigo_faas_script.uid);'
-      : 'UPDATE tigo_faas_script s INNER JOIN tigo_auth_user u ON u.id = s.uid SET s.scope_id = u.scope_id;',
+      ? 'UPDATE tigo_stored_config SET scope_id = (SELECT scope_id from tigo_auth_user WHERE uid = tigo_stored_config.uid);'
+      : 'UPDATE tigo_stored_config s INNER JOIN tigo_auth_user u ON u.id = s.uid SET s.scope_id = u.scope_id;',
     ...(answer.dbType === 'sqlite'
       ? [
-          `ALTER TABLE tigo_faas_script RENAME TO ${oldTable};`,
-          `CREATE TABLE tigo_faas_script (id VARCHAR(255) PRIMARY KEY NOT NULL, scope_id VARCHAR(255), name VARCHAR(255), created_at DATETIME, updated_at DATETIME);`,
-          `INSERT INTO tigo_faas_script (id, scope_id, name, created_at, updated_at) SELECT id, scope_id, name, created_at, updated_at FROM ${oldTable};`,
+          `ALTER TABLE tigo_stored_config RENAME TO ${oldTable};`,
+          `CREATE TABLE tigo_stored_config (id VARCHAR(255) PRIMARY KEY NOT NULL, scope_id VARCHAR(255), name VARCHAR(255), type VARCHAR(255), created_at DATETIME, updated_at DATETIME);`,
+          `INSERT INTO tigo_stored_config (id, scope_id, type, name, created_at, updated_at) SELECT id, scope_id, name, created_at, updated_at FROM ${oldTable};`,
         ]
-      : ['ALTER TABLE tigo_faas_script MODIFY COLUMN id VARCHAR(255) NOT NULL;']),
-    answer.dbType !== 'sqlite' ? 'ALTER TABLE tigo_faas_script DROP COLUMN uid;' : null,
+      : ['ALTER TABLE tigo_stored_config MODIFY COLUMN id VARCHAR(255) NOT NULL;']),
+    answer.dbType !== 'sqlite' ? 'ALTER TABLE tigo_stored_config DROP COLUMN uid;' : null,
   ].filter((item) => !!item);
 
   // execute sqls
   if (answer.dbType === 'sqlite') {
     sqls.push(
-      `UPDATE tigo_faas_script SET id = lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' || substr( hex( randomblob(2)), 2) || '-' || substr('AB89', 1 + (abs(random()) % 4) , 1) || substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6)));`
+      `UPDATE tigo_stored_config SET id = lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' || substr( hex( randomblob(2)), 2) || '-' || substr('AB89', 1 + (abs(random()) % 4) , 1) || substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6)));`
     );
     const sqliteConfig = this.getPluginConfig('@tigojs/sqlite');
     if (!sqliteConfig) {
       this.logger.error('Cannot find the configuration for @tigojs/sqlite.');
-      this.logger.warn('Exporting a SQL file to "migration/faas_v0.3.0.sql", please try to migrate manually.');
+      this.logger.warn('Exporting a SQL file to "migration/cfs_v0.4.0.sql", please try to migrate manually.');
       exportSQLFile(this.workDir, sqls);
       this.logger.info('File exported.');
       return;
@@ -74,11 +74,11 @@ const migrate = async function () {
       throw err;
     }
   } else if (answer.dbType === 'mysql') {
-    sqls.push('UPDATE tigo_faas_script SET id = uuid()');
+    sqls.push('UPDATE tigo_stored_config SET id = uuid()');
     const mysqlConfig = this.getPluginConfig('@tigojs/mysql');
     if (!mysqlConfig) {
       this.logger.error('Cannot find the configuration for @tigojs/mysql.');
-      this.logger.warn('Exporting a SQL file to "migration/faas_v0.3.0.sql", please try to migrate manually.');
+      this.logger.warn('Exporting a SQL file to "migration/cfs_v0.4.0.sql", please try to migrate manually.');
       exportSQLFile(this.workDir, sqls);
       this.logger.info('File exported.');
       return;
@@ -103,7 +103,7 @@ const migrate = async function () {
     }
     await connection.close();
   } else {
-    this.logger.warn('Exporting a SQL file to "migration/faas_v0.3.0.sql", please try to migrate manually.');
+    this.logger.warn('Exporting a SQL file to "migration/cfs_v0.4.0.sql", please try to migrate manually.');
     this.logger.warn(
       'Due to the unsupported SQL database type, you can get more information in migration documentation in the package project for create new IDs for your data.'
     );

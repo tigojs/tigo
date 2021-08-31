@@ -15,7 +15,7 @@
   "homepage": "https://github.com/tigojs/tigo/tree/main/packages/auth",
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.5.4",
+    "@tigojs/utils": "^0.6.0",
     "jsonwebtoken": "^8.5.1",
     "lru-cache": "^6.0.0",
     "uuid": "^8.3.2"

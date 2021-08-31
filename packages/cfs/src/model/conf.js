@@ -2,11 +2,16 @@ const { getTablePrefix } = require('@tigojs/utils');
 
 const define = function (app, engine) {
   const prefix = getTablePrefix(app);
-  const { INTEGER, STRING } = engine.Sequelize;
+  const { STRING } = engine.Sequelize;
 
   const Config = engine.define('storedConfig', {
-    uid: {
-      type: INTEGER,
+    id: {
+      type: STRING,
+      primaryKey: true,
+      allowNull: false,
+    },
+    scopeId: {
+      type: STRING,
     },
     name: {
       type: STRING,
@@ -18,10 +23,10 @@ const define = function (app, engine) {
     tableName: `${prefix}_stored_config`,
   });
 
-  Config.exists = async function (uid, type, name) {
+  Config.exists = async function (scopeId, type, name) {
     const item = await this.findOne({
       where: {
-        uid,
+        scopeId,
         name,
         type,
       },
