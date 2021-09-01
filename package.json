@@ -1,7 +1,7 @@
 {
   "name": "tigo",
   "description": "All-in-one lightweight cloud service platform",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
@@ -27,6 +27,7 @@
     "dev:db": "cross-env NODE_ENV=dev DB_ENV=dev nodemon ./server.js",
     "upgrade:utils": "node ./scripts/upgradeUtils.js",
     "link:packages": "node ./scripts/linkPackages.js",
+    "link:global": "node ./scripts/linkToGlobal.js",
     "publish:packages": "node ./scripts/publishPackages.js",
     "publish:lambda-packages": "cross-env PACKAGES_DIR_PATH=\"./lambda-packages\" node ./scripts/publishPackages.js",
     "publish:packages:force": "cross-env IGNORE_NOTFOUND=true node ./scripts/publishPackages.js",
