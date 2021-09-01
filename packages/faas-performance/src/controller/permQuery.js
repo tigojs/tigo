@@ -47,7 +47,7 @@ class PermQueryController extends BaseController {
     // get data
     const collection = ctx.tigo.faas.perm.db.collection(getRequestStatusCollectionName(lambdaId));
     const data = await collection
-      .aggregate(
+      .aggregate([
         {
           $match: {
             point: {
@@ -67,7 +67,7 @@ class PermQueryController extends BaseController {
             },
           },
         }
-      )
+      ])
       .toArray();
     ctx.body = successResponse(data);
   }
