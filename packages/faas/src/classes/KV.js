@@ -3,6 +3,8 @@ const wrapper = require('../utils/classWrapper');
 const ctx = Symbol('koaContext');
 const lambdaId = Symbol('lambdaId');
 const collection = Symbol('collection');
+const cache = Symbol('cache');
+const cacheEnabled = Symbol('cacheEnabled');
 
 const validateKey = (key) => {
   if (typeof key !== 'string') {
@@ -18,27 +20,36 @@ class KV {
     this[ctx] = context;
     this[lambdaId] = _lambdaId;
     this[collection] = this[ctx].tigo.faas.lambdaKvEngine.collection(this[lambdaId]);
+    this[cacheEnabled] = false;
     // init cache
     const cacheConfig = config?.cache || {};
-    this.cache = new LRUCache({
-      max: cacheConfig.max || 100,
-      maxAge: cacheConfig.maxAge || 10 * 1000,
-      updateAgeOnGet: true,
-    });
+    const { enable } = cacheConfig;
+    if (enable) {
+      this[cacheEnabled] = true;
+      this[cache] = new LRUCache({
+        max: cacheConfig.max || 100,
+        maxAge: cacheConfig.maxAge || 10 * 1000,
+        updateAgeOnGet: true,
+      });
+    }
   }
   async get(key) {
     validateKey(key);
-    const cacheKey = `${this[lambdaId]}_${key}`;
-    const cached = this.cache.get(cacheKey);
-    if (cached) {
-      return cached;
+    if (this[cacheEnabled]) {
+      const cacheKey = `${this[lambdaId]}_${key}`;
+      const cached = this[cache].get(cacheKey);
+      if (cached) {
+        return cached;
+      }
     }
     // no cached value
     const res = await this[collection].findOne({
       key,
     });
     if (typeof res !== 'undefined' && res !== null) {
-      this.cache.set(cacheKey, res.value);
+      if (this[cacheEnabled]) {
+        this[cache].set(cacheKey, res.value);
+      }
     } else {
       return null;
     }
@@ -69,8 +80,10 @@ class KV {
         throw new Error('Failed to set value.');
       }
     }
-    const cacheKey = `${this[lambdaId]}_${key}`;
-    this.cache.del(cacheKey);
+    if (this[cacheEnabled]) {
+      const cacheKey = `${this[lambdaId]}_${key}`;
+      this[cache].del(cacheKey);
+    }
   }
   async remove(key) {
     validateKey(key);
@@ -84,8 +97,10 @@ class KV {
       this[ctx].logger.error('Failed to remove key.', err);
       throw new Error('Failed to remove key from kv storage.');
     }
-    const cacheKey = `${this[lambdaId]}_${key}`;
-    this.cache.del(cacheKey);
+    if (this[cacheEnabled]) {
+      const cacheKey = `${this[lambdaId]}_${key}`;
+      this[cache].del(cacheKey);
+    }
   }
 }
 
