@@ -1,5 +1,11 @@
 # @tigojs/faas changelog
 
+## v0.6.1
+
+- Fix: the default value of `Response` is not right.
+
+- Fix: cannot set `redirect` property in `Response`.
+
 ## v0.6.0
 
 - Breaking: respond with `undefined` will not throw an error now, it allows script to manipulate the ctx.
