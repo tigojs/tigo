@@ -86,6 +86,8 @@ const plugin = {
         })
       ),
       allowedRequire: opts.allowedRequire || [],
+      allowBuiltin: opts.allowBuiltin ?? false,
+      allowedBuiltin: opts.allowedBuiltin || [],
       ownerCheck,
     };
     // init lambda kv if enabled

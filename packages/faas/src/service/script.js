@@ -209,8 +209,9 @@ class ScriptService extends BaseService {
       },
       require: {
         external: {
-          modules: [...allowList, ...ctx.tigo.faas.allowedRequire],
+          modules: [...allowList.external, ...(ctx.tigo.faas.allowedRequire || [])],
         },
+        builtin: ctx.tigo.faas.allowBuiltin ? ctx.tigo.faas.allowedBuiltin || [] : [],
       },
     });
     vm.freeze(env, 'SCRIPT_ENV');

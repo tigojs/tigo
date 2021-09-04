@@ -1,5 +1,9 @@
 # @tigojs/faas changelog
 
+## v0.6.2
+
+- Feat: allow enable Node.js builtin modules for tigo scripts.
+
 ## v0.6.1
 
 - Fix: the default value of `Response` is not right.
