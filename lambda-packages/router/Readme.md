@@ -19,7 +19,7 @@ async function myBusinessFunction(ctx, next) {
 }
 
 // path is the relative path to your router.
-router.get('/route');
+router.get('/route', myBusinessFunction);
 
 async function handleRequest(ctx) {
   // MUST HAVE THIS LINE, OHTERWISE THE ROUTER WILL NOT WORK!
