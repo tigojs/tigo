@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/faas-performance",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Monitor lambda's performance in tigo",
   "main": "main.js",
   "author": "BackRunner",

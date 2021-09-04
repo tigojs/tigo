@@ -5,7 +5,8 @@ class RequestStatusLog {
   constructor(app, db, lambdaId) {
     this.collection = db.collection(getRequestStatusCollectionName(lambdaId));
     if (app.tigo.faas.perm.maxKeepDays) {
-      this.collection.ensureIndex({ point: 1 }, { expireAfterSeconds: maxKeepDays * 86400 });
+      const { maxKeepDays } = app.tigo.faas.perm;
+      this.collection.createIndex({ point: 1 }, { expireAfterSeconds: maxKeepDays * 86400 });
     }
   }
   async writeLog(isSuccess) {

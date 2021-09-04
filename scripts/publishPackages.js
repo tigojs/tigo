@@ -50,12 +50,12 @@ function publishPackages(dirPath) {
       logger.info(`pkg: ${pkg.name}, npm version: ${npmVersion}, local version: ${version}`);
       if (compareVersion.compare(npmVersion, version, '<')) {
         logger.info('Local version is newer than npm, publishing the package...');
-        child_process.execSync('npm publish --access=public', { stdio: 'inherit', cwd: packageDir });
+        child_process.execSync('npm publish --access=public --registry=https://registry.npmjs.org', { stdio: 'inherit', cwd: packageDir });
         logger.info('Package published.');
       }
     } else {
       logger.warn('Force publishing the package...');
-      child_process.execSync('npm publish --access=public', { stdio: 'inherit', cwd: packageDir });
+      child_process.execSync('npm publish --access=public --registry=https://registry.npmjs.org', { stdio: 'inherit', cwd: packageDir });
       logger.info('Package published.');
     }
   });

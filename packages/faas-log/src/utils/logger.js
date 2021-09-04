@@ -4,7 +4,8 @@ class LambdaLogger {
   constructor(app, db, lambdaId) {
     this.collection = db.collection(lambdaId);
     if (app.tigo.faas.log.maxKeepDays) {
-      this.collection.ensureIndex({ point: 1 }, { expireAfterSeconds: maxKeepDays * 86400 });
+      const { maxKeepDays } = app.tigo.faas.log;
+      this.collection.createIndex({ point: 1 }, { expireAfterSeconds: maxKeepDays * 86400 });
     }
   }
   async writeLog(type, contents) {

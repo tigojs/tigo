@@ -38,6 +38,7 @@ module.exports = {
           enabled: false,  // whether enable the lambda kv
           storageConfig: {},  // same as kvConfig, to create another database instance for lambda kv
           cache: {
+            enable: false, // lambda kv global cache will not be enabled by default
             max: 100,  // max values in lambda kv lru cache
             maxAge: 10 * 1000,  // max value age
           },

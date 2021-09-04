@@ -1,5 +1,9 @@
 # @tigojs/faas changelog
 
+## v0.5.0
+
+- Breaking change: Lambda KV will not apply cache for get values by default now.
+
 ## v0.4.3
 
 - Minor: upgrade utils.
