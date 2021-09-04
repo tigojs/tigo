@@ -1,5 +1,13 @@
 # @tigojs/faas changelog
 
+## v0.6.0
+
+- Breaking: respond with `undefined` will not throw an error now, it allows script to manipulate the ctx.
+
+- Breaking: `node-fetch` now upgraded to `v3`.
+
+- Feat: allow script return a response with `redirect` property to do redirect.
+
 ## v0.5.0
 
 - Breaking change: Lambda KV will not apply cache for get values by default now.
