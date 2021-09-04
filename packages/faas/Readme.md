@@ -33,6 +33,8 @@ module.exports = {
           storagePath: '',  // storage path for kv engine (local type)
         },  // Configuration object that will be passed to KV engine
         allowedRequire: [''],  // string array, packages allowd to be required from external in the lambda
+        allowBuiltin: false, // allow using Node.js builtin modules in lambda
+        allowedBuiltin: [], // allowed Node.js builtin modules which can be used in lambda
         maxWaitTime: 10,  // default max wait time for lambda executing
         lambdaKv: {
           enabled: false,  // whether enable the lambda kv
