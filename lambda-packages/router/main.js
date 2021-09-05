@@ -1,11 +1,11 @@
-const TreeRouter = require('koa-tree-router');
+const Router = require('@koa/router');
 
 /**
  * Create a router for your lambda
  * @param {object} ctx lambda request event context
  */
 const createRouter = (ctx) => {
-  const router = TreeRouter();
+  const router = new Router();
   const handler = {
     apply: function (target, thisArg, args) {
       // equal to "router.routes()(ctx, null)"
@@ -17,6 +17,6 @@ const createRouter = (ctx) => {
   return router;
 };
 
-module.export = {
+module.exports = {
   createRouter,
 };
