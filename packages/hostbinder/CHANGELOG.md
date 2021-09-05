@@ -1,5 +1,9 @@
 # @tigojs/hostbinder changelog
 
+## v0.2.23
+
+- Minor: downgrade `spdy` to fix compressed data failed issue.
+
 ## v0.2.21 - v0.2.22
 
 - Minor: upgrade `@tigojs/utils`.
