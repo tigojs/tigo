@@ -1,5 +1,9 @@
 # @tigojs/faas changelog
 
+## v0.6.3
+
+- Revert: revert upgrade `node-fetch`.
+
 ## v0.6.2
 
 - Feat: allow enable Node.js builtin modules for tigo scripts.
