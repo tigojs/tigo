@@ -31,7 +31,7 @@ const linkPackages = () => {
       return;
     }
     logger.info(`Start link ${pkg}...`);
-    child_process.execSync(`npm link ${pkg} --save`, { stdio: 'inherit' });
+    child_process.execSync(`npm link ${pkg} --save --registry="https://registry.npmjs.org"`, { stdio: 'inherit' });
   });
   logger.info('All packages were linked to the framework.');
 };
