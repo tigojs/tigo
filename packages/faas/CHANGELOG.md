@@ -1,5 +1,9 @@
 # @tigojs/faas changelog
 
+## v0.8.1
+
+- Fix: `context.path` replacement.
+
 ## v0.8.0
 
 - Breaking: remove the context restriction.

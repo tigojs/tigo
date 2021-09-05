@@ -128,6 +128,9 @@ class ScriptService extends BaseService {
           performenceLog = ctx.tigo.faas.perm.createReqPermLog(lambdaId);
         }
         performenceLog && performenceLog.begin();
+        // replace ctx.path
+        ctx.path = ctx.params.subPath || '/';
+        // emit request event
         eventEmitter.emit('request', {
           context: ctx,
           respondWith: (response) => {
