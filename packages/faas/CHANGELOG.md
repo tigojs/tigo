@@ -1,5 +1,13 @@
 # @tigojs/faas changelog
 
+## v0.7.0
+
+- Breaking: access `url`, `origin`, `originalUrl`, `href`, `socket`, `subdomains` through `event.context` is not allowed now.
+
+- Breaking: `req`, `res`, `request`, `response` now cannot be access through `event.context`.
+
+- Breaking: now all the koa response aliaes can be access through `event.context`.
+
 ## v0.6.3
 
 - Revert: revert upgrade `node-fetch`.

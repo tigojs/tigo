@@ -1,9 +1,5 @@
 const allowContextProps = [
   // koa base
-  'req',
-  'res',
-  'request',
-  'response',
   'cookies',
   'throw',
   'assert',
@@ -12,10 +8,6 @@ const allowContextProps = [
   'header',
   'headers',
   'method',
-  'url',
-  'originalUrl',
-  'origin',
-  'href',
   'path',
   'query',
   'querystring',
@@ -23,18 +15,32 @@ const allowContextProps = [
   'hostname',
   'fresh',
   'stale',
-  'socket',
   'protocol',
   'secure',
   'ip',
   'ips',
-  'subdomains',
   'is',
   'accepts',
   'acceptsEncodings',
   'acceptsCharsets',
   'acceptsLanguages',
   'get',
+  // koa response aliases
+  'body',
+  'status',
+  'message',
+  'length',
+  'type',
+  'headerSent',
+  'redirect',
+  'attachment',
+  'set',
+  'append',
+  'remove',
+  'lastModified',
+  'etag',
+  // router
+  'params',
 ];
 
 function createContextProxy(ctx) {
@@ -42,7 +48,7 @@ function createContextProxy(ctx) {
   const handler = {
     get: function (target, prop, recevier) {
       if (!allowContextProps.includes(prop)) {
-        throw new TypeError('非法访问上下文');
+        throw new TypeError('Violation access context.');
       }
       if (prop === 'path') {
         return ctx.params.subPath || '/';
@@ -52,7 +58,7 @@ function createContextProxy(ctx) {
     },
     set: function (target, key, value, receiver) {
       if (!allowContextProps.includes(key)) {
-        throw new TypeError('非法操作上下文');
+        throw new TypeError('Violation operate context.');
       }
       target[key] = value;
       return true;
