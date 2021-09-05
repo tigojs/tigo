@@ -9,7 +9,7 @@
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "@backrunner/redbird": "^0.12.8",
+    "@backrunner/redbird": "^0.12.7",
     "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.6.0",
     "log4js": "^6.3.0"
