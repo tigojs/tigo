@@ -5,10 +5,11 @@
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
-  "dependencies": {
-    "@koa/router": "^10.1.1"
-  },
   "tigo": {
     "type": "lambda-package"
+  },
+  "dependencies": {
+    "lru-cache": "^6.0.0",
+    "path-to-regexp": "^6.2.0"
   }
 }
