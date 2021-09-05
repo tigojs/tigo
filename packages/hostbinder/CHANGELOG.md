@@ -1,5 +1,9 @@
 # @tigojs/hostbinder changelog
 
+## v0.2.25
+
+- Fix: upgrade `redbird` to fix https redirect issue.
+
 ## v0.2.24
 
 - Minor: revert `spdy` downgrade change.
