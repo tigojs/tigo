@@ -5,7 +5,6 @@ const fetch = require('node-fetch');
 const { NodeVM } = require('vm2');
 const { v4: uuidv4 } = require('uuid');
 const { BaseService } = require('@tigojs/core');
-const { createContextProxy } = require('../utils/context');
 const { stackFilter } = require('../utils/stackFilter');
 const { getStorageKey, getEnvStorageKey, getPolicyKey } = require('../utils/storage');
 const { validatePolicy, ownerCheck, setOwnerCache, clearOwnerCache } = require('../utils/validate');
@@ -130,7 +129,7 @@ class ScriptService extends BaseService {
         }
         performenceLog && performenceLog.begin();
         eventEmitter.emit('request', {
-          context: createContextProxy(ctx),
+          context: ctx,
           respondWith: (response) => {
             ctx.status = response?.status ? response.status : ctx.status || 200;
             if (response?.headers) {

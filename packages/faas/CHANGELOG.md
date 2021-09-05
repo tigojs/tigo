@@ -1,5 +1,9 @@
 # @tigojs/faas changelog
 
+## v0.8.0
+
+- Breaking: remove the context restriction.
+
 ## v0.7.0
 
 - Breaking: access `url`, `origin`, `originalUrl`, `href`, `socket`, `subdomains` through `event.context` is not allowed now.
