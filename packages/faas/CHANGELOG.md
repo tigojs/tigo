@@ -1,5 +1,9 @@
 # @tigojs/faas changelog
 
+## v0.6.4
+
+- Fix: classes in lambda have been called without `new`.
+
 ## v0.6.3
 
 - Revert: revert upgrade `node-fetch`.

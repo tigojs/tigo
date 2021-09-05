@@ -218,13 +218,13 @@ class ScriptService extends BaseService {
     vm.freeze(Response, 'Response');
     vm.freeze(fetch, 'fetch');
     if (ctx.tigo.cfs) {
-      vm.freeze(CFS(ctx, this.config.cfs), 'CFS');
+      vm.freeze(new CFS(ctx, this.config.cfs), 'CFS');
     }
     if (ctx.tigo.oss) {
-      vm.freeze(OSS(ctx, this.config.oss), 'OSS');
+      vm.freeze(new OSS(ctx, this.config.oss), 'OSS');
     }
     if (ctx.tigo.faas.lambdaKvEnabled) {
-      vm.freeze(KV(ctx, lambdaId, this.config.lambdaKv), 'KV');
+      vm.freeze(new KV(ctx, lambdaId, this.config.lambdaKv), 'KV');
     }
     if (ctx.tigo.faas.log) {
       const logger = ctx.tigo.faas.log.createLogger(lambdaId);
