@@ -42,26 +42,28 @@ async function initServer() {
       },
     })
   );
-  this.server.use(
-    compress({
-      filter(type) {
-        return /^text/i.test(type) || type === 'application/json';
-      },
-      threshold: 2048,
-      flush: zlib.constants.Z_SYNC_FLUSH,
-      br: (type) => {
-        // we can be as selective as we can:
-        if (/^image\//i.test(type)) return null;
-        if (/^text\//i.test(type) || type === 'application/json') {
-          return {
-            [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
-            [zlib.constants.BROTLI_PARAM_QUALITY]: 6,
-          };
-        }
-        return { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 };
-      },
-    })
-  );
+  if (this.config.server?.compress) {
+    this.server.use(
+      compress({
+        filter(type) {
+          return /^text/i.test(type) || type === 'application/json';
+        },
+        threshold: 2048,
+        flush: zlib.constants.Z_SYNC_FLUSH,
+        br: (type) => {
+          // we can be as selective as we can:
+          if (/^image\//i.test(type)) return null;
+          if (/^text\//i.test(type) || type === 'application/json') {
+            return {
+              [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+              [zlib.constants.BROTLI_PARAM_QUALITY]: 6,
+            };
+          }
+          return { [zlib.constants.BROTLI_PARAM_QUALITY]: 4 };
+        },
+      })
+    );
+  }
   parameter(this.server);
   // dev koa plugins
   if (process.env.NODE_ENV === 'dev') {
