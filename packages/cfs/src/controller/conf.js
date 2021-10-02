@@ -64,13 +64,13 @@ class ConfigurationController extends BaseController {
   async handleRequest(ctx) {
     const { scopeId, filename } = ctx.params;
     if (!/.+\..+/.test(filename)) {
-      ctx.throw(400, '文件名不正确');
+      ctx.throw(404, '文件名不正确');
     }
     const type = path.extname(filename);
     const name = path.basename(filename, type);
     const formattedType = type.toLowerCase().substr(1);
     if (!formattedType || !allowedType.includes(formattedType)) {
-      ctx.throw(400, '类型错误');
+      ctx.throw(404, '类型错误');
     }
     const content = await ctx.service.cfs.conf.getContentViaPublic(ctx, scopeId, formattedType, name);
     if (!content) {
