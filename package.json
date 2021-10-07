@@ -38,19 +38,20 @@
     "@koa/cors": "^3.1.0",
     "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.6.0",
-    "koa": "^2.13.1",
+    "koa": "^2.13.3",
     "koa-body": "^4.2.0",
     "koa-compress": "^5.1.0",
     "koa-logger": "^3.2.1",
     "koa-parameter": "^3.0.1",
     "koa-tree-router": "^0.8.0",
     "log4js": "^6.3.0",
-    "mime": "^2.5.2"
+    "mime": "^2.5.2",
+    "node-fetch": "^2.6.5"
   },
   "devDependencies": {
     "compare-versions": "^3.6.0",
     "cross-env": "^7.0.3",
-    "nodemon": "^2.0.12",
+    "nodemon": "^2.0.13",
     "npm-api": "^1.0.1"
   }
 }
