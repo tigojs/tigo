@@ -1,5 +1,9 @@
 # @tigojs/mongodb changelog
 
+## v0.3.1
+
+- Minor: upgrade `mongodb` to `v4.1.3`.
+
 ## v0.3.0
 
 - Breaking change: MongoDB driver has been upgraded to `v4`.
