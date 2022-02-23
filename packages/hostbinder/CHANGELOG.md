@@ -1,8 +1,6 @@
 # @tigojs/hostbinder changelog
 
-## v0.2.25
-
-- Feat: use cluster for `redbird`.
+## v0.2.27
 
 - Fix: add timeout for proxy.
 
