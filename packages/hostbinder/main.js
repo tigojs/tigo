@@ -6,6 +6,7 @@ const {
 } = require('@tigojs/utils');
 const redbird = require('@backrunner/redbird');
 const { constants } = require('crypto');
+const { cpus } = require('os');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const MODEL_DIR = path.resolve(__dirname, './src/model');
@@ -36,8 +37,11 @@ const plugin = {
     // init redbird
     const redbirdOpts = {
       port: opts.port || 80,
+      cluster: opts.cluster || cpus().length,
       xfwd: true,
       logger: app.logger,
+      timeout: opts.timeout || 30,
+      proxyTimeout: opts.proxyTimeout || 30,
     };
     if (opts.https !== false) {
       let certPath;

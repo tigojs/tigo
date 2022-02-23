@@ -2,6 +2,14 @@
 
 ## v0.2.25
 
+- Feat: use cluster for `redbird`.
+
+- Fix: add timeout for proxy.
+
+- Minor: upgrade dependencies.
+
+## v0.2.25
+
 - Fix: upgrade `redbird` to fix https redirect issue.
 
 ## v0.2.24
