@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.6
+
+- Minor: upgrade dependencies.
+
 ## v0.6.5
 
 - Breaking: now `koa-compress` will not be enabled by default.
