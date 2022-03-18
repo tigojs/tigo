@@ -1,7 +1,7 @@
 {
   "name": "tigo",
   "description": "All-in-one lightweight cloud service platform",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
@@ -51,6 +51,7 @@
   "devDependencies": {
     "compare-versions": "^3.6.0",
     "cross-env": "^7.0.3",
+    "node-gyp": "^9.0.0",
     "nodemon": "^2.0.15",
     "npm-api": "^1.0.1"
   }
