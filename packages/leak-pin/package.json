@@ -1,0 +1,12 @@
+{
+  "name": "@tigojs/leak-pin",
+  "version": "0.1.0",
+  "description": "Detect memory leak in tigo",
+  "main": "main.js",
+  "author": "BackRunner",
+  "license": "MIT",
+  "dependencies": {
+    "heapdump": "^0.3.15",
+    "node-memwatch-new": "^0.0.3"
+  }
+}
