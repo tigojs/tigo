@@ -1,5 +1,13 @@
 # @tigojs/fepanel changelog
 
+## v0.2.18
+
+- Fix: static files tester can match other subdomain of the certain domain.
+
+## v0.2.17
+
+- Fix: static files tester can match other domain.
+
 ## v0.2.14 - v0.2.16
 
 - Minor: upgrade dependencies.

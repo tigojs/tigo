@@ -5,7 +5,6 @@ const {
   collectModel,
 } = require('@tigojs/utils');
 const redbird = require('@backrunner/redbird');
-const { constants } = require('crypto');
 
 const CONTROLLER_DIR = path.resolve(__dirname, './src/controller');
 const MODEL_DIR = path.resolve(__dirname, './src/model');
@@ -38,6 +37,8 @@ const plugin = {
       port: opts.port || 80,
       xfwd: true,
       logger: app.logger,
+      timeout: opts.timeout || 30,
+      proxyTimeout: opts.proxyTimeout || 30,
     };
     if (opts.https !== false) {
       let certPath;
@@ -65,7 +66,8 @@ const plugin = {
         ssl: {
           http2: opts.http2 !== false ? true : false,
           port: opts.sslPort || 443,
-          secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3,
+          cert: opts.sslCert,
+          key: opts.sslKey,
         },
       });
     }

@@ -1,5 +1,23 @@
 # @tigojs/hostbinder changelog
 
+## v0.2.27
+
+- Fix: add timeout for proxy.
+
+- Minor: upgrade dependencies.
+
+## v0.2.25
+
+- Fix: upgrade `redbird` to fix https redirect issue.
+
+## v0.2.24
+
+- Minor: revert `spdy` downgrade change.
+
+## v0.2.23
+
+- Minor: downgrade `spdy` to fix compressed data failed issue.
+
 ## v0.2.21 - v0.2.22
 
 - Minor: upgrade `@tigojs/utils`.

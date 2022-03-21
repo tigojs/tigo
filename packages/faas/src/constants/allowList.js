@@ -1,1 +1,4 @@
-module.exports = ['@tigojs/lambda-*', '@tigojs/api-*'];
+module.exports = {
+  external: ['@tigojs/lambda-*', '@tigojs/api-*'],
+  builtin: ['crypto', 'util', 'events'],
+};

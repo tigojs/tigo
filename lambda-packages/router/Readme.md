@@ -9,9 +9,9 @@ Firstly, you should add it to the server via `npm install`.
 Then you can use it like this in your lambda:
 
 ```js
-const { createRouter } = require('@tigojs/lambda-router');
+const Router = require('@tigojs/lambda-router');
 
-const router = createRouter();
+const router = new Router();
 
 // your function
 async function myBusinessFunction(ctx, next) {
@@ -23,7 +23,7 @@ router.get('/route', myBusinessFunction);
 
 async function handleRequest(ctx) {
   // MUST HAVE THIS LINE, OHTERWISE THE ROUTER WILL NOT WORK!
-  router.route(ctx);
+  return router.route(ctx);
   // AND ALSO, YOU SHOULD REGISTER ALL YOUR ROUTES BEFORE YOU CALL THIS FUNCTION.
 }
 

@@ -5,19 +5,20 @@ const RequestStatusLog = require('./src/classes/requestStatusLog');
 
 const CONTROLLER_PATH = path.resolve(__dirname, './src/controller');
 
+const isNotNumber = (n) => n && typeof n !== 'number';
+
 const plugin = {
   dependencies: ['@tigojs/faas'],
   mount(app, opts) {
     if (!opts) {
       opts = {};
     }
-    // validate time span
-    if (opts.maxTimeSpan && typeof opts.maxTimeSpan !== 'number') {
-      throw new Error('maxTimeSpan should be a number.');
-    }
-    // validate maxKeepDays
-    if (opts.maxKeepDays && typeof opts.maxKeepDays !== 'number') {
-      throw new Error('maxKeepDays should be a number.');
+    const needValidate = [['maxTimeSpan', opts.maxTimeSpan], ['maxKeepDays', opts.maxKeepDays]];
+    for (const item of needValidate) {
+      const [name, value] = item;
+      if (isNotNumber(value)) {
+        throw new Error(`${name} should be a number.`);
+      }
     }
     // get mongodb engine
     let engine;

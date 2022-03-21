@@ -5,7 +5,6 @@ const fetch = require('node-fetch');
 const { NodeVM } = require('vm2');
 const { v4: uuidv4 } = require('uuid');
 const { BaseService } = require('@tigojs/core');
-const { createContextProxy } = require('../utils/context');
 const { stackFilter } = require('../utils/stackFilter');
 const { getStorageKey, getEnvStorageKey, getPolicyKey } = require('../utils/storage');
 const { validatePolicy, ownerCheck, setOwnerCache, clearOwnerCache } = require('../utils/validate');
@@ -129,27 +128,29 @@ class ScriptService extends BaseService {
           performenceLog = ctx.tigo.faas.perm.createReqPermLog(lambdaId);
         }
         performenceLog && performenceLog.begin();
+        // replace ctx.path
+        ctx.path = ctx.params.subPath || '/';
+        // emit request event
         eventEmitter.emit('request', {
-          context: createContextProxy(ctx),
+          context: ctx,
           respondWith: (response) => {
-            if (!response || !response instanceof Response) {
-              statusLog && statusLog.error();
-              reject(new Error('Response is invalid, please check your code.'));
-            }
-            ctx.status = response.status || 200;
-            if (response.headers) {
+            ctx.status = response?.status ? response.status : ctx.status || 200;
+            if (response?.headers) {
               Object.keys(response.headers).forEach((key) => {
                 ctx.set(key, response.headers.key);
               });
             }
-            ctx.body = response.body || '';
+            ctx.body = response?.body ? response.body : ctx.body || '';
             // set content type when body is a object
-            if (!ctx.headers['content-type']) {
+            if (!ctx.headers['content-type'] && response) {
               if (typeof response.body === 'object') {
                 ctx.set('Content-Type', 'application/json');
-              } else {
+              } else if (response.body) {
                 ctx.set('Content-Type', 'text/plain');
               }
+            }
+            if (response?.redirect) {
+              ctx.redirect(response.redirect);
             }
             clearTimeout(wait);
             eventEmitter.off('error', errorHandler);
@@ -210,8 +211,9 @@ class ScriptService extends BaseService {
       },
       require: {
         external: {
-          modules: [...allowList, ...ctx.tigo.faas.allowedRequire],
+          modules: [...allowList.external, ...(ctx.tigo.faas.allowedRequire || [])],
         },
+        builtin: ctx.tigo.faas.allowBuiltin ? ctx.tigo.faas.allowedBuiltin || [] : [],
       },
     });
     vm.freeze(env, 'SCRIPT_ENV');

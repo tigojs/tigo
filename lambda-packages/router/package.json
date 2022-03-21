@@ -1,14 +1,15 @@
 {
   "name": "@tigojs/lambda-router",
-  "version": "0.1.1",
+  "version": "0.3.0",
   "description": "Router helper for tigo lambda.",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
-  "dependencies": {
-    "koa-tree-router": "^0.8.0"
-  },
   "tigo": {
     "type": "lambda-package"
+  },
+  "dependencies": {
+    "lru-cache": "^6.0.0",
+    "path-to-regexp": "^6.2.0"
   }
 }

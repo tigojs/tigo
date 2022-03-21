@@ -47,8 +47,8 @@ const plugin = {
     const resolver = function (host, url, req) {
       const formattedPath = `${host}${url}`;
       const formattedDomain = opts.domain.replace(/\./g, '\\.');
-      const staticFilesTester = new RegExp(`^${formattedDomain}\/((css|fonts|js)\/.+)|(.+\.(js|ico))$`);
-      const domainTester = new RegExp(`^${formattedDomain}\/`);
+      const staticFilesTester = new RegExp(`^${formattedDomain}\\/((css|js|fonts)\\/)?.+\\.(js|css|ico|woff|ttf|woff|png|jpg|jpeg|webp|gif|json|xml|yaml|md)`);
+      const domainTester = new RegExp(`^${formattedDomain}\\/`);
       if (staticFilesTester.test(formattedPath)) {
         return `http://127.0.0.1:${app.tigo.config.server.port}/static/fepanel/`;
       } else if (domainTester.test(formattedPath)) {

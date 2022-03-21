@@ -25,14 +25,14 @@ const linkPackages = () => {
     pkgs.push(match[0]);
   }
   logger.info('Found following packages: ', pkgs);
-  pkgs.forEach((pkg) => {
+  const joined = pkgs.filter((pkg) => {
     if (dependencyNames && dependencyNames.includes(pkg)) {
       logger.info(`${pkg} has been linked to framework, skip.`);
-      return;
+      return false;
     }
-    logger.info(`Start link ${pkg}...`);
-    child_process.execSync(`npm link ${pkg} --save`, { stdio: 'inherit' });
+    return true;
   });
+  child_process.execSync(`npm link ${joined} --save --registry="https://registry.npmjs.org"`, { stdio: 'inherit' });
   logger.info('All packages were linked to the framework.');
 };
 

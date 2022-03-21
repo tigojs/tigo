@@ -1,5 +1,43 @@
 # @tigojs/faas changelog
 
+## v0.8.1
+
+- Fix: `context.path` replacement.
+
+## v0.8.0
+
+- Breaking: remove the context restriction.
+
+## v0.7.0
+
+- Breaking: access `url`, `origin`, `originalUrl`, `href`, `socket`, `subdomains` through `event.context` is not allowed now.
+
+- Breaking: `req`, `res`, `request`, `response` now cannot be access through `event.context`.
+
+- Breaking: now all the koa response aliaes can be access through `event.context`.
+
+## v0.6.3
+
+- Revert: revert upgrade `node-fetch`.
+
+## v0.6.2
+
+- Feat: allow enable Node.js builtin modules for tigo scripts.
+
+## v0.6.1
+
+- Fix: the default value of `Response` is not right.
+
+- Fix: cannot set `redirect` property in `Response`.
+
+## v0.6.0
+
+- Breaking: respond with `undefined` will not throw an error now, it allows script to manipulate the ctx.
+
+- Breaking: `node-fetch` now upgraded to `v3`.
+
+- Feat: allow script return a response with `redirect` property to do redirect.
+
 ## v0.5.0
 
 - Breaking change: Lambda KV will not apply cache for get values by default now.
