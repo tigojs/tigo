@@ -4,7 +4,6 @@ const path = require('path');
 const fs = require('fs');
 
 const plugin = {
-  type: 'module',
   mount(app) {
     const snapshotDir =  path.resolve(app.config.runDirPath, './snapshots');
     if (!fs.existsSync(snapshotDir)) {

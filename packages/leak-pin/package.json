@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/leak-pin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Detect memory leak in tigo",
   "main": "main.js",
   "author": "BackRunner",
