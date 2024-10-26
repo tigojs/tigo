@@ -1,7 +1,7 @@
 {
   "name": "tigo",
   "description": "All-in-one lightweight cloud service platform",
-  "version": "0.6.7",
+  "version": "0.6.8",
   "main": "server.js",
   "author": "BackRunner",
   "license": "MIT",
@@ -35,24 +35,24 @@
     "migrate": "node ./scripts/migrate.js"
   },
   "dependencies": {
-    "@koa/cors": "^3.1.0",
+    "@koa/cors": "^3.4.3",
     "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.6.0",
-    "koa": "^2.13.4",
+    "koa": "^2.15.3",
     "koa-body": "^4.2.0",
-    "koa-compress": "^5.1.0",
+    "koa-compress": "^5.1.1",
     "koa-logger": "^3.2.1",
     "koa-parameter": "^3.0.1",
     "koa-tree-router": "^0.8.0",
-    "log4js": "^6.4.1",
-    "mime": "^2.6.0",
-    "node-fetch": "^2.6.7"
+    "log4js": "^6.9.1",
+    "mime": "^3.0.0",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
     "compare-versions": "^3.6.0",
     "cross-env": "^7.0.3",
-    "node-gyp": "^9.0.0",
-    "nodemon": "^2.0.15",
+    "node-gyp": "^9.4.1",
+    "nodemon": "^2.0.22",
     "npm-api": "^1.0.1"
   }
 }

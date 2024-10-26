@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/faas-performance",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Monitor lambda's performance in tigo",
   "main": "main.js",
   "author": "BackRunner",
@@ -13,6 +13,6 @@
   "dependencies": {
     "@tigojs/core": "^0.1.0",
     "@tigojs/utils": "^0.6.0",
-    "moment": "^2.29.1"
+    "moment": "^2.30.1"
   }
 }

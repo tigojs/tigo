@@ -28,7 +28,7 @@ class KV {
       this[cacheEnabled] = true;
       this[cache] = new LRUCache({
         max: cacheConfig.max || 100,
-        maxAge: cacheConfig.maxAge || 10 * 1000,
+        ttl: cacheConfig.maxAge || 10 * 1000,
         updateAgeOnGet: true,
       });
     }

@@ -16,7 +16,7 @@ class CFS {
     const cacheConfig = config?.cache || {};
     this.cache = new LRUCache({
       max: cacheConfig.max || 100,
-      maxAge: cacheConfig.maxAge || 10 * 1000,
+      ttl: cacheConfig.maxAge || 10 * 1000,
       updateAgeOnGet: true,
     });
     // register event

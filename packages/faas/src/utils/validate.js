@@ -3,7 +3,7 @@ const LRUCache = require('lru-cache');
 // cache the owner data
 const ownerCache = new LRUCache({
   max: 1000,
-  maxAge: 60 * 1000,
+  ttl: 60 * 1000,
   updateAgeOnGet: true,
 });
 

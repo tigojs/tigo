@@ -1,13 +1,13 @@
 {
   "name": "@tigojs/lambda-redis",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Redis connection helper for tigo lambda",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "ioredis": "^4.27.4",
-    "lru-cache": "^6.0.0"
+    "ioredis": "^4.28.5",
+    "lru-cache": "^11.0.1"
   },
   "tigo": {
     "type": "lambda-package"

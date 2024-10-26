@@ -4,7 +4,9 @@ const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const { NodeVM } = require('vm2');
 const { v4: uuidv4 } = require('uuid');
+
 const { BaseService } = require('@tigojs/core');
+
 const { stackFilter } = require('../utils/stackFilter');
 const { getStorageKey, getEnvStorageKey, getPolicyKey } = require('../utils/storage');
 const { validatePolicy, ownerCheck, setOwnerCache, clearOwnerCache } = require('../utils/validate');
@@ -41,22 +43,22 @@ class ScriptService extends BaseService {
     // set cache
     this.cache = new LRUCache({
       max: cacheConfig.maxLambda || 100,
-      maxAge: cacheConfig.maxLambdaAge || 60 * 1000, // default max age is 1min,
+      ttl: cacheConfig.maxLambdaAge || 60 * 1000,
       updateAgeOnGet: true,
-      dispose: (_, cached) => {
-        cached.eventEmitter.removeAllListeners();
-        cached.eventEmitter = null;
-        cached.vm = null;
+      dispose: (value, key) => {
+        value.eventEmitter.removeAllListeners();
+        value.eventEmitter = null;
+        value.vm = null;
       },
     });
     this.lambdaIdCache = new LRUCache({
       max: cacheConfig.maxIds || 1000,
-      maxAge: cacheConfig.maxIdAge || 60 * 1000,
+      ttl: cacheConfig.maxIdAge || 60 * 1000,
       updateAgeOnGet: true,
     });
     this.lambdaNameCache = new LRUCache({
       max: cacheConfig.maxNames || 1000,
-      maxAge: cacheConfig.maxNameAge || 30 * 1000,
+      ttl: cacheConfig.maxNameAge || 30 * 1000,
       updateAgeOnGet: true,
     });
     this.maxWaitTime = config.maxWaitTime || 10;
@@ -176,6 +178,41 @@ class ScriptService extends BaseService {
       statusLog && statusLog.error();
       throw err;
     }
+  }
+  async emit({ id: lambdaId, event, payload, maxWaitTime }) {
+    const cached = this.cache.get(lambdaId);
+    let eventEmitter;
+    if (cached) {
+      eventEmitter = cached.eventEmitter;
+    } else {
+      // func not in cache
+      const res = await this.runLambda(ctx, lambdaId);
+      if (!res) {
+        throw new Error('Cannot find or init the lambda.');
+      }
+      eventEmitter = res.eventEmitter;
+      this.cache.set(lambdaId, res);
+    }
+    // emit can ignore maxWaitTime which set in the faas module
+    await new Promise((resolve, reject) => {
+      const wait = setTimeout(() => {
+        reject(new Error('The function execution time is above the limit.'));
+        eventEmitter.off('error', errorHandler);
+      }, maxWaitTime);
+      const errorHandler = (err) => {
+        clearTimeout(wait);
+        reject(err);
+      };
+      eventEmitter.once('error', errorHandler);
+      eventEmitter.emit(event, {
+        end: () => {
+          clearTimeout(wait);
+          eventEmitter.off('error', errorHandler);
+          resolve();
+        },
+        payload,
+      });
+    });
   }
   async runLambda(ctx, lambdaId) {
     const showStack = ctx.query.__tigoDebug === '1';

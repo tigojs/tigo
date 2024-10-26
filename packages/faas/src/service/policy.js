@@ -16,7 +16,7 @@ class LambdaPolicyService extends BaseService {
     // init cache
     this.cache = new LRUCache({
       max: cacheConfig.maxPolicies || 100,
-      maxAge: cacheConfig.maxPolicyAge || 60 * 1000,
+      ttl: cacheConfig.maxPolicyAge || 60 * 1000,
       updateAgeOnGet: true,
     });
   }

@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/lambda-router",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Router helper for tigo lambda.",
   "main": "main.js",
   "author": "BackRunner",
@@ -10,6 +10,6 @@
   },
   "dependencies": {
     "lru-cache": "^6.0.0",
-    "path-to-regexp": "^6.2.0"
+    "path-to-regexp": "^6.3.0"
   }
 }

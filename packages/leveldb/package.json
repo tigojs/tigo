@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/leveldb",
-  "version": "0.2.26",
+  "version": "0.2.27",
   "description": "LevelDB plugin for tigo.",
   "main": "main.js",
   "author": "BacKRunner",
@@ -15,8 +15,8 @@
   "homepage": "https://github.com/tigojs/tigo/tree/main/packages/leveldb",
   "dependencies": {
     "@tigojs/utils": "^0.6.0",
-    "leveldown": "^6.0.1",
-    "levelup": "^5.0.1",
-    "moment": "^2.29.1"
+    "leveldown": "^6.1.1",
+    "levelup": "^5.1.1",
+    "moment": "^2.30.1"
   }
 }

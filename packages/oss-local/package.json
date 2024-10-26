@@ -1,6 +1,6 @@
 {
   "name": "@tigojs/oss-local",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Local storage engine for @tigojs/oss",
   "main": "main.js",
   "scripts": {
@@ -14,8 +14,8 @@
   },
   "homepage": "https://github.com/tigojs/tigo/tree/main/packages/oss-local",
   "dependencies": {
-    "deepmerge": "^4.2.2",
-    "lru-cache": "^6.0.0",
-    "uuid": "^8.3.2"
+    "deepmerge": "^4.3.1",
+    "lru-cache": "^11.0.1",
+    "uuid": "^10.0.0"
   }
 }

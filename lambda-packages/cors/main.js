@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 const cache = new LRUCache({
   max: 100,
-  maxAge: 1000 * 30,
+  ttl: 1000 * 30,
   updateAgeOnGet: true,
 });
 

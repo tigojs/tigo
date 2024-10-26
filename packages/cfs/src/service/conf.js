@@ -28,7 +28,7 @@ class ConfigStorageService extends BaseService {
     cacheConfig = cacheConfig || {};
     this.cache = new LRU({
       max: cacheConfig.max || 500,
-      maxAge: cacheConfig.maxAge || 60 * 60 * 1000,
+      ttl: cacheConfig.maxAge || 60 * 60 * 1000,
       updateAgeOnGet: true,
     });
   }

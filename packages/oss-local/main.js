@@ -65,7 +65,7 @@ class LocalStorageEngine {
     // create policyCache
     this.policyCache = new LRUCache({
       max: 500,
-      maxAge: 1000 * 60 * 60 * 3, // 3 hrs
+      ttl: 1000 * 60 * 60 * 3, // 3 hrs
     });
     // put things on this
     this.app = app;

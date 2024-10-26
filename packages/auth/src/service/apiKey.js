@@ -1,6 +1,6 @@
 const { BaseService } = require('@tigojs/core');
 const { v4: uuidv4 } = require('uuid');
-const LRU = require('lru-cache');
+const LRUCache = require('lru-cache');
 
 const generalCheck = async (ctx, id) => {
   const dbItem = await ctx.model.auth.apiKey.findByPk(id);
@@ -23,9 +23,9 @@ class ApiKeysService extends BaseService {
     }
     let { cache: cacheConfig } = config;
     cacheConfig = cacheConfig || {};
-    this.cache = new LRU({
+    this.cache = new LRUCache({
       max: cacheConfig.max || 500,
-      maxAge: cacheConfig.maxAge || 60 * 60 * 1000,
+      ttl: cacheConfig.maxAge || 60 * 60 * 1000,
       updateAgeOnGet: true,
     });
   }

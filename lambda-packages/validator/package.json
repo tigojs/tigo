@@ -1,11 +1,11 @@
 {
   "name": "@tigojs/lambda-validator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Validate params in tigo lambda",
   "main": "main.js",
   "author": "BackRunner",
   "license": "MIT",
   "dependencies": {
-    "parameter": "^3.6.0"
+    "parameter": "^3.7.0"
   }
 }
