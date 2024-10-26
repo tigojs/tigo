@@ -1,5 +1,5 @@
 const { match } = require('path-to-regexp');
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 
 class Router {
   constructor(opts) {

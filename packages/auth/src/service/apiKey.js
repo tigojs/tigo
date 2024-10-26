@@ -1,6 +1,6 @@
 const { BaseService } = require('@tigojs/core');
 const { v4: uuidv4 } = require('uuid');
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 
 const generalCheck = async (ctx, id) => {
   const dbItem = await ctx.model.auth.apiKey.findByPk(id);

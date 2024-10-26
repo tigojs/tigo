@@ -1,5 +1,5 @@
 const Redis = require('ioredis');
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 const crypto = require('crypto');
 
 const cache = new LRUCache({

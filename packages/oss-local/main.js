@@ -5,7 +5,7 @@ const { safePush, safeRemove, safeCreateObject, safeInsertNode, safeRemoveNode, 
 const { getBucketListKey, getDirectoryHeadKey, getObjectMetaKey, getDirectoryMetaKey, getBucketPolicyKey, getBucketPolicyCacheKey, getHash2FileIdKey, getFileId2HashKey } = require('./utils/keys');
 const { isBucketEmpty, getDirectoryPath, getLastDirectoryNode, recursiveCheckParent, recursiveCheckEmpty } = require('./utils/bucket');
 const { v4: uuidv4 } = require('uuid');
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 const mime = require('mime');
 
 class LocalStorageEngine {

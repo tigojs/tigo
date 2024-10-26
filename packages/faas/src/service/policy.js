@@ -1,7 +1,7 @@
 const { BaseService } = require('@tigojs/core');
 const { getPolicyKey } = require('../utils/storage');
 const { validatePolicy } = require('../utils/validate');
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 
 class LambdaPolicyService extends BaseService {
   constructor(app) {

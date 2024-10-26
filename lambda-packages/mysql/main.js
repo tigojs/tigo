@@ -1,7 +1,7 @@
 const mysql = require('mysql2/promise');
-const LRU = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 
-const cache = new LRU({
+const cache = new LRUCache({
   max: 100,
   ttl: 1000 * 30,
   dispose: function (key, conn) {

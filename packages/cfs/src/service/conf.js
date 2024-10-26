@@ -1,7 +1,7 @@
 const { BaseService } = require('@tigojs/core');
 const { allowedType } = require('../constants/type');
 const { v4: uuidv4 } = require('uuid');
-const LRU = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 
 const getStorageKey = (configId) => `confsto_item_${configId}`;
 
@@ -26,7 +26,7 @@ class ConfigStorageService extends BaseService {
     }
     let { cache: cacheConfig } = config;
     cacheConfig = cacheConfig || {};
-    this.cache = new LRU({
+    this.cache = new LRUCache({
       max: cacheConfig.max || 500,
       ttl: cacheConfig.maxAge || 60 * 60 * 1000,
       updateAgeOnGet: true,

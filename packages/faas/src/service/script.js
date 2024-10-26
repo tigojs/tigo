@@ -1,5 +1,5 @@
 const path = require('path');
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const { NodeVM } = require('vm2');

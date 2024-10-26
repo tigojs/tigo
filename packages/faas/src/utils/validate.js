@@ -1,4 +1,4 @@
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 
 // cache the owner data
 const ownerCache = new LRUCache({

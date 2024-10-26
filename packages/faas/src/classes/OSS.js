@@ -1,4 +1,4 @@
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 const wrapper = require('../utils/classWrapper');
 
 const ctx = Symbol('ctx');
