@@ -5,7 +5,7 @@ class Router {
   constructor(opts) {
     const cacheConfig = {
       max: 100,
-      maxAge: 60 * 1000, // 1 min
+      ttl: 60 * 1000, // 1 min
       updateAgeOnGet: true,
     };
     this.cache = new LRUCache(opts?.cache || cacheConfig);

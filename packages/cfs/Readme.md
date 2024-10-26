@@ -31,7 +31,7 @@ module.exports = {
         },  // Configuration object that will be passed to KV engine
         cache: {
           max: 500,  // max items in lru cache
-          maxAge: 60 * 60 * 1000,  // max age in lru cache
+          ttl: 60 * 60 * 1000,  // max age in lru cache
         },
       },
     },

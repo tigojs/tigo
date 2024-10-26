@@ -42,19 +42,19 @@ module.exports = {
           cache: {
             enable: false, // lambda kv global cache will not be enabled by default
             max: 100,  // max values in lambda kv lru cache
-            maxAge: 10 * 1000,  // max value age
+            ttl: 10 * 1000,  // max value age
           },
         },
         oss: {
           cache: {
             max: 100,  // max objects in oss lru cache
-            maxAge: 10 * 1000,  // max object age
+            ttl: 10 * 1000,  // max object age
           },
         },
         cfs: {
           cache: {
             max: 100,  // max config content in cfs lru cache
-            maxAge: 10 * 1000,  // max config content age
+            ttl: 10 * 1000,  // max config content age
           },
         },
         cache: {
