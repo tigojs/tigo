@@ -1,4 +1,4 @@
-const { verifyToken } = require("../utils/jwt");
+const { verifyToken } = require('../utils/jwt');
 const crypto = require('crypto');
 
 const middleware = async function (ctx, next) {
@@ -42,10 +42,7 @@ const middleware = async function (ctx, next) {
     const timestampValue = parseInt(timestamp, 10);
     const offset = maxTimeDelta || 10 * 1000; // 10s in ms
     const now = new Date().valueOf();
-    if (
-      timestampValue < (now - offset)
-      || timestampValue > (now + offset)
-    ) {
+    if (timestampValue < now - offset || timestampValue > now + offset) {
       ctx.throw(400, '请求无效');
     }
     // get user info
