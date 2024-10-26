@@ -12,7 +12,7 @@
   "homepage": "https://github.com/tigojs/tigo/tree/main/packages/faas-performance",
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.6.0",
+    "@tigojs/utils": "^0.6.1",
     "moment": "^2.30.1"
   }
 }

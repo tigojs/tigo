@@ -24,7 +24,9 @@ function createLogger() {
         filename: path.resolve(logPath, 'all.log'),
         compress: true,
         alwaysIncludePattern: true,
-        daysToKeep: loggerConfig.daysToKeep || 0,
+        pattern: '.yyyy-MM-dd',
+        maxLogSize: loggerConfig.maxLogSize || '30M',
+        numBackups: loggerConfig.numBackups || 30, // Keep logs for about a month
         keepFileExt: true,
       },
       errorFile: {
@@ -32,7 +34,9 @@ function createLogger() {
         filename: path.resolve(logPath, 'error.log'),
         compress: true,
         alwaysIncludePattern: true,
-        daysToKeep: loggerConfig.daysToKeep || 0,
+        pattern: '.yyyy-MM-dd',
+        maxLogSize: loggerConfig.maxLogSize || '10M',
+        numBackups: loggerConfig.numBackups || 30,
         keepFileExt: true,
       },
       errorOnly: {

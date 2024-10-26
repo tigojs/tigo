@@ -12,6 +12,6 @@
   "homepage": "https://github.com/tigojs/tigo/tree/main/packages/faas-log",
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.6.0"
+    "@tigojs/utils": "^0.6.1"
   }
 }

@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/tigojs/tigo/tree/main/packages/leveldb",
   "dependencies": {
-    "@tigojs/utils": "^0.6.0",
+    "@tigojs/utils": "^0.6.1",
     "leveldown": "^6.1.1",
     "levelup": "^5.1.1",
     "moment": "^2.30.1"

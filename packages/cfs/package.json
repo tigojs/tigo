@@ -15,7 +15,7 @@
   "homepage": "https://github.com/tigojs/tigo/tree/main/packages/cfs",
   "dependencies": {
     "@tigojs/core": "^0.1.0",
-    "@tigojs/utils": "^0.6.0",
+    "@tigojs/utils": "^0.6.1",
     "lru-cache": "^11.0.1",
     "uuid": "^10.0.0"
   }
